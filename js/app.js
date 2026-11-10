@@ -51,6 +51,9 @@ function view(v) {
 // INICIALIZAÇÃO DE DADOS
 // -------------------------------------------------------------
 async function initApp() {
+  const loader = $("app-loader");
+  const startTime = Date.now();
+
   try {
     services = await window.db.getServices();
     avail = await window.db.getAvailability();
@@ -58,9 +61,23 @@ async function initApp() {
   } catch (err) {
     console.error("Erro na inicialização dos dados:", err);
   }
+
   loadBio();
   renderServices();
   updateDbStatusIndicator();
+
+  // Fecha a splash de carregamento de forma fluida e suave assim que o catálogo carregar
+  if (loader) {
+    const elapsed = Date.now() - startTime;
+    // Garante no mínimo 800ms para o vídeo reproduzir com elegância
+    const remaining = Math.max(0, 900 - elapsed);
+    setTimeout(() => {
+      loader.classList.add("fade-out");
+      setTimeout(() => {
+        loader.style.display = "none";
+      }, 700);
+    }, remaining);
+  }
 }
 
 // -------------------------------------------------------------
@@ -717,7 +734,7 @@ $("list").addEventListener("click", async e => {
 });
 
 // -------------------------------------------------------------
-// EXPORTAÇÃO DE CATÁLOGO EM PDF (FORMATO VERTICAL / SMARTPHONE)
+// EXPORTAÇÃO DE CATÁLOGO EM PDF (EXATAMENTE COMO A TELA DO SITE)
 // -------------------------------------------------------------
 function renderPdfCatalogPreview() {
   const box = $("pdf-services-list");
@@ -728,15 +745,27 @@ function renderPdfCatalogPreview() {
     return;
   }
 
-  box.innerHTML = services.map(s => `
-    <div class="pdf-item">
-      <div class="pdf-item-info">
-        <h4 class="pdf-item-title">${esc(s.nome)}</h4>
-        <div class="pdf-item-sub">Duração aprox.: ${durTxt(s.dur)}</div>
+  box.innerHTML = services.map(s => {
+    const photoContent = s.foto 
+      ? `<img src="${s.foto}" alt="${esc(s.nome)}">` 
+      : `<div class="pdf-svc-ph">${esc(s.nome.charAt(0).toUpperCase())}</div>`;
+
+    const catBadge = s.categoria && s.categoria !== "geral" 
+      ? `<span class="pdf-svc-badge">${categoryLabels[s.categoria] || s.categoria}</span>` 
+      : "";
+
+    return `
+      <div class="pdf-svc-card">
+        <div class="pdf-svc-info">
+          ${catBadge}
+          <h4 class="pdf-svc-name">${esc(s.nome)}</h4>
+          <span class="pdf-svc-dur">${durTxt(s.dur)}</span>
+          <div class="pdf-svc-price">${brl(s.preco)}</div>
+        </div>
+        <div class="pdf-svc-photo">${photoContent}</div>
       </div>
-      <div class="pdf-item-price">${brl(s.preco)}</div>
-    </div>
-  `).join("");
+    `;
+  }).join("");
 }
 
 if ($("btn-export-pdf")) {
@@ -747,27 +776,35 @@ if ($("btn-export-pdf")) {
     const btn = $("btn-export-pdf");
     const originalText = btn.textContent;
     btn.disabled = true;
-    btn.textContent = "Gerando PDF vertical...";
+    btn.textContent = "Gerando PDF de alta fidelidade...";
 
     try {
-      // Método Direto e Confiável: html2canvas + jsPDF
       if (window.html2canvas && window.jspdf) {
         const { jsPDF } = window.jspdf;
+        
+        // Aguarda carregar todas as imagens do canvas caso haja
+        const images = element.querySelectorAll("img");
+        await Promise.all(Array.from(images).map(img => {
+          if (img.complete) return Promise.resolve();
+          return new Promise(res => { img.onload = res; img.onerror = res; });
+        }));
+
         const canvas = await window.html2canvas(element, {
           scale: 2,
           useCORS: true,
+          allowTaint: true,
           logging: false,
-          backgroundColor: "#ffffff"
+          backgroundColor: "#fdf5f5"
         });
 
-        const imgData = canvas.toDataURL("image/jpeg", 0.95);
-        const pdfWidth = 108; // Largura mm (proporção smartphone vertical)
+        const imgData = canvas.toDataURL("image/jpeg", 0.96);
+        const pdfWidth = 110; // 110mm largura vertical
         const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
         const doc = new jsPDF({
           orientation: "portrait",
           unit: "mm",
-          format: [pdfWidth, Math.max(pdfHeight, 192)]
+          format: [pdfWidth, pdfHeight]
         });
 
         doc.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
@@ -777,17 +814,16 @@ if ($("btn-export-pdf")) {
           margin: 0,
           filename: 'catalogo-melry-beauty-studio.pdf',
           image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true },
-          jsPDF: { unit: 'mm', format: [108, 220], orientation: 'portrait' }
+          html2canvas: { scale: 2, useCORS: true, backgroundColor: "#fdf5f5" },
+          jsPDF: { unit: 'mm', format: [110, 220], orientation: 'portrait' }
         };
         await window.html2pdf().set(opt).from(element).save();
       } else {
-        // Fallback nativo
         window.print();
       }
     } catch (err) {
       console.error("Erro na geração do PDF:", err);
-      // Fallback seguro de impressão nativa
+      alert("Houve um detalhe ao gerar o arquivo automaticamente. Abrindo janela de impressão.");
       window.print();
     } finally {
       btn.disabled = false;

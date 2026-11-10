@@ -15,6 +15,26 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <!-- TELA DE CARREGAMENTO COM VÍDEO (SPLASH SCREEN FLUIDA) -->
+  <div id="app-loader" class="app-loader-overlay">
+    <div class="loader-video-container">
+      <div class="loader-video-card">
+        <video id="loading-video" class="loader-video" autoplay muted playsinline loop preload="auto">
+          <source src="assets/loading.mp4" type="video/mp4">
+        </video>
+        <div class="loader-overlay-gradient"></div>
+        <div class="loader-content">
+          <h1 class="loader-brand-title">Melry Beauty Studio</h1>
+          <p class="loader-sub">Manicure · Sobrancelhas · Cílios</p>
+          <div class="loader-progress-track">
+            <div class="loader-progress-fill"></div>
+          </div>
+          <span class="loader-status-text">Carregando catálogo...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
 <div class="wrap">
   <!-- Alternador de Tema Claro / Escuro -->
   <button class="theme" id="theme" aria-pressed="false" aria-label="Ativar modo escuro">
@@ -208,30 +228,30 @@
     <!-- Aba 5: Exportar Catálogo em PDF -->
     <div id="p-pdf" hidden>
       <h2>Exportar Catálogo em PDF</h2>
-      <p class="sub">Gere um PDF vertical elegante pronto para stories, WhatsApp ou envio direto para clientes.</p>
+      <p class="sub">Gere um PDF vertical de alta fidelidade exatamente com o visual e as fotos da tela do site.</p>
       
       <div class="card" style="margin-bottom:20px; text-align:center;">
         <p style="margin:0 0 14px; font-size:0.95rem; color:var(--muted)">
-          O PDF é diagramado na vertical com o design idêntico ao catálogo: logotipo, nomes, valores e durações.
+          O PDF é gerado com a mesma tipografia Cormorant Garamond, fotos reais dos serviços e estética luxuosa do studio.
         </p>
         <button class="cta" id="btn-export-pdf" style="margin-top:0; max-width:320px;">
           📥 Baixar Catálogo em PDF
         </button>
       </div>
 
-      <h2>Prévia do Folheto Vertical</h2>
+      <h2>Prévia do Catálogo Exato</h2>
       <div class="pdf-preview-wrapper">
-        <div id="pdf-catalog-canvas" class="pdf-phone-mockup">
-          <div class="pdf-header">
-            <div class="pdf-logo-box">
-              <div class="pdf-title-lux">Melry Beauty Studio</div>
-              <div class="pdf-sub-lux">Manicure · Sobrancelhas · Cílios</div>
-            </div>
+        <div id="pdf-catalog-canvas" class="pdf-site-canvas">
+          <div class="pdf-site-header">
+            <div class="pdf-site-brand">Melry Beauty Studio</div>
+            <div class="pdf-site-sub">Manicure · Designer de Sobrancelha · Cílios</div>
           </div>
-          <div id="pdf-services-list" class="pdf-list"></div>
-          <div class="pdf-footer">
-            <p>Agendamentos & Contato: (45) 9 9855-7194</p>
-            <p>Instagram: @melry_studio</p>
+          
+          <div id="pdf-services-list" class="pdf-services-stream"></div>
+          
+          <div class="pdf-site-footer">
+            <p><strong>Agendamentos Online:</strong> melry-beauty-studio</p>
+            <p><strong>WhatsApp:</strong> (45) 9 9855-7194 · <strong>Instagram:</strong> @melry_studio</p>
           </div>
         </div>
       </div>

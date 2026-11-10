@@ -814,7 +814,124 @@ footer .contact a:hover {
 }
 
 /* =============================================================
-   MOCKUP & ESTILIZAÇÃO DO PDF VERTICAL (FORMATO SMARTPHONE)
+   TELA DE CARREGAMENTO COM VÍDEO (SPLASH SCREEN FLUIDA)
+============================================================= */
+.app-loader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #0d0709;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.65s ease;
+}
+
+.app-loader-overlay.fade-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loader-video-container {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.loader-video-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9/16;
+  max-height: 80vh;
+  border-radius: 32px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  background: #180e12;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.loader-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.loader-overlay-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(13, 7, 9, 0.95) 0%, rgba(13, 7, 9, 0.4) 40%, rgba(13, 7, 9, 0.1) 100%);
+  pointer-events: none;
+}
+
+.loader-content {
+  position: relative;
+  z-index: 2;
+  padding: 24px 20px 28px;
+  text-align: center;
+}
+
+.loader-brand-title {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fce8ee;
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.loader-sub {
+  font-size: 0.85rem;
+  color: #eb859e;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin: 0 0 20px;
+  font-weight: 600;
+}
+
+.loader-progress-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.loader-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #dca0ac, #f59eb2);
+  border-radius: 999px;
+  animation: progressAnim 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes progressAnim {
+  0% { width: 5%; }
+  50% { width: 75%; }
+  100% { width: 100%; }
+}
+
+.loader-status-text {
+  font-size: 0.78rem;
+  color: #caa6af;
+  letter-spacing: 0.04em;
+}
+
+/* =============================================================
+   MOCKUP & ESTILIZAÇÃO DO PDF EXATO (IDÊNTICO À TELA DO SITE)
 ============================================================= */
 .pdf-preview-wrapper {
   display: flex;
@@ -824,101 +941,137 @@ footer .contact a:hover {
   overflow-x: auto;
 }
 
-.pdf-phone-mockup {
+.pdf-site-canvas {
   width: 100%;
-  max-width: 380px;
-  background: #ffffff;
+  max-width: 440px;
+  background: #fdf5f5;
   color: #541925;
   border: 1.5px solid var(--line);
   border-radius: 28px;
   box-shadow: 0 14px 34px rgba(138, 43, 61, 0.12);
-  padding: 24px 20px 28px;
+  padding: 28px 22px;
   box-sizing: border-box;
   font-family: "DM Sans", system-ui, -apple-system, sans-serif;
+  position: relative;
 }
 
-.pdf-header {
+.pdf-site-header {
   text-align: center;
-  padding-bottom: 18px;
-  border-bottom: 2px dashed #f4cdd2;
-  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #edd5d8;
+  margin-bottom: 24px;
 }
 
-.pdf-title-lux {
+.pdf-site-brand {
   font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 2rem;
+  font-size: 2.2rem;
   font-weight: 700;
   color: #8a2b3d;
   line-height: 1.1;
-  letter-spacing: -0.01em;
+  margin-bottom: 4px;
 }
 
-.pdf-sub-lux {
-  font-size: 0.85rem;
+.pdf-site-sub {
+  font-size: 0.82rem;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   color: #8b5460;
-  margin-top: 6px;
   font-weight: 600;
 }
 
-.pdf-list {
+.pdf-services-stream {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 22px;
 }
 
-.pdf-item {
+.pdf-svc-card {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #f9e6e8;
+  background: #ffffff;
+  border: 1px solid #edd5d8;
+  border-radius: 18px;
+  padding: 12px 14px;
+  box-shadow: 0 4px 12px rgba(138, 43, 61, 0.04);
 }
 
-.pdf-item:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.pdf-item-info {
+.pdf-svc-info {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
-.pdf-item-title {
+.pdf-svc-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: #f9e6e8;
+  color: #8a2b3d;
+  font-weight: 700;
+  align-self: flex-start;
+}
+
+.pdf-svc-name {
   font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: #541925;
-  line-height: 1.15;
   margin: 0;
+  line-height: 1.15;
 }
 
-.pdf-item-sub {
+.pdf-svc-dur {
   font-size: 0.78rem;
   color: #8b5460;
+}
+
+.pdf-svc-price {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #8a2b3d;
   margin-top: 2px;
 }
 
-.pdf-item-price {
+.pdf-svc-photo {
+  width: 90px;
+  height: 90px;
+  border-radius: 14px;
+  overflow: hidden;
+  flex: 0 0 90px;
+  background: #f9e6e8;
+  border: 1px solid #edd5d8;
+}
+
+.pdf-svc-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.pdf-svc-ph {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 2.2rem;
   font-weight: 700;
-  font-size: 1.15rem;
   color: #8a2b3d;
-  white-space: nowrap;
 }
 
-.pdf-footer {
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 2px dashed #f4cdd2;
+.pdf-site-footer {
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 2px dashed #edd5d8;
   text-align: center;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   color: #8b5460;
-  line-height: 1.45;
-}
-
-.pdf-footer p {
-  margin: 2px 0;
+  line-height: 1.5;
 }
