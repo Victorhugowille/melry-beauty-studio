@@ -1,0 +1,14 @@
+# Dependências e caches
+node_modules/
+.DS_Store
+Thumbs.db
+
+# Arquivos de ambiente locais
+.env
+.env.local
+
+# Backups e arquivos temporários
+*.bak
+temp_*
+extract.js
+build_index.js
