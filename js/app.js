@@ -58,54 +58,25 @@ async function initApp() {
   } catch (err) {
     console.error("Erro na inicialização dos dados:", err);
   }
-  renderCategoryFilter();
   renderServices();
   updateDbStatusIndicator();
 }
 
 // -------------------------------------------------------------
-// CATÁLOGO PÚBLICO E FILTRO DE CATEGORIAS
+// CATÁLOGO PÚBLICO (EXIBINDO TODOS OS SERVIÇOS)
 // -------------------------------------------------------------
-function renderCategoryFilter() {
-  const box = $("cat-filter");
-  if (!box) return;
-
-  const categories = ["todos", "cilios", "sobrancelhas", "manicure"];
-  box.innerHTML = categories.map(cat => `
-    <button class="cat-btn" data-cat="${cat}" aria-pressed="${currentCategory === cat}">
-      ${categoryLabels[cat] || cat}
-    </button>
-  `).join("");
-}
-
-if ($("cat-filter")) {
-  $("cat-filter").addEventListener("click", e => {
-    const btn = e.target.closest("[data-cat]");
-    if (!btn) return;
-    currentCategory = btn.dataset.cat;
-    renderCategoryFilter();
-    renderServices();
-  });
-}
-
 function renderServices() {
   const box = $("services");
   if (!box) return;
 
-  let filtered = services;
-  if (currentCategory !== "todos") {
-    filtered = services.filter(s => s.categoria === currentCategory);
-  }
-
-  if (!filtered.length) {
-    box.innerHTML = '<p class="empty">Nenhum serviço disponível nesta categoria no momento.</p>';
+  if (!services.length) {
+    box.innerHTML = '<p class="empty">Nenhum serviço disponível no momento.</p>';
     return;
   }
 
-  box.innerHTML = filtered.map((s, i) => `
+  box.innerHTML = services.map((s, i) => `
     <div class="svc-row${i % 2 ? " flip" : ""}">
       <div class="txt">
-        ${s.categoria && s.categoria !== "geral" ? `<span class="sbadge">${categoryLabels[s.categoria] || s.categoria}</span>` : ""}
         <h3 class="sname">${esc(s.nome)}</h3>
         <span class="sdur">${durTxt(s.dur)}</span>
         <div class="sprice">${brl(s.preco)}</div>
@@ -329,7 +300,7 @@ $("logout").onclick = () => {
 // PAINEL DE CONTROLE (ADMIN)
 // -------------------------------------------------------------
 function adminTab(t) {
-  const m = { serv: "p-serv", hor: "p-hor", ag: "p-ag" };
+  const m = { serv: "p-serv", hor: "p-hor", ag: "p-ag", pdf: "p-pdf" };
   for (const k in m) {
     const el = $(m[k]);
     if (el) el.hidden = k !== t;
@@ -337,6 +308,7 @@ function adminTab(t) {
     if (tabBtn) tabBtn.setAttribute("aria-selected", k === t);
   }
   if (t === "ag") renderAgenda();
+  if (t === "pdf") renderPdfCatalogPreview();
   if (t === "hor") {
     if (!$("hdate").value) $("hdate").value = iso(new Date());
     $("hdate").min = iso(new Date());
@@ -346,6 +318,7 @@ function adminTab(t) {
 $("at-serv").onclick = () => adminTab("serv");
 $("at-hor").onclick = () => adminTab("hor");
 $("at-ag").onclick = () => adminTab("ag");
+if ($("at-pdf")) $("at-pdf").onclick = () => adminTab("pdf");
 
 function updateDbStatusIndicator() {
   const el = $("db-status");
@@ -637,6 +610,65 @@ $("list").addEventListener("click", async e => {
     alert("Erro ao cancelar: " + (err.message || "Tente novamente"));
   }
 });
+
+// -------------------------------------------------------------
+// EXPORTAÇÃO DE CATÁLOGO EM PDF (FORMATO VERTICAL / SMARTPHONE)
+// -------------------------------------------------------------
+function renderPdfCatalogPreview() {
+  const box = $("pdf-services-list");
+  if (!box) return;
+
+  if (!services.length) {
+    box.innerHTML = '<p class="empty" style="text-align:center">Nenhum serviço cadastrado para o catálogo.</p>';
+    return;
+  }
+
+  box.innerHTML = services.map(s => `
+    <div class="pdf-item">
+      <div class="pdf-item-info">
+        <h4 class="pdf-item-title">${esc(s.nome)}</h4>
+        <div class="pdf-item-sub">Duração aprox.: ${durTxt(s.dur)}</div>
+      </div>
+      <div class="pdf-item-price">${brl(s.preco)}</div>
+    </div>
+  `).join("");
+}
+
+if ($("btn-export-pdf")) {
+  $("btn-export-pdf").addEventListener("click", async () => {
+    const element = $("pdf-catalog-canvas");
+    if (!element) return;
+
+    const btn = $("btn-export-pdf");
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Gerando PDF vertical...";
+
+    try {
+      // Configuração para formato vertical de smartphone (dimensões proporcionais)
+      const opt = {
+        margin: [8, 8, 8, 8],
+        filename: 'catalogo-melry-beauty-studio.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2.5, useCORS: true, letterRendering: true },
+        jsPDF: { unit: 'mm', format: [110, 220], orientation: 'portrait' }
+      };
+
+      if (window.html2pdf) {
+        await window.html2pdf().set(opt).from(element).save();
+      } else {
+        window.print();
+      }
+    } catch (err) {
+      console.error("Erro ao gerar PDF:", err);
+      alert("Não foi possível gerar o PDF automaticamente. Tentando modo de impressão.");
+      window.print();
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  });
+}
 
 // -------------------------------------------------------------
 // TEMA CLARO / ESCURO

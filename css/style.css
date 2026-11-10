@@ -1,14 +1,14 @@
 :root {
   color-scheme: light;
-  --bg: #f9e1e1;
-  --surface: #fff3f3;
-  --ink: #7e2638;
-  --muted: #8a4a58;
-  --line: #efc3c8;
-  --brand: #903444;
-  --brand-ink: #fff3f3;
-  --soft: #f4cdd2;
-  --rose: #d98a9b;
+  --bg: #fdf5f5;
+  --surface: #ffffff;
+  --ink: #541925;
+  --muted: #8b5460;
+  --line: #edd5d8;
+  --brand: #8a2b3d;
+  --brand-ink: #ffffff;
+  --soft: #f9e6e8;
+  --rose: #dca0ac;
   --on-rose: #3a0716;
   --ok: #2f6b4a;
   --danger: #b3261e;
@@ -19,15 +19,15 @@
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #000;
-  --surface: #130d0f;
-  --ink: #fbe3ea;
-  --muted: #c9a3ae;
-  --line: #2b1f24;
-  --brand: #f4a3b5;
-  --brand-ink: #1a0a0f;
-  --soft: #22151a;
-  --rose: #f08ba5;
+  --bg: #0d0709;
+  --surface: #180e12;
+  --ink: #fce8ee;
+  --muted: #caa6af;
+  --line: #331d25;
+  --brand: #f59eb2;
+  --brand-ink: #1a080e;
+  --soft: #28161d;
+  --rose: #eb859e;
   --on-rose: #1a0a0f;
   --ok: #7fd1a1;
   --danger: #ff9a8f;
@@ -43,10 +43,24 @@ html {
 
 body {
   margin: 0;
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image: 
+    radial-gradient(at 15% 10%, rgba(220, 160, 172, 0.35) 0px, transparent 45%),
+    radial-gradient(at 85% 85%, rgba(244, 185, 195, 0.3) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(255, 235, 238, 0.4) 0px, transparent 65%);
+  background-attachment: fixed;
+  background-size: cover;
   color: var(--ink);
   font-family: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   line-height: 1.5;
+  min-height: 100vh;
+}
+
+:root[data-theme="dark"] body {
+  background-image: 
+    radial-gradient(at 20% 10%, rgba(138, 43, 61, 0.35) 0px, transparent 50%),
+    radial-gradient(at 85% 90%, rgba(70, 15, 26, 0.4) 0px, transparent 55%),
+    radial-gradient(at 50% 50%, rgba(20, 10, 14, 0.5) 0px, transparent 70%);
 }
 
 .wrap {
@@ -683,4 +697,114 @@ footer .contact a:hover {
   .grid {
     grid-template-columns: repeat(6, 1fr);
   }
+}
+
+/* =============================================================
+   MOCKUP & ESTILIZAÇÃO DO PDF VERTICAL (FORMATO SMARTPHONE)
+============================================================= */
+.pdf-preview-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px 0 24px;
+  overflow-x: auto;
+}
+
+.pdf-phone-mockup {
+  width: 100%;
+  max-width: 380px;
+  background: #ffffff;
+  color: #541925;
+  border: 1.5px solid var(--line);
+  border-radius: 28px;
+  box-shadow: 0 14px 34px rgba(138, 43, 61, 0.12);
+  padding: 24px 20px 28px;
+  box-sizing: border-box;
+  font-family: "DM Sans", system-ui, -apple-system, sans-serif;
+}
+
+.pdf-header {
+  text-align: center;
+  padding-bottom: 18px;
+  border-bottom: 2px dashed #f4cdd2;
+  margin-bottom: 20px;
+}
+
+.pdf-title-lux {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #8a2b3d;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.pdf-sub-lux {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #8b5460;
+  margin-top: 6px;
+  font-weight: 600;
+}
+
+.pdf-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pdf-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f9e6e8;
+}
+
+.pdf-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.pdf-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.pdf-item-title {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #541925;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.pdf-item-sub {
+  font-size: 0.78rem;
+  color: #8b5460;
+  margin-top: 2px;
+}
+
+.pdf-item-price {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #8a2b3d;
+  white-space: nowrap;
+}
+
+.pdf-footer {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 2px dashed #f4cdd2;
+  text-align: center;
+  font-size: 0.82rem;
+  color: #8b5460;
+  line-height: 1.45;
+}
+
+.pdf-footer p {
+  margin: 2px 0;
 }

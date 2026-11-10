@@ -30,10 +30,7 @@
 
   <!-- 1. TELA PRINCIPAL (PÚBLICA) -->
   <div id="v-public">
-    <!-- Filtro de Categorias: Manicure, Sobrancelha e Cílios -->
-    <div id="cat-filter" class="cat-filter"></div>
-
-    <!-- Lista Dinâmica de Serviços -->
+    <!-- Lista Dinâmica de Serviços (Exibindo todos os serviços) -->
     <div id="services"></div>
 
     <footer>
@@ -101,6 +98,7 @@
       <button role="tab" id="at-serv" aria-selected="true">Serviços</button>
       <button role="tab" id="at-hor" aria-selected="false">Horários</button>
       <button role="tab" id="at-ag" aria-selected="false">Agenda</button>
+      <button role="tab" id="at-pdf" aria-selected="false">Exportar PDF</button>
     </div>
 
     <!-- Aba 1: Serviços -->
@@ -170,9 +168,44 @@
       <div id="list"></div>
     </div>
 
+    <!-- Aba 4: Exportar Catálogo em PDF -->
+    <div id="p-pdf" hidden>
+      <h2>Exportar Catálogo em PDF</h2>
+      <p class="sub">Gere um PDF vertical elegante pronto para stories, WhatsApp ou envio direto para clientes.</p>
+      
+      <div class="card" style="margin-bottom:20px; text-align:center;">
+        <p style="margin:0 0 14px; font-size:0.95rem; color:var(--muted)">
+          O PDF é diagramado na vertical com o design idêntico ao catálogo: logotipo, nomes, valores e durações.
+        </p>
+        <button class="cta" id="btn-export-pdf" style="margin-top:0; max-width:320px;">
+          📥 Baixar Catálogo em PDF
+        </button>
+      </div>
+
+      <h2>Prévia do Folheto Vertical</h2>
+      <div class="pdf-preview-wrapper">
+        <div id="pdf-catalog-canvas" class="pdf-phone-mockup">
+          <div class="pdf-header">
+            <div class="pdf-logo-box">
+              <div class="pdf-title-lux">Melry Beauty Studio</div>
+              <div class="pdf-sub-lux">Manicure · Sobrancelhas · Cílios</div>
+            </div>
+          </div>
+          <div id="pdf-services-list" class="pdf-list"></div>
+          <div class="pdf-footer">
+            <p>Agendamentos & Contato: (45) 9 9855-7194</p>
+            <p>Instagram: @melry_studio</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <footer><button class="enter" id="logout">Sair da Conta</button></footer>
   </div>
 </div>
+
+<!-- Biblioteca html2pdf.js via CDN para geração de PDF de alta fidelidade -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <!-- SDK Oficial do Supabase via CDN -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

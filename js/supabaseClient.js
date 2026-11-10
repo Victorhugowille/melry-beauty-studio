@@ -18,6 +18,10 @@
         if (parsed.url && parsed.anonKey) cfg = parsed;
       }
     } catch (e) {}
+    // Limpeza de URL caso venha com /rest/v1 ou barra final
+    if (cfg.url) {
+      cfg.url = cfg.url.replace(/\/rest\/v1\/?$/, "").replace(/\/+$/, "");
+    }
     return cfg;
   }
 

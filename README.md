@@ -126,9 +126,8 @@ git push -u origin main
 
 ## 🔐 Acesso ao Painel da Profissional (Admin)
 
-Na parte inferior da página inicial, clique em **"Área da Profissional"**:
-- **Usuário padrão:** `maria clara`
-- **Senha padrão:** `0000`
+Na parte inferior da página inicial, clique em **"Área da Profissional"** para gerenciar serviços, horários, agendamentos e exportar o catálogo em PDF vertical.
+*(As credenciais de acesso são configuradas diretamente pela profissional).*
 
 ### Funcionalidades do Painel:
 - **Serviços:** Adicione, edite ou exclua serviços, categorize entre Manicure, Sobrancelhas ou Cílios, defina valores, tempos e envie fotos.
