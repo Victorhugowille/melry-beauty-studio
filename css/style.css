@@ -369,7 +369,8 @@ label {
 }
 
 input,
-select {
+select,
+textarea {
   width: 100%;
   font: inherit;
   padding: 11px 13px;
@@ -377,11 +378,22 @@ select {
   border: 1.5px solid var(--line);
   background: var(--surface);
   color: var(--ink);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--brand);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(138, 43, 61, 0.15);
 }
 
 button:focus-visible,
 input:focus-visible,
 select:focus-visible,
+textarea:focus-visible,
 a:focus-visible {
   outline: 2px solid var(--brand);
   outline-offset: 2px;
@@ -395,29 +407,131 @@ a:focus-visible {
   padding: 14px;
   font: inherit;
   font-weight: 700;
-  background: var(--brand);
+  background: linear-gradient(135deg, var(--brand), #a6394d);
   color: var(--brand-ink);
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  box-shadow: 0 4px 14px rgba(138, 43, 61, 0.25);
+  transition: all 0.2s ease;
+}
+
+.cta:hover:not(:disabled) {
+  opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(138, 43, 61, 0.35);
+}
+
+.cta:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .cta:disabled {
-  opacity: 0.4;
+  opacity: 0.45;
   cursor: not-allowed;
-}
-
-.err {
-  color: var(--danger);
-  font-size: 0.88rem;
-  min-height: 1.2em;
-  margin: 8px 0 0;
+  box-shadow: none;
 }
 
 .card {
   background: var(--surface);
   border: 1.5px solid var(--line);
-  border-radius: 16px;
-  padding: 16px;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(138, 43, 61, 0.06);
+  backdrop-filter: blur(8px);
+}
+
+/* =============================================================
+   SEÇÃO QUEM SOU EU (APRESENTAÇÃO / BIO)
+============================================================= */
+.bio-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin: 36px 0 20px;
+  border: 1.5px solid var(--line);
+  background: linear-gradient(145deg, var(--surface), var(--soft));
+  position: relative;
+  overflow: hidden;
+}
+
+.bio-card::before {
+  content: "";
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, var(--rose) 0%, transparent 70%);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.bio-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex: 0 0 88px;
+  border: 2.5px solid var(--brand);
+  box-shadow: 0 4px 12px rgba(138, 43, 61, 0.18);
+  background: var(--soft);
+}
+
+.bio-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bio-ph {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 700;
+  font-size: 2.2rem;
+  color: var(--brand);
+  background: linear-gradient(135deg, var(--soft), var(--surface));
+}
+
+.bio-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.bio-title {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--brand);
+  margin: 0 0 2px;
+  line-height: 1.15;
+}
+
+.bio-role {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin: 0 0 8px;
+}
+
+.bio-text {
+  font-size: 0.92rem;
+  line-height: 1.48;
+  color: var(--ink);
+  margin: 0;
+  opacity: 0.92;
+}
+
+@media (max-width: 480px) {
+  .bio-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px 16px;
+  }
 }
 
 .ok-title {

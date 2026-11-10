@@ -58,8 +58,111 @@ async function initApp() {
   } catch (err) {
     console.error("Erro na inicialização dos dados:", err);
   }
+  loadBio();
   renderServices();
   updateDbStatusIndicator();
+}
+
+// -------------------------------------------------------------
+// SEÇÃO "QUEM SOU EU" (BIO DA PROFISSIONAL)
+// -------------------------------------------------------------
+const BIO_KEY = "melry_studio_bio";
+let bioData = {
+  nome: "Maria Clara",
+  titulo: "Especialista em Cílios, Sobrancelhas e Unhas",
+  texto: "Realçando sua beleza natural com atendimento exclusivo, biossegurança e técnicas modernas de alta durabilidade.",
+  foto: null
+};
+
+let pendingBioPhoto = null;
+
+function loadBio() {
+  try {
+    const saved = localStorage.getItem(BIO_KEY);
+    if (saved) bioData = { ...bioData, ...JSON.parse(saved) };
+  } catch (e) {}
+
+  if ($("bio-name-public")) $("bio-name-public").textContent = bioData.nome || "Maria Clara";
+  if ($("bio-role-public")) $("bio-role-public").textContent = bioData.titulo || "";
+  if ($("bio-text-public")) $("bio-text-public").textContent = bioData.texto || "";
+  
+  const imgPub = $("bio-img-public");
+  const phPub = $("bio-ph-public");
+  if (imgPub && phPub) {
+    if (bioData.foto) {
+      imgPub.src = bioData.foto;
+      imgPub.style.display = "block";
+      phPub.style.display = "none";
+    } else {
+      imgPub.style.display = "none";
+      phPub.style.display = "grid";
+      const initials = (bioData.nome || "MC").split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
+      phPub.textContent = initials || "MC";
+    }
+  }
+}
+
+function initBioAdminForm() {
+  if (!$("bio-name-input")) return;
+  $("bio-name-input").value = bioData.nome || "";
+  $("bio-role-input").value = bioData.titulo || "";
+  $("bio-text-input").value = bioData.texto || "";
+  pendingBioPhoto = null;
+
+  const prev = $("bio-prev");
+  const previmg = $("bio-previmg");
+  if (bioData.foto) {
+    previmg.src = bioData.foto;
+    prev.hidden = false;
+  } else {
+    prev.hidden = true;
+  }
+}
+
+if ($("bio-file-input")) {
+  $("bio-file-input").addEventListener("change", e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    readPhoto(f, d => {
+      if (!d) {
+        $("bio-err").textContent = "Não foi possível carregar a imagem. Tente outra.";
+        return;
+      }
+      pendingBioPhoto = d;
+      $("bio-previmg").src = d;
+      $("bio-prev").hidden = false;
+      $("bio-err").textContent = "";
+    });
+  });
+}
+
+if ($("bio-save-btn")) {
+  $("bio-save-btn").addEventListener("click", () => {
+    const nome = $("bio-name-input").value.trim();
+    const titulo = $("bio-role-input").value.trim();
+    const texto = $("bio-text-input").value.trim();
+    const err = $("bio-err");
+    err.textContent = "";
+
+    if (!nome) {
+      err.textContent = "Digite o seu nome.";
+      $("bio-name-input").focus();
+      return;
+    }
+
+    bioData.nome = nome;
+    bioData.titulo = titulo;
+    bioData.texto = texto;
+    if (pendingBioPhoto) bioData.foto = pendingBioPhoto;
+
+    try {
+      localStorage.setItem(BIO_KEY, JSON.stringify(bioData));
+      loadBio();
+      alert("Apresentação 'Quem Sou Eu' atualizada com sucesso!");
+    } catch (e) {
+      err.textContent = "Erro ao salvar: imagem muito pesada ou sem espaço local.";
+    }
+  });
 }
 
 // -------------------------------------------------------------
@@ -300,7 +403,7 @@ $("logout").onclick = () => {
 // PAINEL DE CONTROLE (ADMIN)
 // -------------------------------------------------------------
 function adminTab(t) {
-  const m = { serv: "p-serv", hor: "p-hor", ag: "p-ag", pdf: "p-pdf" };
+  const m = { serv: "p-serv", hor: "p-hor", ag: "p-ag", bio: "p-bio", pdf: "p-pdf" };
   for (const k in m) {
     const el = $(m[k]);
     if (el) el.hidden = k !== t;
@@ -308,6 +411,7 @@ function adminTab(t) {
     if (tabBtn) tabBtn.setAttribute("aria-selected", k === t);
   }
   if (t === "ag") renderAgenda();
+  if (t === "bio") initBioAdminForm();
   if (t === "pdf") renderPdfCatalogPreview();
   if (t === "hor") {
     if (!$("hdate").value) $("hdate").value = iso(new Date());
@@ -318,6 +422,7 @@ function adminTab(t) {
 $("at-serv").onclick = () => adminTab("serv");
 $("at-hor").onclick = () => adminTab("hor");
 $("at-ag").onclick = () => adminTab("ag");
+if ($("at-bio")) $("at-bio").onclick = () => adminTab("bio");
 if ($("at-pdf")) $("at-pdf").onclick = () => adminTab("pdf");
 
 function updateDbStatusIndicator() {
@@ -645,23 +750,44 @@ if ($("btn-export-pdf")) {
     btn.textContent = "Gerando PDF vertical...";
 
     try {
-      // Configuração para formato vertical de smartphone (dimensões proporcionais)
-      const opt = {
-        margin: [8, 8, 8, 8],
-        filename: 'catalogo-melry-beauty-studio.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2.5, useCORS: true, letterRendering: true },
-        jsPDF: { unit: 'mm', format: [110, 220], orientation: 'portrait' }
-      };
+      // Método Direto e Confiável: html2canvas + jsPDF
+      if (window.html2canvas && window.jspdf) {
+        const { jsPDF } = window.jspdf;
+        const canvas = await window.html2canvas(element, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: "#ffffff"
+        });
 
-      if (window.html2pdf) {
+        const imgData = canvas.toDataURL("image/jpeg", 0.95);
+        const pdfWidth = 108; // Largura mm (proporção smartphone vertical)
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+        const doc = new jsPDF({
+          orientation: "portrait",
+          unit: "mm",
+          format: [pdfWidth, Math.max(pdfHeight, 192)]
+        });
+
+        doc.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
+        doc.save("catalogo-melry-beauty-studio.pdf");
+      } else if (window.html2pdf) {
+        const opt = {
+          margin: 0,
+          filename: 'catalogo-melry-beauty-studio.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: 'mm', format: [108, 220], orientation: 'portrait' }
+        };
         await window.html2pdf().set(opt).from(element).save();
       } else {
+        // Fallback nativo
         window.print();
       }
     } catch (err) {
-      console.error("Erro ao gerar PDF:", err);
-      alert("Não foi possível gerar o PDF automaticamente. Tentando modo de impressão.");
+      console.error("Erro na geração do PDF:", err);
+      // Fallback seguro de impressão nativa
       window.print();
     } finally {
       btn.disabled = false;

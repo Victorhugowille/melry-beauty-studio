@@ -33,6 +33,19 @@
     <!-- Lista Dinâmica de Serviços (Exibindo todos os serviços) -->
     <div id="services"></div>
 
+    <!-- Seção Quem Sou Eu (Apresentação da Profissional) -->
+    <div class="card bio-card" id="bio-section">
+      <div class="bio-avatar" id="bio-avatar-wrap">
+        <img id="bio-img-public" src="" alt="Foto de perfil" style="display:none">
+        <div id="bio-ph-public" class="bio-ph">MC</div>
+      </div>
+      <div class="bio-content">
+        <h3 class="bio-title" id="bio-name-public">Maria Clara</h3>
+        <p class="bio-role" id="bio-role-public">Especialista em Cílios, Sobrancelhas e Unhas</p>
+        <p class="bio-text" id="bio-text-public">Realçando sua beleza natural com atendimento exclusivo, biossegurança e técnicas de alta durabilidade.</p>
+      </div>
+    </div>
+
     <footer>
       <div class="contact">
         <a href="https://instagram.com/melry_studio" target="_blank" rel="noopener">@melry_studio</a>
@@ -98,6 +111,7 @@
       <button role="tab" id="at-serv" aria-selected="true">Serviços</button>
       <button role="tab" id="at-hor" aria-selected="false">Horários</button>
       <button role="tab" id="at-ag" aria-selected="false">Agenda</button>
+      <button role="tab" id="at-bio" aria-selected="false">Quem Sou Eu</button>
       <button role="tab" id="at-pdf" aria-selected="false">Exportar PDF</button>
     </div>
 
@@ -168,7 +182,30 @@
       <div id="list"></div>
     </div>
 
-    <!-- Aba 4: Exportar Catálogo em PDF -->
+    <!-- Aba 4: Quem Sou Eu (Edição do Perfil) -->
+    <div id="p-bio" hidden>
+      <h2>Editar "Quem Sou Eu"</h2>
+      <p class="sub">Atualize sua apresentação para suas clientes na página principal.</p>
+      <div class="card">
+        <label for="bio-name-input" style="margin-top:0">Seu Nome / Nome Profissional</label>
+        <input id="bio-name-input" placeholder="Ex: Maria Clara">
+
+        <label for="bio-role-input">Título / Especialidades</label>
+        <input id="bio-role-input" placeholder="Ex: Especialista em Cílios, Sobrancelhas e Unhas">
+
+        <label for="bio-text-input">Biografia / Texto de Apresentação</label>
+        <textarea id="bio-text-input" rows="4" placeholder="Fale um pouco sobre sua trajetória, formação e diferenciais..."></textarea>
+
+        <label for="bio-file-input">Foto de Perfil</label>
+        <input id="bio-file-input" type="file" accept="image/*">
+        <div class="preview" id="bio-prev" hidden><img id="bio-previmg" alt="Foto da profissional"></div>
+
+        <p class="err" id="bio-err" role="alert"></p>
+        <button class="cta" id="bio-save-btn" style="margin-top:12px">Salvar Apresentação</button>
+      </div>
+    </div>
+
+    <!-- Aba 5: Exportar Catálogo em PDF -->
     <div id="p-pdf" hidden>
       <h2>Exportar Catálogo em PDF</h2>
       <p class="sub">Gere um PDF vertical elegante pronto para stories, WhatsApp ou envio direto para clientes.</p>
@@ -204,7 +241,9 @@
   </div>
 </div>
 
-<!-- Biblioteca html2pdf.js via CDN para geração de PDF de alta fidelidade -->
+<!-- Bibliotecas para Geração de PDF de Alta Fidelidade -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <!-- SDK Oficial do Supabase via CDN -->
