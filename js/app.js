@@ -429,7 +429,6 @@ function adminTab(t) {
   }
   if (t === "ag") renderAgenda();
   if (t === "bio") initBioAdminForm();
-  if (t === "pdf") renderPdfCatalogPreview();
   if (t === "hor") {
     if (!$("hdate").value) $("hdate").value = iso(new Date());
     $("hdate").min = iso(new Date());
@@ -734,98 +733,86 @@ $("list").addEventListener("click", async e => {
 });
 
 // -------------------------------------------------------------
-// EXPORTAÇÃO DE CATÁLOGO EM PDF (EXATAMENTE COMO A TELA DO SITE)
+// EXPORTAÇÃO DA TELA PRINCIPAL EM PDF
 // -------------------------------------------------------------
-function renderPdfCatalogPreview() {
-  const box = $("pdf-services-list");
-  if (!box) return;
-
-  if (!services.length) {
-    box.innerHTML = '<p class="empty" style="text-align:center">Nenhum serviço cadastrado para o catálogo.</p>';
-    return;
-  }
-
-  box.innerHTML = services.map(s => {
-    const photoContent = s.foto 
-      ? `<img src="${s.foto}" alt="${esc(s.nome)}">` 
-      : `<div class="pdf-svc-ph">${esc(s.nome.charAt(0).toUpperCase())}</div>`;
-
-    const catBadge = s.categoria && s.categoria !== "geral" 
-      ? `<span class="pdf-svc-badge">${categoryLabels[s.categoria] || s.categoria}</span>` 
-      : "";
-
-    return `
-      <div class="pdf-svc-card">
-        <div class="pdf-svc-info">
-          ${catBadge}
-          <h4 class="pdf-svc-name">${esc(s.nome)}</h4>
-          <span class="pdf-svc-dur">${durTxt(s.dur)}</span>
-          <div class="pdf-svc-price">${brl(s.preco)}</div>
-        </div>
-        <div class="pdf-svc-photo">${photoContent}</div>
-      </div>
-    `;
-  }).join("");
-}
-
 if ($("btn-export-pdf")) {
   $("btn-export-pdf").addEventListener("click", async () => {
-    const element = $("pdf-catalog-canvas");
-    if (!element) return;
-
     const btn = $("btn-export-pdf");
     const originalText = btn.textContent;
+    const publicScreen = $("v-public");
+    const page = document.querySelector(".wrap");
+    if (!publicScreen || !page) return;
+
     btn.disabled = true;
-    btn.textContent = "Gerando PDF de alta fidelidade...";
+    btn.textContent = "Gerando PDF da página principal...";
+
+    const exportPage = page.cloneNode(true);
+    const publicCopy = exportPage.querySelector("#v-public");
+    const themeButton = exportPage.querySelector("#theme");
+    const bodyStyle = getComputedStyle(document.body);
+    const stage = document.createElement("div");
+    stage.style.cssText = "position:fixed;left:-10000px;top:0;width:680px;z-index:-1;pointer-events:none;";
+    exportPage.style.width = "680px";
+    exportPage.style.maxWidth = "680px";
+    exportPage.style.position = "relative";
+    exportPage.style.backgroundColor = bodyStyle.backgroundColor;
+    exportPage.style.backgroundImage = bodyStyle.backgroundImage;
+    exportPage.style.backgroundSize = "cover";
+
+    for (const selector of ["#v-booking", "#v-login", "#v-admin"]) {
+      const section = exportPage.querySelector(selector);
+      if (section) section.remove();
+    }
+    if (publicCopy) publicCopy.hidden = false;
+    if (themeButton) {
+      themeButton.style.position = "absolute";
+      themeButton.style.top = "10px";
+      themeButton.style.right = "12px";
+    }
+
+    stage.appendChild(exportPage);
+    document.body.appendChild(stage);
 
     try {
-      if (window.html2canvas && window.jspdf) {
-        const { jsPDF } = window.jspdf;
-        
-        // Aguarda carregar todas as imagens do canvas caso haja
-        const images = element.querySelectorAll("img");
-        await Promise.all(Array.from(images).map(img => {
-          if (img.complete) return Promise.resolve();
-          return new Promise(res => { img.onload = res; img.onerror = res; });
-        }));
-
-        const canvas = await window.html2canvas(element, {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          logging: false,
-          backgroundColor: "#fdf5f5"
-        });
-
-        const imgData = canvas.toDataURL("image/jpeg", 0.96);
-        const pdfWidth = 110; // 110mm largura vertical
-        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-        const doc = new jsPDF({
-          orientation: "portrait",
-          unit: "mm",
-          format: [pdfWidth, pdfHeight]
-        });
-
-        doc.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
-        doc.save("catalogo-melry-beauty-studio.pdf");
-      } else if (window.html2pdf) {
-        const opt = {
-          margin: 0,
-          filename: 'catalogo-melry-beauty-studio.pdf',
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, backgroundColor: "#fdf5f5" },
-          jsPDF: { unit: 'mm', format: [110, 220], orientation: 'portrait' }
-        };
-        await window.html2pdf().set(opt).from(element).save();
-      } else {
-        window.print();
+      if (!window.html2canvas || !window.jspdf) {
+        throw new Error("As bibliotecas necessárias para gerar o PDF não foram carregadas.");
       }
+
+      if (document.fonts && document.fonts.ready) await document.fonts.ready;
+      const images = Array.from(exportPage.querySelectorAll("img"));
+      await Promise.all(images.map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise(resolve => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+      }));
+
+      const canvas = await window.html2canvas(exportPage, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: false,
+        logging: false,
+        backgroundColor: null,
+        width: 680,
+        windowWidth: 680
+      });
+      const image = canvas.toDataURL("image/jpeg", 0.96);
+      const pdfWidth = 210;
+      const pdfHeight = canvas.height * pdfWidth / canvas.width;
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: [pdfWidth, pdfHeight]
+      });
+      pdf.addImage(image, "JPEG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save("catalogo-melry-beauty-studio.pdf");
     } catch (err) {
       console.error("Erro na geração do PDF:", err);
-      alert("Houve um detalhe ao gerar o arquivo automaticamente. Abrindo janela de impressão.");
-      window.print();
+      alert("Não foi possível gerar o PDF da página principal. Verifique sua conexão e tente novamente.");
     } finally {
+      stage.remove();
       btn.disabled = false;
       btn.textContent = originalText;
     }

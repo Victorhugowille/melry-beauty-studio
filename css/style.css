@@ -218,8 +218,8 @@ h2 {
 }
 
 .svc-row .pic {
-  -webkit-mask-image: linear-gradient(100deg, transparent 6%, #000 46%);
-  mask-image: linear-gradient(100deg, transparent 6%, #000 46%);
+  position: relative;
+  z-index: 1;
   flex: 0 0 60%;
   margin-left: -14%;
   aspect-ratio: 4/5;
@@ -228,12 +228,30 @@ h2 {
   background: var(--soft);
 }
 
+.svc-row .pic::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, var(--bg) 0%, rgba(253, 245, 245, 0.92) 12%, rgba(253, 245, 245, 0.58) 32%, transparent 78%);
+}
+
+:root[data-theme="dark"] .svc-row .pic::after {
+  background: linear-gradient(90deg, var(--bg) 0%, rgba(13, 7, 9, 0.94) 12%, rgba(13, 7, 9, 0.68) 32%, transparent 78%);
+}
+
 .svc-row.flip .pic {
-  -webkit-mask-image: linear-gradient(260deg, transparent 6%, #000 46%);
-  mask-image: linear-gradient(260deg, transparent 6%, #000 46%);
   margin-left: 0;
   margin-right: -14%;
   border-radius: 26px 0 0 26px;
+}
+
+.svc-row.flip .pic::after {
+  background: linear-gradient(270deg, var(--bg) 0%, rgba(253, 245, 245, 0.92) 12%, rgba(253, 245, 245, 0.58) 32%, transparent 78%);
+}
+
+:root[data-theme="dark"] .svc-row.flip .pic::after {
+  background: linear-gradient(270deg, var(--bg) 0%, rgba(13, 7, 9, 0.94) 12%, rgba(13, 7, 9, 0.68) 32%, transparent 78%);
 }
 
 .pic img {
@@ -814,21 +832,42 @@ footer .contact a:hover {
 }
 
 /* =============================================================
-   TELA DE CARREGAMENTO COM VÍDEO (SPLASH SCREEN FLUIDA)
+   TELA DE CARREGAMENTO (SPLASH SCREEN EM TELA CHEIA · MOBILE FIRST)
+   - Fundo rosa igual ao do vídeo, então a logo "flutua" na tela.
+   - Vídeo horizontal (16:9) ampliado para a logo ocupar quase toda a
+     largura do celular, com bordas suavizadas por máscara.
+   - Barra de progresso indeterminada + texto fixos na parte de baixo,
+     respeitando a área segura (notch / barra do iPhone).
 ============================================================= */
 .app-loader-overlay {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: #0d0709;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  overflow: hidden;
+  /* sobe o vídeo um pouco para ficar no centro óptico da tela */
+  padding: 0 0 12vh;
+  padding: 0 0 12dvh;
   box-sizing: border-box;
+  /* A cor de base é igual ao fundo do vídeo (e acompanha a variação de
+     tom dele), assim não aparece emenda entre o vídeo e a tela. */
+  background-color: #f8e1df;
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.38) 0%,
+    rgba(255, 255, 255, 0) 26%,
+    rgba(255, 255, 255, 0) 62%,
+    rgba(168, 70, 86, 0.14) 100%
+  );
+  animation: loaderBgSync 10s linear infinite;
   opacity: 1;
   visibility: visible;
   transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.65s ease;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .app-loader-overlay.fade-out {
@@ -837,26 +876,39 @@ footer .contact a:hover {
   pointer-events: none;
 }
 
+/* Impede a página de rolar por trás enquanto a splash está visível */
+body:has(#app-loader:not(.fade-out)) {
+  overflow: hidden;
+}
+
+/* Área do vídeo: mais larga que a tela no celular (as laterais são só
+   fundo liso e ficam fora da tela) para a logo ficar grande. */
 .loader-video-container {
-  width: 100%;
-  max-width: 360px;
+  position: relative;
+  z-index: 1;
+  flex: none;
+  width: min(128vw, 900px);
+  max-width: none;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
+/* Em telas deitadas / desktop limita pela altura */
+@supports (width: min(1dvh, 1px)) {
+  .loader-video-container {
+    width: min(128vw, 124dvh, 900px);
+  }
+}
+
 .loader-video-card {
   position: relative;
   width: 100%;
-  aspect-ratio: 9/16;
-  max-height: 80vh;
-  border-radius: 32px;
-  overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1);
-  background: #180e12;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  aspect-ratio: 16 / 9;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
 }
 
 .loader-video {
@@ -864,70 +916,120 @@ footer .contact a:hover {
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   pointer-events: none;
+  /* esmaece as bordas do vídeo para se misturarem ao fundo */
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0%, #000 14%, #000 86%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 7%, #000 98.5%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent 0%, #000 14%, #000 86%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 7%, #000 98.5%, transparent 100%);
+  mask-composite: intersect;
+  animation: loaderVideoIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 
+.app-loader-overlay.fade-out .loader-video {
+  transform: scale(1.05);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* A logo do vídeo já tem o nome e os serviços: o texto duplicado fica
+   escondido visualmente, mas continua disponível para leitores de tela. */
 .loader-overlay-gradient {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(13, 7, 9, 0.95) 0%, rgba(13, 7, 9, 0.4) 40%, rgba(13, 7, 9, 0.1) 100%);
-  pointer-events: none;
+  display: none;
 }
 
+.loader-brand-title,
+.loader-sub {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Barra + texto fixos no rodapé da tela (respeita notch / barra do iPhone) */
 .loader-content {
-  position: relative;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 40px);
   z-index: 2;
-  padding: 24px 20px 28px;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
   text-align: center;
 }
 
-.loader-brand-title {
-  font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 2rem;
-  font-weight: 700;
-  color: #fce8ee;
-  margin: 0 0 4px;
-  letter-spacing: -0.01em;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-}
-
-.loader-sub {
-  font-size: 0.85rem;
-  color: #eb859e;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  margin: 0 0 20px;
-  font-weight: 600;
-}
-
 .loader-progress-track {
-  width: 100%;
+  position: relative;
+  width: min(220px, 60vw);
   height: 4px;
-  background: rgba(255, 255, 255, 0.15);
+  margin: 0;
+  background: rgba(138, 43, 61, 0.16);
   border-radius: 999px;
   overflow: hidden;
-  margin-bottom: 10px;
 }
 
 .loader-progress-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
   height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #dca0ac, #f59eb2);
+  width: 42%;
+  background: linear-gradient(90deg, #dca0ac, #8a2b3d);
   border-radius: 999px;
-  animation: progressAnim 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-@keyframes progressAnim {
-  0% { width: 5%; }
-  50% { width: 75%; }
-  100% { width: 100%; }
+  animation: loaderSlide 1.35s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
 
 .loader-status-text {
-  font-size: 0.78rem;
-  color: #caa6af;
-  letter-spacing: 0.04em;
+  font-family: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: #8a2b3d;
+  opacity: 0.85;
+  animation: loaderPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes loaderSlide {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(240%); }
+}
+
+@keyframes loaderVideoIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes loaderBgSync {
+  0%, 25% { background-color: #f8e1df; }
+  32%, 70% { background-color: #efd2ce; }
+  82%, 100% { background-color: #f5dbd7; }
+}
+
+@keyframes loaderPulse {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 0.95; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-loader-overlay,
+  .loader-video,
+  .loader-status-text {
+    animation: none;
+  }
+  .loader-progress-fill {
+    animation-duration: 2.6s;
+  }
 }
 
 /* =============================================================
