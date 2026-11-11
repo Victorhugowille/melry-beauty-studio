@@ -1177,3 +1177,594 @@ body:has(#app-loader:not(.fade-out)) {
   color: #8b5460;
   line-height: 1.5;
 }
+
+
+/* =============================================================
+   MELRY BEAUTY STUDIO — REFINAMENTO VISUAL
+   Cartões de serviço sem sobreposição + linguagem visual coerente
+   entre a página pública e a estrutura preparada para o PDF.
+============================================================= */
+:root {
+  --bg: #fff8f7;
+  --surface: #fffdfc;
+  --ink: #542a34;
+  --muted: #8c6670;
+  --line: #efdcdf;
+  --brand: #995365;
+  --brand-ink: #ffffff;
+  --soft: #f8e9eb;
+  --rose: #e5b5bf;
+  --on-rose: #512a34;
+}
+
+:root[data-theme="dark"] {
+  --bg: #120c0f;
+  --surface: #1d1418;
+  --ink: #f8eaf0;
+  --muted: #c6a7b0;
+  --line: #3b2930;
+  --brand: #e6a0b1;
+  --brand-ink: #241017;
+  --soft: #2b1b22;
+  --rose: #c77e91;
+  --on-rose: #1b0d12;
+}
+
+body {
+  background-image:
+    radial-gradient(ellipse at 12% 4%, rgba(229, 181, 191, 0.22), transparent 36%),
+    radial-gradient(ellipse at 92% 74%, rgba(248, 233, 235, 0.72), transparent 42%);
+}
+
+:root[data-theme="dark"] body {
+  background-image:
+    radial-gradient(ellipse at 12% 4%, rgba(153, 83, 101, 0.18), transparent 38%),
+    radial-gradient(ellipse at 92% 74%, rgba(55, 29, 39, 0.46), transparent 45%);
+}
+
+.wrap {
+  max-width: 760px;
+  padding: 18px 20px 52px;
+}
+
+.logo {
+  max-width: 330px;
+  padding-top: 24px;
+  margin-bottom: 2px;
+}
+
+.theme {
+  top: 12px;
+  right: 14px;
+  width: 44px;
+  height: 44px;
+  box-shadow: 0 5px 18px rgba(84, 42, 52, 0.08);
+}
+
+h2 {
+  font-size: clamp(1.65rem, 4vw, 2rem);
+  margin: 30px 0 14px;
+  letter-spacing: -0.015em;
+}
+
+.sub {
+  line-height: 1.65;
+}
+
+.public-intro {
+  position: relative;
+  text-align: center;
+  padding: 8px 12px 25px;
+  margin: 0 auto 14px;
+  max-width: 590px;
+}
+
+.public-intro::after {
+  content: "";
+  display: block;
+  width: 46px;
+  height: 1px;
+  margin: 19px auto 0;
+  background: linear-gradient(90deg, transparent, var(--rose), transparent);
+}
+
+.public-intro-kicker {
+  display: inline-block;
+  color: var(--brand);
+  font-size: 0.69rem;
+  font-weight: 700;
+  letter-spacing: 0.17em;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.public-intro h1 {
+  color: var(--ink);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(2rem, 6vw, 2.75rem);
+  font-weight: 600;
+  line-height: 1.02;
+  margin: 0 auto 8px;
+  max-width: 520px;
+}
+
+.public-intro p {
+  color: var(--muted);
+  font-size: 0.94rem;
+  line-height: 1.65;
+  margin: 0 auto;
+  max-width: 440px;
+}
+
+#services {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* O texto deixa de ficar por cima da foto: cada serviço vira um cartão. */
+.svc-row,
+.svc-row.flip {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 18px;
+  width: 100%;
+  min-height: 220px;
+  margin: 0 0 19px;
+  padding: 11px;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 25px;
+  box-shadow: 0 8px 24px rgba(84, 42, 52, 0.055);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.svc-row.flip {
+  flex-direction: row-reverse;
+}
+
+.svc-row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(84, 42, 52, 0.09);
+}
+
+.svc-row .txt,
+.svc-row.flip .txt {
+  position: static;
+  z-index: auto;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 15px 14px;
+  text-align: left;
+}
+
+.svc-row.flip .txt {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.svc-row .pic,
+.svc-row.flip .pic {
+  position: relative;
+  z-index: auto;
+  flex: 0 0 38%;
+  width: 38%;
+  min-width: 0;
+  height: 218px;
+  aspect-ratio: auto;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 18px;
+  background: var(--soft);
+}
+
+.svc-row .pic::after,
+.svc-row.flip .pic::after {
+  display: none;
+  content: none;
+}
+
+.pic img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.45s ease;
+}
+
+.svc-row:hover .pic img {
+  transform: scale(1.035);
+}
+
+.sname {
+  color: var(--ink);
+  font-size: clamp(1.45rem, 3.6vw, 1.9rem);
+  line-height: 1.06;
+  overflow-wrap: anywhere;
+  margin: 0;
+}
+
+.sbadge {
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.66rem;
+  letter-spacing: 0.09em;
+  background: var(--soft);
+  color: var(--brand);
+}
+
+.sprice {
+  color: var(--brand);
+  font-size: 1.23rem;
+  margin-top: 3px;
+}
+
+.sdur {
+  color: var(--muted);
+  font-size: 0.83rem;
+}
+
+.btn {
+  margin-top: 9px;
+  padding: 9px 20px;
+  border-radius: 999px;
+  border-color: var(--brand);
+  background: var(--brand);
+  box-shadow: 0 4px 12px rgba(153, 83, 101, 0.14);
+}
+
+.card,
+.bio-card {
+  border-radius: 24px;
+  border-color: var(--line);
+  box-shadow: 0 10px 28px rgba(84, 42, 52, 0.055);
+}
+
+.bio-card {
+  gap: 22px;
+  padding: 22px;
+  margin: 34px 0 22px;
+  background: linear-gradient(145deg, var(--surface), var(--soft));
+}
+
+.bio-avatar {
+  width: 100px;
+  height: 100px;
+  flex-basis: 100px;
+  border-width: 2px;
+}
+
+.bio-title {
+  font-size: 1.85rem;
+}
+
+.bio-role {
+  letter-spacing: 0.075em;
+  font-size: 0.75rem;
+}
+
+.bio-text {
+  line-height: 1.65;
+}
+
+footer {
+  margin-top: 38px;
+  padding-top: 24px;
+}
+
+footer .contact {
+  gap: 12px 22px;
+}
+
+footer .contact a {
+  color: var(--brand);
+  font-weight: 600;
+}
+
+.enter {
+  border-radius: 999px;
+  padding: 11px 28px;
+  background: var(--surface);
+}
+
+.cta {
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--brand), #ad6a7b);
+  box-shadow: 0 6px 18px rgba(153, 83, 101, 0.18);
+}
+
+input,
+select,
+textarea {
+  border-radius: 14px;
+}
+
+/* PDF: mesma paleta, tipografia, ritmo e composição dos cartões do site. */
+.pdf-preview-wrapper {
+  padding: 12px 0 26px;
+}
+
+.pdf-site-canvas {
+  width: 100%;
+  max-width: 680px;
+  padding: 26px 22px;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 25px;
+  box-shadow: 0 10px 28px rgba(84, 42, 52, 0.07);
+  font-family: "DM Sans", system-ui, -apple-system, sans-serif;
+}
+
+.pdf-site-header {
+  padding: 8px 8px 21px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid var(--line);
+}
+
+.pdf-site-brand {
+  color: var(--brand);
+  font-size: clamp(2rem, 5vw, 2.55rem);
+  font-weight: 600;
+  line-height: 1.02;
+}
+
+.pdf-site-sub {
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+}
+
+.pdf-services-stream {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pdf-svc-card {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  min-height: 190px;
+  padding: 10px;
+  overflow: hidden;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  box-shadow: 0 6px 18px rgba(84, 42, 52, 0.045);
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pdf-svc-card:nth-child(even) {
+  flex-direction: row-reverse;
+}
+
+.pdf-svc-info {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 5px;
+  padding: 12px;
+}
+
+.pdf-svc-badge {
+  border-radius: 999px;
+  padding: 4px 10px;
+  color: var(--brand);
+  background: var(--soft);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+}
+
+.pdf-svc-name {
+  color: var(--ink);
+  font-size: 1.75rem;
+  line-height: 1.06;
+  overflow-wrap: anywhere;
+  margin: 0;
+}
+
+.pdf-svc-dur {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.pdf-svc-price {
+  color: var(--brand);
+  font-size: 1.2rem;
+  margin-top: 3px;
+}
+
+.pdf-svc-photo {
+  flex: 0 0 38%;
+  width: 38%;
+  height: 190px;
+  border: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--soft);
+}
+
+.pdf-svc-photo img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.pdf-svc-ph {
+  color: var(--brand);
+  background: linear-gradient(135deg, var(--soft), var(--surface));
+}
+
+.pdf-site-footer {
+  margin-top: 26px;
+  padding: 20px;
+  color: var(--muted);
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  text-align: center;
+  font-size: 0.84rem;
+}
+
+@media (max-width: 540px) {
+  .wrap {
+    padding: 14px 13px 38px;
+  }
+
+  .logo {
+    max-width: 290px;
+    padding-top: 26px;
+  }
+
+  .public-intro {
+    padding: 5px 8px 20px;
+  }
+
+  .public-intro h1 {
+    font-size: clamp(1.9rem, 8vw, 2.35rem);
+  }
+
+  .svc-row,
+  .svc-row.flip {
+    gap: 10px;
+    min-height: 174px;
+    padding: 8px;
+    margin-bottom: 14px;
+    border-radius: 21px;
+  }
+
+  .svc-row .pic,
+  .svc-row.flip .pic {
+    flex-basis: 37%;
+    width: 37%;
+    height: 174px;
+    border-radius: 15px;
+  }
+
+  .svc-row .txt,
+  .svc-row.flip .txt {
+    padding: 8px 7px;
+    gap: 5px;
+  }
+
+  .sname {
+    font-size: clamp(1.2rem, 5vw, 1.52rem);
+  }
+
+  .sbadge {
+    font-size: 0.59rem;
+    padding: 3px 8px;
+  }
+
+  .sprice {
+    font-size: 1.08rem;
+  }
+
+  .sdur {
+    font-size: 0.75rem;
+  }
+
+  .btn {
+    font-size: 0.78rem;
+    padding: 8px 13px;
+    margin-top: 6px;
+  }
+
+  .bio-card {
+    gap: 15px;
+    padding: 20px 16px;
+  }
+
+  .pdf-site-canvas {
+    padding: 20px 13px;
+  }
+
+  .pdf-svc-card {
+    gap: 10px;
+    min-height: 160px;
+    padding: 8px;
+  }
+
+  .pdf-svc-info {
+    padding: 7px;
+  }
+
+  .pdf-svc-photo {
+    flex-basis: 37%;
+    width: 37%;
+    height: 160px;
+  }
+
+  .pdf-svc-name {
+    font-size: 1.35rem;
+  }
+}
+
+@media (max-width: 370px) {
+  .svc-row,
+  .svc-row.flip {
+    gap: 8px;
+    min-height: 154px;
+    padding: 7px;
+  }
+
+  .svc-row .pic,
+  .svc-row.flip .pic {
+    flex-basis: 35%;
+    width: 35%;
+    height: 154px;
+  }
+
+  .svc-row .txt,
+  .svc-row.flip .txt {
+    padding: 6px 4px;
+  }
+
+  .sname {
+    font-size: 1.15rem;
+  }
+
+  .btn {
+    font-size: 0.72rem;
+    padding: 7px 10px;
+  }
+}
+
+@media print {
+  .pdf-site-canvas {
+    max-width: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 12mm;
+  }
+
+  .pdf-svc-card,
+  .bio-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .svc-row,
+  .pic img,
+  .theme,
+  .btn {
+    transition: none;
+  }
+}
