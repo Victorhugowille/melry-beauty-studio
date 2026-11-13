@@ -7,7 +7,7 @@
  * Provedores futuros podem ser adicionados no mesmo contrato: send(text).
  */
 
-const DEFAULT_PHONE = "5545991096203"; // WhatsApp do Victor (repassar p/ a Maria)
+const DEFAULT_PHONE = "554591096203"; // WhatsApp do Victor (ativado no CallMeBot)
 const CALLMEBOT_ENDPOINT = "https://api.callmebot.com/whatsapp.php";
 
 function onlyDigits(value) {

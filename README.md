@@ -181,7 +181,7 @@ O robô usa o **CallMeBot** (grátis, uso pessoal). Quem precisa ativar é o don
    - **Name:** `CALLMEBOT_APIKEY`
    - **Secret:** cole a chave recebida do CallMeBot
    - Clique em **"Add secret"**.
-6. (Opcional) Outro secret `WHATSAPP_PHONE` define o número de destino. Padrão: **(45) 99109-6203**.
+6. (Opcional) Outro secret `WHATSAPP_PHONE` define o número de destino. Padrão: **+55 45 9109-6203**.
 
 ### Como testar
 

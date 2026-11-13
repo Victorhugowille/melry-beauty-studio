@@ -47,7 +47,7 @@ jobs:
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           STUDIO_TIMEZONE: America/Campo_Grande
           WHATSAPP_PROVIDER: callmebot
-          WHATSAPP_PHONE: ${{ secrets.WHATSAPP_PHONE || '5545991096203' }}
+          WHATSAPP_PHONE: ${{ secrets.WHATSAPP_PHONE || '554591096203' }}
           CALLMEBOT_APIKEY: ${{ secrets.CALLMEBOT_APIKEY }}
           DRY_RUN: ${{ inputs.dry_run }}
           TEST_MESSAGE: ${{ inputs.test_message }}
