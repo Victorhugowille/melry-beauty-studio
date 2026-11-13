@@ -11,8 +11,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
   
-  <!-- Estilos -->
-  <link rel="stylesheet" href="css/style.css">
+  <!-- Estilos organizados por área -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/cabecalho-carrossel.css">
+  <link rel="stylesheet" href="css/servicos.css">
+  <link rel="stylesheet" href="css/biografia-rodape.css">
+  <link rel="stylesheet" href="css/formularios-botoes.css">
+  <link rel="stylesheet" href="css/cartoes-listas.css">
+  <link rel="stylesheet" href="css/login-painel.css">
+  <link rel="stylesheet" href="css/horarios.css">
+  <link rel="stylesheet" href="css/agendamento-calendario.css">
+  <link rel="stylesheet" href="css/carregamento.css">
+  <link rel="stylesheet" href="css/responsivo.css">
 </head>
 <body>
   <!-- TELA DE CARREGAMENTO COM VÍDEO (SPLASH SCREEN FLUIDA) -->
@@ -50,6 +60,20 @@
 
   <!-- 1. TELA PRINCIPAL (PÚBLICA) -->
   <div id="v-public">
+    <!-- Carrossel de Fotos do Estúdio (abaixo da logo) -->
+    <section class="carousel-section" id="gallery-section" hidden>
+      <div class="carousel" id="carousel" aria-roledescription="carrossel" aria-label="Fotos do Melry Beauty Studio">
+        <div class="carousel-track" id="carousel-track"></div>
+        <button class="carousel-arrow prev" id="car-prev" type="button" aria-label="Foto anterior">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+        <button class="carousel-arrow next" id="car-next" type="button" aria-label="Próxima foto">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+        <div class="carousel-dots" id="car-dots" aria-label="Selecionar foto"></div>
+      </div>
+    </section>
+
     <!-- Lista Dinâmica de Serviços (Exibindo todos os serviços) -->
     <div id="services"></div>
 
@@ -86,7 +110,22 @@
       </div>
       <div id="bflow">
         <h2>1. Escolha o dia</h2>
-        <div class="days" id="days"></div>
+        <div class="calendar" id="calendar">
+          <div class="calendar-head">
+            <button type="button" class="calendar-nav" id="cal-prev" aria-label="Mês anterior">
+              <span aria-hidden="true">‹</span>
+            </button>
+            <p class="calendar-month" id="cal-title" aria-live="polite"></p>
+            <button type="button" class="calendar-nav" id="cal-next" aria-label="Próximo mês">
+              <span aria-hidden="true">›</span>
+            </button>
+          </div>
+          <div class="calendar-weekdays" aria-hidden="true">
+            <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+          </div>
+          <div class="calendar-grid" id="cal-grid" role="grid" aria-label="Dias disponíveis para agendamento"></div>
+          <p class="calendar-legend"><span class="calendar-legend-dot" aria-hidden="true"></span> Dias com horários disponíveis</p>
+        </div>
         <h2>2. Escolha o horário</h2>
         <div class="chips" id="times"></div>
         <h2>3. Seus dados</h2>
@@ -107,31 +146,39 @@
     </div>
   </div>
 
-  <!-- 3. LOGIN ADMINISTRATIVO -->
+  <!-- 3. LOGIN DA PROFISSIONAL -->
   <div id="v-login" hidden>
-    <h2>Acesso Administrativo</h2>
-    <p class="sub">Digite suas credenciais de profissional para gerenciar a agenda.</p>
-    <label for="lu">Usuário</label>
-    <input id="lu" autocomplete="username" placeholder="maria clara">
-    <label for="lp">Senha</label>
-    <input id="lp" type="password" inputmode="numeric" autocomplete="current-password" placeholder="••••">
-    <p class="err" id="lerr" role="alert"></p>
-    <button class="cta" id="login">Entrar no Painel</button>
-    <p style="text-align:center"><button class="link" id="lback">Voltar para a página inicial</button></p>
+    <div class="login-card">
+      <div class="login-lock" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="10" width="16" height="10" rx="2.5"></rect>
+          <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+          <circle cx="12" cy="15" r="1.1" fill="currentColor" stroke="none"></circle>
+        </svg>
+      </div>
+      <h2 class="login-title">Área da Profissional</h2>
+      <p class="login-sub">Digite a senha para acessar o painel de controle.</p>
+      <label for="lp">Senha</label>
+      <input id="lp" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Sua senha" aria-describedby="lerr">
+      <p class="err" id="lerr" role="alert" aria-live="polite"></p>
+      <button class="cta" id="login">Entrar no Painel</button>
+      <p class="login-back"><button class="link" id="lback">Voltar para a página inicial</button></p>
+    </div>
   </div>
 
   <!-- 4. PAINEL DE CONTROLE (ADMIN) -->
   <div id="v-admin" hidden>
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-      <p class="sub" style="margin-bottom:0">Olá, Maria Clara.</p>
+      <p class="sub" id="admin-greeting" style="margin-bottom:0">Olá, Maria Clara.</p>
       <div id="db-status" class="db-status-pill"></div>
     </div>
 
     <div class="tabs" role="tablist">
       <button role="tab" id="at-serv" aria-selected="true">Serviços</button>
+      <button role="tab" id="at-gal" aria-selected="false">Galeria</button>
       <button role="tab" id="at-hor" aria-selected="false">Horários</button>
       <button role="tab" id="at-ag" aria-selected="false">Agenda</button>
-      <button role="tab" id="at-bio" aria-selected="false">Quem Sou Eu</button>
+      <button role="tab" id="at-bio" aria-selected="false">Biografia</button>
       <button role="tab" id="at-pdf" aria-selected="false">Exportar PDF</button>
     </div>
 
@@ -177,10 +224,37 @@
       <div class="card" id="slist"></div>
     </div>
 
-    <!-- Aba 2: Horários / Disponibilidade -->
+    <!-- Aba 2: Galeria / Carrossel -->
+    <div id="p-gal" hidden>
+      <h2>Galeria do Carrossel</h2>
+      <p class="sub">Escolha até 8 fotos para aparecerem no carrossel logo abaixo da logo na página principal.</p>
+
+      <div class="card">
+        <label for="gal-file" style="margin-top:0">Foto do carrossel</label>
+        <input id="gal-file" type="file" accept="image/*">
+        <div class="preview" id="gal-prev" hidden><img id="gal-previmg" alt="Prévia da foto do carrossel"></div>
+
+        <label for="gal-caption">Legenda (opcional)</label>
+        <input id="gal-caption" maxlength="80" placeholder="Ex: Extensão de cílios fio a fio">
+
+        <p class="err" id="gal-err" role="alert"></p>
+        <button class="cta" id="gal-add" disabled style="margin-top:8px">Adicionar ao carrossel</button>
+      </div>
+
+      <h2>Fotos publicadas</h2>
+      <div class="gal-grid" id="gal-list"></div>
+    </div>
+
+    <!-- Aba 3: Horários / Disponibilidade -->
     <div id="p-hor" hidden>
       <h2>Grade de Horários</h2>
-      <p class="sub">Selecione o dia e clique nos horários para alternar entre: Fechado, Livre (para clientes) ou Ocupado.</p>
+      <p class="sub">Por padrão, os horários abaixo já ficam disponíveis para agendamento. Clique em um horário para alternar entre Fechado, Livre e Ocupado.</p>
+      <div class="schedule-note">
+        <strong>Horário padrão</strong>
+        <span>Segunda a sexta · 7h às 11h30 e 19h às 20h</span>
+        <span>Sábado · 13h às 19h</span>
+        <span>Domingo · fechado</span>
+      </div>
       <label for="hdate" style="margin-top:0">Data de atendimento</label>
       <input id="hdate" type="date">
       <div class="legend" style="margin-top:14px">
@@ -191,21 +265,21 @@
       </div>
       <div class="grid" id="slots"></div>
       <div class="tools">
-        <button class="mini" id="open9">Liberar 9h às 18h</button>
-        <button class="mini del" id="clearday">Limpar o dia</button>
+        <button class="mini" id="applydefault">Aplicar horário padrão</button>
+        <button class="mini del" id="clearday">Fechar o dia</button>
       </div>
     </div>
 
-    <!-- Aba 3: Agenda de Clientes -->
+    <!-- Aba 4: Agenda de Clientes -->
     <div id="p-ag" hidden>
       <h2>Próximos Agendamentos</h2>
       <div id="list"></div>
     </div>
 
-    <!-- Aba 4: Quem Sou Eu (Edição do Perfil) -->
+    <!-- Aba 5: Biografia (Edição do Perfil) -->
     <div id="p-bio" hidden>
-      <h2>Editar "Quem Sou Eu"</h2>
-      <p class="sub">Atualize sua apresentação para suas clientes na página principal.</p>
+      <h2>Biografia & Foto</h2>
+      <p class="sub">Sua apresentação fica salva no banco de dados e aparece na página principal, na seção "Quem Sou Eu".</p>
       <div class="card">
         <label for="bio-name-input" style="margin-top:0">Seu Nome / Nome Profissional</label>
         <input id="bio-name-input" placeholder="Ex: Maria Clara">
@@ -225,7 +299,7 @@
       </div>
     </div>
 
-    <!-- Aba 5: Exportar a página principal em PDF -->
+    <!-- Aba 6: Exportar a página principal em PDF -->
     <div id="p-pdf" hidden>
       <h2>Exportar Página Principal em PDF</h2>
       <p class="sub">Baixe a página principal como ela aparece no site, incluindo os serviços, fotos e apresentação profissional.</p>
@@ -252,9 +326,17 @@
 <!-- SDK Oficial do Supabase via CDN -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- Scripts da Aplicação -->
+<!-- Scripts da Aplicação (ordem de dependência) -->
 <script src="js/config.js"></script>
 <script src="js/supabaseClient.js"></script>
+<script src="js/core.js"></script>
+<script src="js/bio.js"></script>
+<script src="js/gallery.js"></script>
+<script src="js/services.js"></script>
+<script src="js/booking.js"></script>
+<script src="js/schedule.js"></script>
+<script src="js/agenda.js"></script>
+<script src="js/pdf.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

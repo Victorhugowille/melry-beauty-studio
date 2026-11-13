@@ -1,0 +1,161 @@
+/* =============================================================
+   BASE · TOKENS, RESET E TIPOGRAFIA
+   Superfícies suaves, tipografia editorial e cantos generosos.
+============================================================= */
+
+:root {
+  color-scheme: light;
+  --bg: #fbf4f2;
+  --bg-accent: #f6e4e6;
+  --surface: #fffcfb;
+  --surface-2: #fdf7f6;
+  --glass: rgba(255, 252, 251, 0.82);
+  --ink: #42272f;
+  --muted: #8b6871;
+  --line: rgba(140, 84, 98, 0.16);
+  --brand: #9b5666;
+  --brand-deep: #783b4a;
+  --brand-ink: #ffffff;
+  --soft: #f7e8ea;
+  --rose: #e8bec7;
+  --on-rose: #47232c;
+  --ok: #2f6b4a;
+  --danger: #b3353f;
+  --shadow-sm: 0 10px 28px rgba(84, 42, 52, 0.06);
+  --shadow-md: 0 18px 44px rgba(84, 42, 52, 0.1);
+  --shadow-lg: 0 28px 70px rgba(84, 42, 52, 0.14);
+  --radius-xl: 30px;
+  --radius-lg: 24px;
+  --radius-md: 18px;
+  --radius-sm: 14px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #120b0e;
+  --bg-accent: #1d1116;
+  --surface: #1b1216;
+  --surface-2: #21161b;
+  --glass: rgba(27, 18, 22, 0.82);
+  --ink: #f7e9ee;
+  --muted: #c3a3ad;
+  --line: rgba(236, 190, 201, 0.14);
+  --brand: #e3a3b3;
+  --brand-deep: #f0b6c4;
+  --brand-ink: #241016;
+  --soft: #2a1a21;
+  --rose: #8f4e5e;
+  --on-rose: #fbe9ee;
+  --ok: #7fd1a1;
+  --danger: #ff9a8f;
+  --shadow-sm: 0 10px 28px rgba(0, 0, 0, 0.22);
+  --shadow-md: 0 18px 44px rgba(0, 0, 0, 0.32);
+  --shadow-lg: 0 28px 70px rgba(0, 0, 0, 0.42);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  color: var(--ink);
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse at 8% -4%, rgba(232, 190, 199, 0.42), transparent 40%),
+    radial-gradient(ellipse at 96% 18%, rgba(247, 232, 234, 0.9), transparent 42%),
+    radial-gradient(ellipse at 50% 108%, rgba(246, 228, 230, 0.75), transparent 46%);
+  background-attachment: fixed;
+  font-family: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+:root[data-theme="dark"] body {
+  background-image:
+    radial-gradient(ellipse at 8% -4%, rgba(143, 78, 94, 0.28), transparent 42%),
+    radial-gradient(ellipse at 96% 18%, rgba(29, 17, 22, 0.9), transparent 45%),
+    radial-gradient(ellipse at 50% 108%, rgba(42, 26, 33, 0.75), transparent 48%);
+}
+
+::selection {
+  background: var(--rose);
+  color: var(--on-rose);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 16px 22px 64px;
+}
+
+/* -------------------------------------------------------------
+   TIPOGRAFIA
+------------------------------------------------------------- */
+h2,
+.sname,
+.bio-title,
+.sprice,
+.chosen-name {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 600;
+}
+
+h2 {
+  margin: 36px 0 12px;
+  font-size: clamp(1.7rem, 4vw, 2.15rem);
+  line-height: 1.12;
+  letter-spacing: -0.012em;
+}
+
+.sub {
+  margin: 6px 0 24px;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.empty {
+  margin: 0;
+  padding: 18px 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-style: italic;
+}
+
+.err {
+  min-height: 1.2em;
+  margin: 10px 0 0;
+  color: var(--danger);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.link {
+  margin-top: 12px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--brand);
+  font: inherit;
+  font-size: 0.88rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}

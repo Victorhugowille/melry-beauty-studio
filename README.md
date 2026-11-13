@@ -24,13 +24,32 @@ Aplicativo moderno e responsivo de agendamento online para estúdios de beleza e
 ├── .env.example            # Exemplo de variáveis de ambiente
 ├── .gitignore              # Arquivos ignorados pelo Git
 ├── css/
-│   └── style.css           # Estilização completa, temas claro/escuro e responsividade
+│   ├── base.css                    # Tokens, reset, tipografia e utilitários
+│   ├── cabecalho-carrossel.css     # Logo, tema e carrossel de fotos
+│   ├── servicos.css                # Cartões de serviços da página inicial
+│   ├── biografia-rodape.css        # Seção "Quem Sou Eu" e rodapé
+│   ├── formularios-botoes.css      # Inputs, botões, foco e formulários
+│   ├── cartoes-listas.css          # Cards, listas, miniaturas e prévias
+│   ├── login-painel.css            # Login e estrutura do painel
+│   ├── horarios.css                # Grade de horários do painel
+│   ├── agendamento-calendario.css  # Calendário mensal e fluxo de agendamento
+│   ├── carregamento.css            # Splash screen com vídeo
+│   └── responsivo.css              # Responsividade, acessibilidade e impressão
 ├── js/
-│   ├── config.js           # Onde colar a URL e a Anon Key do Supabase para o GitHub Pages
-│   ├── supabaseClient.js   # Integração com Supabase SDK e fallback offline
-│   └── app.js              # Lógica de interface, agendamento, slots e painel admin
+│   ├── config.js           # URL e Anon Key do Supabase
+│   ├── supabaseClient.js   # Integração Supabase e fallback offline
+│   ├── core.js             # Utilidades, estado global e grade padrão
+│   ├── bio.js              # Biografia e apresentação da profissional
+│   ├── gallery.js          # Carrossel público e galeria do painel
+│   ├── services.js         # Catálogo e cadastro de serviços
+│   ├── booking.js          # Calendário e agendamento da cliente
+│   ├── schedule.js         # Grade de horários do painel
+│   ├── agenda.js           # Agenda de clientes e cancelamentos
+│   ├── pdf.js              # Exportação da página em PDF
+│   └── app.js              # Inicialização, login, painel e tema
 └── sql/
-    └── schema.sql          # Script SQL completo para rodar no Supabase SQL Editor
+    ├── schema.sql          # Tabelas de serviços, horários e agendamentos
+    └── carousel_bio.sql    # Tabelas do carrossel de fotos e da biografia
 ```
 
 ---
@@ -77,7 +96,8 @@ Aplicativo moderno e responsivo de agendamento online para estúdios de beleza e
 2. Clique no botão **"+ New Query"** (Nova Consulta).
 3. Abra o arquivo [`sql/schema.sql`](sql/schema.sql) deste projeto, copie todo o seu conteúdo e cole no SQL Editor do Supabase.
 4. Clique no botão verde **"RUN"** (ou pressione `Ctrl + Enter`).
-5. Pronto! Todas as tabelas (`services`, `availability`, `bookings`), políticas de segurança (RLS) e serviços pré-cadastrados serão criados instantaneamente.
+5. Depois, repita o processo com o arquivo [`sql/carousel_bio.sql`](sql/carousel_bio.sql) para criar as tabelas do **carrossel de fotos** (`studio_gallery`) e da **biografia** (`studio_bio`).
+6. Pronto! Todas as tabelas, políticas de segurança (RLS) e serviços pré-cadastrados serão criados instantaneamente.
 
 ---
 
@@ -126,10 +146,16 @@ git push -u origin main
 
 ## 🔐 Acesso ao Painel da Profissional (Admin)
 
-Na parte inferior da página inicial, clique em **"Área da Profissional"** para gerenciar serviços, horários, agendamentos e exportar o catálogo em PDF vertical.
-*(As credenciais de acesso são configuradas diretamente pela profissional).*
+Na parte inferior da página inicial, clique em **"Área da Profissional"** e digite apenas a senha para gerenciar o estúdio.
+*(A senha de acesso é configurada diretamente pela profissional no arquivo `js/core.js`, constante `PASS`).*
+
+### Agendamento da cliente:
+- A cliente escolhe o serviço, navega pelo **calendário mensal**, seleciona um dia com horários disponíveis, escolhe o horário e confirma com nome e WhatsApp. Dias sem vaga aparecem desabilitados.
 
 ### Funcionalidades do Painel:
 - **Serviços:** Adicione, edite ou exclua serviços, categorize entre Manicure, Sobrancelhas ou Cílios, defina valores, tempos e envie fotos.
-- **Horários:** Selecione o dia e clique nos slots de 30 minutos para liberar ou bloquear. Botão rápido **"Liberar 9h às 18h"**.
+- **Galeria:** Escolha até 8 fotos para o carrossel exibido logo abaixo da logo na página principal, com legenda opcional.
+- **Horários:** Grade padrão já pronta — segunda a sexta das 7h às 11h30 e das 19h às 20h, sábado das 13h às 19h, domingo fechado. Clique nos slots de 30 minutos para personalizar, use **"Aplicar horário padrão"** para restaurar o dia ou **"Fechar o dia"** para bloquear tudo.
 - **Agenda:** Visualize todos os agendamentos das clientes agrupados por dia, com botão direto para chamar a cliente no **WhatsApp** com 1 clique!
+- **Biografia:** Atualize nome, especialidades, texto de apresentação e foto de perfil — dados salvos no Supabase.
+- **Exportar PDF:** Gere o catálogo vertical da página principal já com o carrossel e a biografia atualizados.

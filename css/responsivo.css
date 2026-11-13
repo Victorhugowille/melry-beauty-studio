@@ -1,0 +1,243 @@
+/* =============================================================
+   RESPONSIVO, ACESSIBILIDADE E IMPRESSÃO
+============================================================= */
+
+/* -------------------------------------------------------------
+   RESPONSIVO
+------------------------------------------------------------- */
+@media (min-width: 520px) {
+  .grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .wrap {
+    padding: 14px 16px 54px;
+  }
+
+  .logo {
+    max-width: 280px;
+    padding-top: 22px;
+  }
+
+  .carousel {
+    border-radius: 26px;
+  }
+
+  .carousel-slide img {
+    aspect-ratio: 4 / 3;
+  }
+
+  .carousel-arrow {
+    display: none;
+  }
+
+  .svc-row,
+  .svc-row.flip {
+    gap: 12px;
+    min-height: 180px;
+    padding: 9px;
+    border-radius: 24px;
+  }
+
+  .svc-row .pic,
+  .svc-row.flip .pic {
+    flex-basis: 40%;
+    width: 40%;
+    min-height: 162px;
+    border-radius: 18px;
+  }
+
+  .svc-row .txt,
+  .svc-row.flip .txt {
+    padding: 8px 8px;
+  }
+
+  .bio-card {
+    gap: 18px;
+    padding: 22px 20px;
+    border-radius: 26px;
+  }
+
+  .bio-avatar {
+    width: 88px;
+    height: 88px;
+    flex-basis: 88px;
+  }
+
+  .bio-title {
+    font-size: 1.7rem;
+  }
+
+  .login-card {
+    margin-top: 22px;
+    padding: 30px 22px 22px;
+    border-radius: 26px;
+  }
+
+  .login-title {
+    font-size: 1.6rem;
+  }
+
+  .card:not(.bio-card) {
+    padding: 20px 18px;
+    border-radius: 22px;
+  }
+
+  .gal-thumb {
+    flex-basis: 78px;
+    width: 78px;
+    height: 58px;
+  }
+}
+
+@media (max-width: 520px) {
+  .bio-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .bio-content {
+    text-align: center;
+  }
+
+  .bio-text {
+    text-align: left;
+  }
+}
+
+@media (max-width: 420px) {
+  .wrap {
+    padding-right: 13px;
+    padding-left: 13px;
+  }
+
+  .carousel-slide figcaption {
+    right: 18px;
+    bottom: 16px;
+    left: 18px;
+    font-size: 0.82rem;
+  }
+
+  .carousel-dots {
+    bottom: 10px;
+  }
+
+  .svc-row,
+  .svc-row.flip {
+    min-height: 166px;
+  }
+
+  .svc-row .pic,
+  .svc-row.flip .pic {
+    flex-basis: 38%;
+    width: 38%;
+    min-height: 148px;
+  }
+
+  .sname {
+    font-size: 1.32rem;
+  }
+
+  .sprice {
+    font-size: 1.2rem;
+  }
+
+  .btn {
+    padding: 8px 17px;
+    font-size: 0.79rem;
+  }
+
+  .row {
+    flex-wrap: wrap;
+  }
+
+  .acts {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .calendar {
+    padding: 15px 10px 12px;
+    border-radius: 22px;
+  }
+
+  .calendar-grid {
+    gap: 2px;
+  }
+
+  .cal-day {
+    border-radius: 12px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (hover: none) {
+  .carousel-arrow {
+    display: none;
+  }
+}
+
+/* -------------------------------------------------------------
+   ACESSIBILIDADE E IMPRESSÃO
+------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .app-loader-overlay,
+  .loader-video,
+  .loader-status-text {
+    animation: none;
+  }
+
+  .loader-progress-fill {
+    animation-duration: 2.6s;
+  }
+
+  .carousel-track {
+    transition: none;
+  }
+
+  .svc-row,
+  .pic img,
+  .btn,
+  .cta,
+  .theme,
+  .mini,
+  .slot {
+    transition: none;
+  }
+
+  .svc-row:hover,
+  .btn:hover,
+  .cta:hover:not(:disabled),
+  .enter:hover,
+  .theme:hover {
+    transform: none;
+  }
+}
+
+@media print {
+  .theme,
+  .carousel-arrow,
+  .carousel-dots,
+  .enter {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .svc-row,
+  .bio-card,
+  .carousel {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    box-shadow: none;
+  }
+}

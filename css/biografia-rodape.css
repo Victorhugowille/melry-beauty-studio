@@ -1,0 +1,146 @@
+/* =============================================================
+   BIOGRAFIA E RODAPÉ
+============================================================= */
+
+/* -------------------------------------------------------------
+   QUEM SOU EU
+------------------------------------------------------------- */
+.bio-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin: 42px 0 26px;
+  padding: 28px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 30px;
+  background: linear-gradient(145deg, var(--surface), var(--soft));
+  box-shadow: var(--shadow-sm);
+}
+
+.bio-card::before {
+  content: "";
+  position: absolute;
+  top: -80px;
+  right: -60px;
+  width: 210px;
+  height: 210px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--rose), transparent 70%);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.bio-avatar {
+  width: 108px;
+  height: 108px;
+  flex: 0 0 108px;
+  overflow: hidden;
+  border: 3px solid var(--surface);
+  border-radius: 50%;
+  background: var(--soft);
+  box-shadow: 0 12px 28px rgba(84, 42, 52, 0.16);
+}
+
+.bio-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bio-ph {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--brand);
+  background: linear-gradient(135deg, var(--soft), var(--surface));
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 2.2rem;
+  font-weight: 600;
+}
+
+.bio-content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+}
+
+.bio-title {
+  margin: 0 0 3px;
+  color: var(--ink);
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+.bio-role {
+  margin: 0 0 10px;
+  color: var(--brand);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.bio-text {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.93rem;
+  line-height: 1.75;
+}
+
+/* -------------------------------------------------------------
+   RODAPÉ
+------------------------------------------------------------- */
+footer {
+  margin-top: 54px;
+  padding-top: 26px;
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+
+footer .contact {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px 28px;
+  margin: 0 0 20px;
+  font-size: 0.9rem;
+}
+
+footer .contact a {
+  color: var(--brand);
+  font-weight: 500;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+footer .contact a:hover {
+  opacity: 0.7;
+}
+
+.enter {
+  padding: 11px 28px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--glass);
+  color: var(--brand);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.25s var(--ease);
+}
+
+.enter:hover {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: var(--brand-ink);
+  transform: translateY(-1px);
+}

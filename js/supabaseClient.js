@@ -7,6 +7,8 @@
   const LOCAL_BKEY = "merly_studio_agendamentos";
   const LOCAL_SKEY = "merly_studio_servicos";
   const LOCAL_AKEY = "melry_disponibilidade";
+  const LOCAL_GALKEY = "melry_studio_galeria";
+  const LOCAL_BIOKEY = "melry_studio_bio";
 
   // Carrega configuração de js/config.js ou de override salvo no localStorage
   function getConfig() {
@@ -159,6 +161,198 @@
     },
 
     // -------------------------------------------------------------
+    // GALERIA DO CARROSSEL
+    // -------------------------------------------------------------
+    async getGallery() {
+      if (isOnline) {
+        try {
+          const { data, error } = await supabase
+            .from("studio_gallery")
+            .select("id, foto, legenda, ordem")
+            .eq("ativo", true)
+            .order("ordem", { ascending: true })
+            .order("created_at", { ascending: true });
+
+          if (!error && data) {
+            // Envia para o Supabase fotos que existiam apenas neste dispositivo.
+            const localList = localLoad(LOCAL_GALKEY, []);
+            const localOnly = localList.filter(item => !data.some(row => row.id === item.id));
+
+            if (localOnly.length) {
+              try {
+                const { error: upError } = await supabase
+                  .from("studio_gallery")
+                  .upsert(localOnly.map(item => ({
+                    id: item.id,
+                    foto: item.foto,
+                    legenda: item.legenda || null,
+                    ordem: item.ordem || 0,
+                    ativo: true
+                  })), { onConflict: "id" });
+
+                if (upError) {
+                  console.warn("Não foi possível sincronizar as fotos locais com o Supabase:", upError.message);
+                }
+              } catch (upException) {
+                console.warn("Falha ao sincronizar fotos locais:", upException);
+              }
+            }
+
+            const merged = [...data];
+            localOnly.forEach(item => {
+              if (!merged.some(row => row.id === item.id)) merged.push(item);
+            });
+            merged.sort((a, b) => (a.ordem || 0) - (b.ordem || 0));
+
+            localSave(LOCAL_GALKEY, merged);
+            return merged;
+          }
+          if (error) {
+            console.warn("Galeria não encontrada no Supabase. Rode o arquivo sql/carousel_bio.sql no SQL Editor.", error.message);
+          }
+        } catch (e) {
+          console.warn("Não foi possível carregar a galeria do Supabase:", e);
+        }
+      }
+      return localLoad(LOCAL_GALKEY, []);
+    },
+
+    async saveGalleryPhoto(photo) {
+      let synced = false;
+
+      if (isOnline) {
+        try {
+          const { error } = await supabase
+            .from("studio_gallery")
+            .upsert({
+              id: photo.id,
+              foto: photo.foto,
+              legenda: photo.legenda || null,
+              ordem: photo.ordem || 0,
+              ativo: true
+            }, { onConflict: "id" });
+
+          if (error) throw error;
+          synced = true;
+        } catch (e) {
+          console.warn("Foto salva apenas neste dispositivo. Rode o SQL da galeria no Supabase para sincronizar.", e.message || e);
+        }
+      }
+
+      const list = localLoad(LOCAL_GALKEY, []);
+      const idx = list.findIndex(g => g.id === photo.id);
+      if (idx >= 0) list[idx] = { ...list[idx], ...photo };
+      else list.push(photo);
+      localSave(LOCAL_GALKEY, list);
+
+      return { item: photo, synced };
+    },
+
+    async deleteGalleryPhoto(id) {
+      let synced = false;
+
+      if (isOnline) {
+        try {
+          const { error } = await supabase
+            .from("studio_gallery")
+            .delete()
+            .eq("id", id);
+          if (error) throw error;
+          synced = true;
+        } catch (e) {
+          console.warn("Não foi possível remover a foto do Supabase. Ela será removida apenas deste dispositivo.", e.message || e);
+        }
+      }
+
+      const list = localLoad(LOCAL_GALKEY, []).filter(g => g.id !== id);
+      localSave(LOCAL_GALKEY, list);
+
+      return { synced };
+    },
+
+    // -------------------------------------------------------------
+    // BIOGRAFIA DA PROFISSIONAL
+    // -------------------------------------------------------------
+    async getBio() {
+      if (isOnline) {
+        try {
+          const { data, error } = await supabase
+            .from("studio_bio")
+            .select("nome, titulo, texto, foto, updated_at")
+            .eq("id", "principal")
+            .maybeSingle();
+
+          if (!error && data) {
+            const local = localLoad(LOCAL_BIOKEY, null);
+            const remoteTs = Date.parse(data.updated_at) || 0;
+            const localTs = local ? (Date.parse(local.updated_at) || 0) : 0;
+            const legacyLocal = local && !local.updated_at;
+
+            // Dados antigos salvos apenas no navegador têm prioridade até a
+            // primeira sincronização, evitando perder o que já foi editado.
+            const localWins = local && (localTs > remoteTs || (legacyLocal && remoteTs < Date.parse("2025-01-01")));
+
+            if (localWins) {
+              const merged = {
+                ...data,
+                ...local,
+                updated_at: new Date().toISOString()
+              };
+              localSave(LOCAL_BIOKEY, merged);
+
+              try {
+                const { error: upError } = await supabase
+                  .from("studio_bio")
+                  .upsert({ ...merged, id: "principal" }, { onConflict: "id" });
+                if (upError) console.warn("Não foi possível sincronizar a biografia local:", upError.message);
+              } catch (upException) {
+                console.warn("Falha ao sincronizar a biografia local:", upException);
+              }
+
+              return merged;
+            }
+
+            localSave(LOCAL_BIOKEY, data);
+            return data;
+          }
+          if (error) {
+            console.warn("Biografia não encontrada no Supabase. Rode o arquivo sql/carousel_bio.sql no SQL Editor.", error.message);
+          }
+        } catch (e) {
+          console.warn("Não foi possível carregar a biografia do Supabase:", e);
+        }
+      }
+      return localLoad(LOCAL_BIOKEY, null);
+    },
+
+    async saveBio(bio) {
+      const payload = {
+        id: "principal",
+        nome: bio.nome || "",
+        titulo: bio.titulo || "",
+        texto: bio.texto || "",
+        foto: bio.foto || null,
+        updated_at: new Date().toISOString()
+      };
+      let synced = false;
+
+      if (isOnline) {
+        try {
+          const { error } = await supabase
+            .from("studio_bio")
+            .upsert(payload, { onConflict: "id" });
+          if (error) throw error;
+          synced = true;
+        } catch (e) {
+          console.warn("Biografia salva apenas neste dispositivo. Rode o SQL da biografia no Supabase para sincronizar.", e.message || e);
+        }
+      }
+
+      localSave(LOCAL_BIOKEY, payload);
+      return { data: payload, synced };
+    },
+
+    // -------------------------------------------------------------
     // DISPONIBILIDADE
     // -------------------------------------------------------------
     async getAvailability() {
@@ -185,68 +379,59 @@
     },
 
     async setSlotStatus(date, minute, status) {
+      const st = Number(status) || 0;
+
       if (isOnline) {
         try {
-          if (status === 0) {
-            await supabase
-              .from("availability")
-              .delete()
-              .eq("date", date)
-              .eq("minute", minute);
-          } else {
-            await supabase
-              .from("availability")
-              .upsert({ date, minute, status }, { onConflict: "date,minute" });
-          }
+          const { error } = await supabase
+            .from("availability")
+            .upsert({ date, minute, status: st }, { onConflict: "date,minute" });
+          if (error) throw error;
         } catch (e) {
-          console.error("Erro ao atualizar slot no Supabase:", e);
+          console.error("Erro ao atualizar horário no Supabase:", e);
         }
       }
+
       const avail = localLoad(LOCAL_AKEY, {});
       avail[date] = avail[date] || {};
-      if (status) avail[date][minute] = status;
-      else delete avail[date][minute];
-      if (!Object.keys(avail[date]).length) delete avail[date];
+      // Guarda também o status 0 (fechado): assim a grade padrão não
+      // reabre um horário que a profissional fechou de propósito.
+      avail[date][minute] = st;
       localSave(LOCAL_AKEY, avail);
       return avail;
     },
 
-    async batchOpenDay(date, startMin, endMin) {
-      const records = [];
-      for (let k = startMin; k < endMin; k += 30) {
-        records.push({ date, minute: k, status: 1 });
-      }
+    async saveDayStatuses(date, statuses) {
+      const records = Object.keys(statuses).map(minute => ({
+        date,
+        minute: Number(minute),
+        status: Number(statuses[minute]) || 0
+      }));
 
       if (isOnline) {
         try {
-          await supabase
+          const { error } = await supabase
             .from("availability")
             .upsert(records, { onConflict: "date,minute" });
+          if (error) throw error;
         } catch (e) {
-          console.error("Erro ao abrir horários em lote no Supabase:", e);
+          console.error("Erro ao salvar a grade do dia no Supabase:", e);
         }
       }
+
       const avail = localLoad(LOCAL_AKEY, {});
-      avail[date] = avail[date] || {};
+      avail[date] = { ...(avail[date] || {}) };
       records.forEach(r => {
-        if (!avail[date][r.minute]) avail[date][r.minute] = 1;
+        avail[date][r.minute] = r.status;
       });
       localSave(LOCAL_AKEY, avail);
       return avail;
     },
 
     async clearDay(date) {
-      if (isOnline) {
-        try {
-          await supabase.from("availability").delete().eq("date", date);
-        } catch (e) {
-          console.error("Erro ao limpar dia no Supabase:", e);
-        }
-      }
-      const avail = localLoad(LOCAL_AKEY, {});
-      delete avail[date];
-      localSave(LOCAL_AKEY, avail);
-      return avail;
+      const closed = {};
+      for (let k = 0; k < 1440; k += 30) closed[k] = 0;
+      return this.saveDayStatuses(date, closed);
     },
 
     // -------------------------------------------------------------
