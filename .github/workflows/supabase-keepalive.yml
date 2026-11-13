@@ -1,0 +1,35 @@
+name: Supabase keep-alive
+
+# Mantém o projeto do Supabase ativo com uma consulta leve por dia.
+# O plano gratuito pausa projetos após ~7 dias sem uso.
+
+on:
+  schedule:
+    # Todo dia às 05:17 UTC = 01:17 em America/Campo_Grande (UTC-4)
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    name: Ping no Supabase
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Consultar o banco
+        run: node scripts/keepalive.mjs
+        env:
+          # Opcional: se os secrets não existirem, usa o js/config.js
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}

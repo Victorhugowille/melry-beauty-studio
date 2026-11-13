@@ -1,0 +1,53 @@
+name: Lembretes no WhatsApp
+
+# Avisa a Maria 24h antes e ~1h antes de cada atendimento confirmado.
+# Para não duplicar mensagens, cada envio é registrado na tabela reminders_log.
+
+on:
+  schedule:
+    # A cada 10 minutos (o GitHub pode atrasar alguns minutos)
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Só simular (não envia e não registra)"
+        type: boolean
+        default: false
+      test_message:
+        description: "Enviar apenas uma mensagem de teste"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: whatsapp-reminders
+  cancel-in-progress: false
+
+jobs:
+  reminders:
+    name: Enviar lembretes
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Procurar agendamentos e avisar
+        run: node scripts/send-reminders.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          STUDIO_TIMEZONE: America/Campo_Grande
+          WHATSAPP_PROVIDER: callmebot
+          WHATSAPP_PHONE: ${{ secrets.WHATSAPP_PHONE || '5545998557194' }}
+          CALLMEBOT_APIKEY: ${{ secrets.CALLMEBOT_APIKEY }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          TEST_MESSAGE: ${{ inputs.test_message }}
