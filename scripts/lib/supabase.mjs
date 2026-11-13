@@ -49,7 +49,8 @@ export function createSupabase({ url, anonKey }) {
 
     /**
      * Reserva o envio de um lembrete. Retorna:
-     *  - "reserved": pode enviar agora
+     *  - "reserved": pode enviar agora (com `degraded: true` se a tabela não existe:
+     *    envia mesmo assim, sem controle de duplicatas)
      *  - "duplicate": já foi enviado antes
      */
     async reserveReminder(bookingId, kind) {
@@ -63,9 +64,13 @@ export function createSupabase({ url, anonKey }) {
       if (res.status === 409) return { status: "duplicate" };
 
       if (res.status === 404 || /PGRST205|not find the table/i.test(res.text)) {
-        throw new Error(
-          "Tabela reminders_log não existe. Rode o arquivo sql/notifications.sql no SQL Editor do Supabase."
+        // Sem a tabela não dá para evitar mensagens duplicadas, mas o robô
+        // continua enviando — é melhor avisar do que ficar mudo.
+        console.warn(
+          "⚠️  Tabela reminders_log não existe. Enviando SEM controle de duplicatas. " +
+            "Rode o arquivo sql/notifications.sql no SQL Editor do Supabase."
         );
+        return { status: "reserved", degraded: true };
       }
 
       throw new Error(`Falha ao registrar lembrete (HTTP ${res.status}): ${res.text}`);

@@ -111,12 +111,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  if (/reminders_log não existe/i.test(error.message)) {
-    // Sem a tabela o bot não consegue evitar mensagens duplicadas:
-    // avisa alto, mas não marca a execução como falha a cada 10 minutos.
-    log("⚠️  " + error.message);
-    return;
-  }
   console.error("❌ " + error.message);
   process.exitCode = 1;
 });
