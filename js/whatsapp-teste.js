@@ -79,6 +79,21 @@
     ].join("\n");
   }
 
+  // O CallMeBot não envia cabeçalho CORS, então a resposta vem "às cegas"
+  // (status 0, opaque): não dá para ler sucesso/erro pelo site — mas o GET
+  // chega ao servidor e a mensagem é enfileirada. Corrida com timeout de 8s
+  // para o botão nunca ficar preso em "Enviando…".
+  async function sendBlind(url) {
+    var timeout = new Promise(function (resolve) { setTimeout(resolve, 8000); });
+    try {
+      await Promise.race([fetch(url, { mode: "no-cors" }), timeout]);
+    } catch (e) {
+      // Erro de rede (ex.: sem internet): único caso em que avisamos.
+      return false;
+    }
+    return true;
+  }
+
   async function sendTest(kind, btn) {
     var phone = phoneInput.value.replace(/\D/g, "");
     var apikey = keyInput.value.trim();
@@ -89,7 +104,7 @@
       return;
     }
     if (!apikey) {
-      err.textContent = "Cole a apikey do CallMeBot (chegou no seu WhatsApp na ativação).";
+      err.textContent = "Cole a apikey que chegou no seu WhatsApp quando o CallMeBot foi ativado (ex.: 1234567).";
       return;
     }
 
@@ -106,21 +121,16 @@
     if (btn) { btn.disabled = true; btn.textContent = "Enviando…"; }
     setStatus("Enviando…", true);
 
-    try {
-      // CallMeBot não envia cabeçalho CORS: usamos no-cors.
-      // A resposta não pode ser lida, mas a mensagem é enfileirada.
-      await fetch(url, { mode: "no-cors" });
-      setStatus(
-        kind === "day"
-          ? "Teste de 1 dia enviado — confira o WhatsApp ✓"
-          : "Teste de 1 hr enviado — confira o WhatsApp ✓",
-        true
-      );
-    } catch (e) {
-      setStatus("Não foi possível enviar. Verifique sua conexão.", false);
-    } finally {
-      if (btn) { btn.disabled = false; btn.textContent = original; }
-    }
+    var reached = await sendBlind(url);
+    setStatus(
+      reached
+        ? (kind === "day"
+            ? "Teste de 1 dia enviado — confira o WhatsApp em até 1 minuto ✓"
+            : "Teste de 1 hr enviado — confira o WhatsApp em até 1 minuto ✓")
+        : "Não foi possível enviar. Verifique sua conexão.",
+      reached
+    );
+    if (btn) { btn.disabled = false; btn.textContent = original; }
   }
 
   $("zap-save").onclick = save;

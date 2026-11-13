@@ -326,15 +326,22 @@
         <input id="zap-phone" type="tel" inputmode="numeric" autocomplete="off" placeholder="554591096203">
 
         <label for="zap-apikey">Apikey do CallMeBot</label>
-        <input id="zap-apikey" type="password" autocomplete="off" placeholder="Cole a apikey (chegou no seu WhatsApp na ativação)">
+        <input id="zap-apikey" type="password" autocomplete="off" placeholder="Cole a apikey (ex.: 3366760)">
         <p class="err" id="zap-err" role="alert"></p>
 
         <div class="tools" style="margin-top:6px;">
           <button class="mini" id="zap-save">Salvar neste navegador</button>
         </div>
         <p class="sub" style="margin-top:10px; font-size:0.82rem;">
-          A apikey nunca entra no código do site — fica salva apenas neste navegador.
-          Quem envia os avisos de verdade é o robô do GitHub Actions.
+          <strong>Passo a passo:</strong><br>
+          1) Abra o WhatsApp e encontre a mensagem “CallMeBot API <em>Activated</em>” enviada para o seu número.<br>
+          2) Copie o número do <em>apikey</em> (o seu é o mesmo do secret do GitHub).<br>
+          3) Cole acima e toque em <em>Salvar neste navegador</em>.<br>
+          4) Toque em um dos botões de teste.
+        </p>
+        <p class="sub" style="margin-top:8px; font-size:0.82rem;">
+          O site não consegue ler os secrets do GitHub (eles ficam privados e valem só para o robô).
+          Por isso a apikey precisa ser digitada aqui uma vez — ela fica salva apenas neste navegador.
         </p>
       </div>
 
