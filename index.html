@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Melry Beauty Studio · Manicure, Sobrancelha e Cílios</title>
   <meta name="description" content="Agendamento online no Melry Beauty Studio. Especialista em Manicure, Designer de Sobrancelhas e Extensão de Cílios.">
-  
+  <meta name="theme-color" content="#9b5666">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/app-icon.png">
+
   <!-- Fontes do Google -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -142,6 +145,12 @@
       <div class="card" style="margin-top:20px">
         <p class="ok-title">Agendamento confirmado com sucesso!</p>
         <div id="summary"></div>
+      </div>
+      <div class="card" id="push-offer" hidden style="margin-top:16px; text-align:center;">
+        <p class="ok-title" style="font-size:1.15rem;">Receba o aviso no seu celular</p>
+        <p class="sub" style="margin:6px 0 12px;">A confirmação agora e os lembretes de 1 dia e 1 hora antes do atendimento, direto neste aparelho — de graça.</p>
+        <button class="cta" id="push-enable" style="margin-top:0; max-width:320px;">Ativar lembretes neste aparelho</button>
+        <p class="sub" id="push-msg" role="status" aria-live="polite" style="margin-top:10px; min-height:1.2em;"></p>
       </div>
       <button class="cta" id="home">Voltar ao início</button>
     </div>
@@ -371,6 +380,7 @@
 
 <!-- Scripts da Aplicação (ordem de dependência) -->
 <script src="js/config.js"></script>
+<script src="js/push-config.js"></script>
 <script src="js/supabaseClient.js"></script>
 <script src="js/core.js"></script>
 <script src="js/bio.js"></script>
@@ -381,6 +391,7 @@
 <script src="js/agenda.js"></script>
 <script src="js/pdf.js"></script>
 <script src="js/whatsapp-teste.js"></script>
+<script src="js/push.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

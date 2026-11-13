@@ -76,6 +76,40 @@ export function createSupabase({ url, anonKey }) {
       throw new Error(`Falha ao registrar lembrete (HTTP ${res.status}): ${res.text}`);
     },
 
+    /** Inscrições push dos agendamentos informados (lembretes do cliente). */
+    async listSubscriptions(bookingIds) {
+      const ids = (bookingIds || []).filter(Boolean);
+      if (!ids.length) return [];
+      const list = ids.map((id) => encodeURIComponent(id)).join(",");
+      const res = await request(
+        `push_subscriptions?select=id,booking_id,subscription&booking_id=in.(${list})`
+      );
+      if (!res.ok) {
+        throw new Error(`Falha ao ler inscrições push (HTTP ${res.status}): ${res.text}`);
+      }
+      return Array.isArray(res.data) ? res.data : [];
+    },
+
+    /** Todas as inscrições push (usado no teste). */
+    async listAllSubscriptions(limit = 50) {
+      const res = await request(`push_subscriptions?select=id,booking_id,subscription&limit=${limit}`);
+      if (!res.ok) {
+        throw new Error(`Falha ao ler inscrições push (HTTP ${res.status}): ${res.text}`);
+      }
+      return Array.isArray(res.data) ? res.data : [];
+    },
+
+    /** Remove inscrição inválida (404/410 no envio). */
+    async deletePushSubscription(id) {
+      const res = await request(
+        `push_subscriptions?id=eq.${encodeURIComponent(id)}`,
+        { method: "DELETE", prefer: "return=minimal" }
+      );
+      if (!res.ok) {
+        console.warn(`⚠️  Não foi possível remover a inscrição ${id} (HTTP ${res.status}).`);
+      }
+    },
+
     /** Libera a reserva quando o envio falha, para tentar de novo depois. */
     async releaseReminder(bookingId, kind) {
       const res = await request(

@@ -200,6 +200,7 @@ $("confirm").addEventListener("click", async () => {
     `;
     $("bflowwrap").hidden = true;
     $("done").hidden = false;
+    if (window.MelryPush) window.MelryPush.offer(newBooking.id);
     window.scrollTo(0, 0);
   } catch (e) {
     err.textContent = "Não foi possível confirmar o agendamento no momento. Tente novamente.";

@@ -1,0 +1,17 @@
+{
+  "name": "Melry Beauty Studio",
+  "short_name": "Melry Studio",
+  "description": "Agendamento online — Manicure, Sobrancelhas e Cílios",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#fbf4f2",
+  "theme_color": "#9b5666",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "assets/app-icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

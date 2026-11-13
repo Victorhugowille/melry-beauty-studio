@@ -162,12 +162,15 @@ Na parte inferior da página inicial, clique em **"Área da Profissional"** e di
 
 ---
 
-## 🤖 Robô: Keep-alive do Supabase + Lembretes no WhatsApp
+## 🤖 Robôs: keep-alive do Supabase, lembretes no WhatsApp e push para o cliente
 
-Dois robôs rodam no **GitHub Actions**:
+Três robôs rodam no **GitHub Actions**:
 
 - **Supabase keep-alive** (`supabase-keepalive.yml`): ping diário no banco para o projeto gratuito não ser pausado por inatividade.
-- **Lembretes no WhatsApp** (`whatsapp-reminders.yml`): a cada 10 minutos, avisa a profissional 24h antes e 1h antes de cada atendimento confirmado.
+- **Avisos para a profissional** (`whatsapp-reminders.yml`): a cada 10 minutos, avisa a Maria 24h antes e ~1h antes de cada atendimento confirmado.
+- **Avisos para o cliente** (`send-client-push.mjs`, mesmo workflow): na tela de "Agendamento confirmado" o cliente pode tocar em **Ativar lembretes neste aparelho** (de graça, via Web Push). Depois disso, recebe automaticamente a confirmação e os avisos de **1 dia antes** e **~1 hora antes** — mesmo com o site fechado e sem custo.
+
+> **Nota honesta sobre o WhatsApp do cliente:** não existe caminho gratuito, oficial e automatizado para enviar WhatsApp a qualquer número (o CallMeBot só envia para quem ativou; a Meta cobra pelos templates). Por isso o aviso ao cliente é via **push no aparelho** (sem cadastro, sem custo), o mesmo esquema — confirmação + 1 dia antes + 1 hora antes. No iPhone é preciso abrir o site pelo ícone da tela de início (Adicionar à Tela de Início).
 
 ### Como ativar os lembretes no WhatsApp
 
@@ -185,6 +188,14 @@ O robô usa o **CallMeBot** (grátis, uso pessoal). Quem precisa ativar é o don
 
 ### Como testar
 
-Vá na aba **Actions** > **Lembretes no WhatsApp** > **Run workflow** > **Run workflow** e marque "Enviar apenas uma mensagem de teste". Você receberá a mensagem no número configurado.
+Vá na aba **Actions** > **Lembretes no WhatsApp e no aparelho** > **Run workflow** > **Run workflow** e marque "Enviar apenas uma mensagem de teste". Você recebe a mensagem no número configurado e, se houver inscrições push de clientes, também um push de teste.
+
+### Como ativar os avisos para o cliente (push gratuito)
+
+1. No **SQL Editor** do Supabase, rode o `sql/notifications.sql` (ele agora também cria a tabela `push_subscriptions` e libera os novos tipos de aviso; é seguro rodar de novo).
+2. No GitHub, em **Settings** > **Secrets and variables** > **Actions**, crie dois secrets:
+   - **Name:** `VAPID_PRIVATE_KEY`  **Secret:** a chave privada gerada (a pública já está no `js/push-config.js`)
+   - **Name:** `VAPID_SUBJECT` (opcional) **Secret:** `mailto:seuemail@dominio.com`
+3. Pronto. Quando um cliente agendar, a tela de confirmação oferece o botão **Ativar lembretes neste aparelho**. O robô envia a confirmação na hora do agendamento, e os avisos de 1 dia e de 1 hora antes.
 
 ---

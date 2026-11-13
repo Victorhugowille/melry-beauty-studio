@@ -1,0 +1,12 @@
+{
+  "name": "melry-beauty-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dependencias dos robos (GitHub Actions). O site em si e estatico e sem build.",
+  "scripts": {
+    "test": "node scripts/send-client-push.mjs --dry-run && node scripts/send-reminders.mjs --dry-run"
+  },
+  "dependencies": {
+    "web-push": "^3.6.7"
+  }
+}
