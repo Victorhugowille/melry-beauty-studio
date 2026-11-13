@@ -1,0 +1,42 @@
+/* =============================================================
+   FUNDO · CARTÕES CAINDO
+   O cartão de visitas do estúdio repetindo como padrão decorativo
+   e caindo lentamente no fundo da tela, por trás do conteúdo.
+   Respeita "prefers-reduced-motion" (não anima se o usuário ligou
+   a redução de animações).
+============================================================= */
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("../assets/nail-box-card.jpg");
+  background-repeat: repeat;
+  background-size: 240px 240px;
+  background-position: 0 0;
+  opacity: 0.32;
+  animation: fallCard 25s linear infinite;
+}
+
+@keyframes fallCard {
+  from { background-position: 0 0; }
+  to { background-position: 120px 480px; }
+}
+
+/* Conteúdo sempre acima do fundo decorativo */
+.wrap {
+  position: relative;
+  z-index: 1;
+}
+
+:root[data-theme="dark"] body::before {
+  opacity: 0.10;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+  }
+}
