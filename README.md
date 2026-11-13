@@ -159,3 +159,32 @@ Na parte inferior da página inicial, clique em **"Área da Profissional"** e di
 - **Agenda:** Visualize todos os agendamentos das clientes agrupados por dia, com botão direto para chamar a cliente no **WhatsApp** com 1 clique!
 - **Biografia:** Atualize nome, especialidades, texto de apresentação e foto de perfil — dados salvos no Supabase.
 - **Exportar PDF:** Gere o catálogo vertical da página principal já com o carrossel e a biografia atualizados.
+
+---
+
+## 🤖 Robô: Keep-alive do Supabase + Lembretes no WhatsApp
+
+Dois robôs rodam no **GitHub Actions**:
+
+- **Supabase keep-alive** (`supabase-keepalive.yml`): ping diário no banco para o projeto gratuito não ser pausado por inatividade.
+- **Lembretes no WhatsApp** (`whatsapp-reminders.yml`): a cada 10 minutos, avisa a profissional 24h antes e 1h antes de cada atendimento confirmado.
+
+### Como ativar os lembretes no WhatsApp
+
+O robô usa o **CallMeBot** (grátis, uso pessoal). Quem precisa ativar é o dono do número que receberá as mensagens:
+
+1. Salve o número **+34 644 26 33 77** nos contatos do seu celular.
+2. Envie pelo WhatsApp a mensagem: `I allow callmebot to send me messages`.
+3. Aguarde a resposta com a sua `apikey`.
+4. No GitHub, abra o repositório > **Settings** > **Secrets and variables** > **Actions**.
+5. Clique em **"New repository secret"**:
+   - **Name:** `CALLMEBOT_APIKEY`
+   - **Secret:** cole a chave recebida do CallMeBot
+   - Clique em **"Add secret"**.
+6. (Opcional) Outro secret `WHATSAPP_PHONE` define o número de destino. Padrão: **(45) 99109-6203**.
+
+### Como testar
+
+Vá na aba **Actions** > **Lembretes no WhatsApp** > **Run workflow** > **Run workflow** e marque "Enviar apenas uma mensagem de teste". Você receberá a mensagem no número configurado.
+
+---
