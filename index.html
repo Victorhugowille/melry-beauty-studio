@@ -181,6 +181,7 @@
       <button role="tab" id="at-ag" aria-selected="false">Agenda</button>
       <button role="tab" id="at-bio" aria-selected="false">Biografia</button>
       <button role="tab" id="at-pdf" aria-selected="false">Exportar PDF</button>
+      <button role="tab" id="at-zap" aria-selected="false">WhatsApp</button>
     </div>
 
     <!-- Aba 1: Serviços -->
@@ -315,6 +316,40 @@
       </div>
     </div>
 
+    <!-- Aba 7: Testar os avisos no WhatsApp -->
+    <div id="p-zap" hidden>
+      <h2>Avisos no WhatsApp</h2>
+      <p class="sub">O robô avisa no WhatsApp um dia antes e uma hora antes de cada atendimento. Use os botões abaixo para testar como a mensagem chega.</p>
+
+      <div class="card" style="margin-bottom:16px;">
+        <label for="zap-phone" style="margin-top:0">Número que recebe os avisos (com DDI + DDD)</label>
+        <input id="zap-phone" type="tel" inputmode="numeric" autocomplete="off" placeholder="554591096203">
+
+        <label for="zap-apikey">Apikey do CallMeBot</label>
+        <input id="zap-apikey" type="password" autocomplete="off" placeholder="Cole a apikey (chegou no seu WhatsApp na ativação)">
+        <p class="err" id="zap-err" role="alert"></p>
+
+        <div class="tools" style="margin-top:6px;">
+          <button class="mini" id="zap-save">Salvar neste navegador</button>
+        </div>
+        <p class="sub" style="margin-top:10px; font-size:0.82rem;">
+          A apikey nunca entra no código do site — fica salva apenas neste navegador.
+          Quem envia os avisos de verdade é o robô do GitHub Actions.
+        </p>
+      </div>
+
+      <div class="card" style="margin-bottom:20px; text-align:center;">
+        <p style="margin:0 0 14px; font-size:0.95rem; color:var(--muted)">
+          Envia uma mensagem de exemplo agora, como se fosse um agendamento real.
+        </p>
+        <div class="tools" style="justify-content:center;">
+          <button class="cta" id="zap-test-day" style="margin-top:0; max-width:200px;">Teste de 1 dia</button>
+          <button class="cta" id="zap-test-hour" style="margin-top:0; max-width:200px;">Teste de 1 hr</button>
+        </div>
+        <p class="sub" id="zap-status" role="status" aria-live="polite" style="margin-top:14px; min-height:1.2em;"></p>
+      </div>
+    </div>
+
     <footer><button class="enter" id="logout">Sair da Conta</button></footer>
   </div>
 </div>
@@ -338,6 +373,7 @@
 <script src="js/schedule.js"></script>
 <script src="js/agenda.js"></script>
 <script src="js/pdf.js"></script>
+<script src="js/whatsapp-teste.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

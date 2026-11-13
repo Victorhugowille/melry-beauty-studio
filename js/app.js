@@ -75,7 +75,7 @@ $("logout").onclick = () => {
 // PAINEL DE CONTROLE (ADMIN)
 // -------------------------------------------------------------
 function adminTab(t) {
-  const m = { serv: "p-serv", gal: "p-gal", hor: "p-hor", ag: "p-ag", bio: "p-bio", pdf: "p-pdf" };
+  const m = { serv: "p-serv", gal: "p-gal", hor: "p-hor", ag: "p-ag", bio: "p-bio", pdf: "p-pdf", zap: "p-zap" };
   for (const k in m) {
     const el = $(m[k]);
     if (el) el.hidden = k !== t;
@@ -97,6 +97,7 @@ $("at-hor").onclick = () => adminTab("hor");
 $("at-ag").onclick = () => adminTab("ag");
 if ($("at-bio")) $("at-bio").onclick = () => adminTab("bio");
 if ($("at-pdf")) $("at-pdf").onclick = () => adminTab("pdf");
+if ($("at-zap")) $("at-zap").onclick = () => adminTab("zap");
 
 function updateDbStatusIndicator() {
   const el = $("db-status");
