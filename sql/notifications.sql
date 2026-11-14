@@ -1,39 +1,34 @@
 -- ==============================================================================
--- CONTROLE DE LEMBRETES ENVIADOS + LEMBRETES PUSH DO CLIENTE
--- Usado pelo bot (CallMeBot/GitHub Actions) para não repetir mensagens.
--- Rode este arquivo inteiro no SQL Editor do Supabase (pode rodar de novo).
+-- LEMBRETES POR E-MAIL (Brevo) — MERLY BEAUTY STUDIO
+-- Rode este arquivo inteiro no SQL Editor do Supabase. Pode rodar de novo.
 -- ==============================================================================
 
--- 1) Estende os tipos de aviso aceitos (agora também para o cliente)
-ALTER TABLE reminders_log DROP CONSTRAINT IF EXISTS reminders_log_kind_check;
-ALTER TABLE reminders_log ADD CONSTRAINT reminders_log_kind_check
-    CHECK (kind IN ('day', 'hour', 'client_booked', 'client_day', 'client_hour', 'client_wa_booked', 'client_wa_day', 'client_wa_hour'));
+-- 1) E-mail na tabela de agendamentos (idempotente)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'bookings' AND column_name = 'email'
+  ) THEN
+    ALTER TABLE bookings ADD COLUMN email TEXT;
+  END IF;
+END $$;
 
--- 2) Tabela de inscrições push (navegador do cliente ↔ agendamento)
-CREATE TABLE IF NOT EXISTS push_subscriptions (
-    id            BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    booking_id    TEXT REFERENCES bookings(id) ON DELETE CASCADE,
-    subscription  JSONB NOT NULL,
-    created_at    TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
+-- 2) Controle de lembretes já enviados (cria só se não existir)
+CREATE TABLE IF NOT EXISTS reminders_log (
+    id         BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    booking_id TEXT NOT NULL,
+    kind       TEXT NOT NULL,
+    sent_at    TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
+    UNIQUE (booking_id, kind)
 );
 
-CREATE INDEX IF NOT EXISTS idx_push_subscriptions_booking_id ON push_subscriptions(booking_id);
+-- 3) Tipos de aviso aceitos
+ALTER TABLE reminders_log DROP CONSTRAINT IF EXISTS reminders_log_kind_check;
+ALTER TABLE reminders_log ADD CONSTRAINT reminders_log_kind_check
+    CHECK (kind IN ('day', 'hour',
+                    'client_email_booked', 'client_email_day', 'client_email_hour'));
 
-ALTER TABLE push_subscriptions ENABLE ROW LEVEL SECURITY;
-
--- O site grava a inscrição (anon) e o bot lê e remove (anon) — mesmo padrão aberto
--- das demais tabelas deste projeto.
-DROP POLICY IF EXISTS "Inscricao de push" ON push_subscriptions;
-CREATE POLICY "Inscricao de push" ON push_subscriptions
-    FOR INSERT WITH CHECK (true);
-DROP POLICY IF EXISTS "Leitura das inscricoes push" ON push_subscriptions;
-CREATE POLICY "Leitura das inscricoes push" ON push_subscriptions
-    FOR SELECT USING (true);
-DROP POLICY IF EXISTS "Remocao das inscricoes push" ON push_subscriptions;
-CREATE POLICY "Remocao das inscricoes push" ON push_subscriptions
-    FOR DELETE USING (true);
-
--- 3) Segurança do controle de duplicatas (igual à versão anterior, sem mudanças)
 CREATE INDEX IF NOT EXISTS idx_reminders_log_sent_at ON reminders_log(sent_at);
 
 ALTER TABLE reminders_log ENABLE ROW LEVEL SECURITY;
@@ -49,3 +44,6 @@ CREATE POLICY "Registro de lembretes enviados" ON reminders_log
 DROP POLICY IF EXISTS "Remocao de reservas de lembrete" ON reminders_log;
 CREATE POLICY "Remocao de reservas de lembrete" ON reminders_log
     FOR DELETE USING (true);
+
+-- 4) Push notifications: desativado (substituído pelos e-mails).
+DROP TABLE IF EXISTS push_subscriptions;

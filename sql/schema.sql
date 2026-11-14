@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     dur INTEGER NOT NULL,                   -- Duração em minutos
     name TEXT NOT NULL,                     -- Nome da cliente
     phone TEXT NOT NULL,                    -- Telefone / WhatsApp da cliente
+    email TEXT,                             -- E-mail do cliente (para lembretes)
     status TEXT NOT NULL DEFAULT 'confirmado', -- 'confirmado', 'cancelado', 'concluido'
     created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
 );

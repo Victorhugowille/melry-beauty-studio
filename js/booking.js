@@ -148,6 +148,7 @@ $("times").addEventListener("click", e => {
 $("confirm").addEventListener("click", async () => {
   const name = $("name").value.trim();
   const phone = $("phone").value.trim();
+  const email = $("email").value.trim();
   const digits = phone.replace(/\D/g, "");
   const err = $("err");
   err.textContent = "";
@@ -163,6 +164,11 @@ $("confirm").addEventListener("click", async () => {
   if (digits.length < 10) {
     err.textContent = "Digite um número de WhatsApp válido com DDD (ex: 45 99999-9999).";
     $("phone").focus();
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+    err.textContent = "Digite um e-mail válido (ex: voce@gmail.com).";
+    $("email").focus();
     return;
   }
   if (!validStarts(sel.date, s.dur).includes(sel.time)) {
@@ -185,7 +191,8 @@ $("confirm").addEventListener("click", async () => {
     start: sel.time,
     dur: s.dur,
     name,
-    phone
+    phone,
+    email
   };
 
   try {
@@ -200,7 +207,6 @@ $("confirm").addEventListener("click", async () => {
     `;
     $("bflowwrap").hidden = true;
     $("done").hidden = false;
-    if (window.MelryPush) window.MelryPush.offer(newBooking.id);
     window.scrollTo(0, 0);
   } catch (e) {
     err.textContent = "Não foi possível confirmar o agendamento no momento. Tente novamente.";

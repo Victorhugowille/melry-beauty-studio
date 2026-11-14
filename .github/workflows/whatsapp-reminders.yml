@@ -1,8 +1,8 @@
-name: Lembretes no WhatsApp e no aparelho
+name: Lembretes no WhatsApp
 
-# Avisa a Maria (WhatsApp, 24h e ~1h antes) e o cliente (push no aparelho,
-# confirmado + 24h e ~1h antes) de cada atendimento confirmado.
+# Avisa a Maria (WhatsApp, 24h e ~1h antes) de cada atendimento confirmado.
 # Para não duplicar mensagens, cada aviso é registrado na tabela reminders_log.
+# Os lembretes do cliente vão por E-MAIL (Edge Function send-reminders + cron-job.org).
 
 on:
   schedule:
@@ -43,17 +43,6 @@ jobs:
 
       - name: Instalar dependências
         run: npm install --no-audit --no-fund
-
-      - name: Avisos para o cliente (push no aparelho — grátis)
-        run: node scripts/send-client-push.mjs
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-          STUDIO_TIMEZONE: America/Campo_Grande
-          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
-          VAPID_SUBJECT: ${{ secrets.VAPID_SUBJECT }}
-          DRY_RUN: ${{ inputs.dry_run }}
-          TEST_MESSAGE: ${{ inputs.test_message }}
 
       - name: Avisos para a Maria (WhatsApp)
         run: node scripts/send-reminders.mjs

@@ -473,6 +473,7 @@
               dur: booking.dur,
               name: booking.name,
               phone: booking.phone,
+              email: booking.email || null,
               status: "confirmado"
             })
             .select()
@@ -509,27 +510,6 @@
       return true;
     },
 
-    // -------------------------------------------------------------
-    // LEMBRETES PUSH DO CLIENTE
-    // Guarda a "assinatura" do navegador deste cliente vinculada ao
-    // agendamento. O bot do GitHub Actions usa para mandar os avisos.
-    // -------------------------------------------------------------
-    async savePushSubscription(subscription, bookingId) {
-      if (isOnline) {
-        const { error } = await supabase
-          .from("push_subscriptions")
-          .insert({
-            booking_id: bookingId || null,
-            subscription
-          });
-        if (error) throw error;
-        return true;
-      }
-      // Offline: guarda no localStorage para enviar numa próxima sincronização
-      const pending = localLoad("melry_push_pending", []);
-      pending.push({ booking_id: bookingId || null, subscription, created_at: new Date().toISOString() });
-      localSave("melry_push_pending", pending);
-      return true;
-    }
   };
 })();
+
