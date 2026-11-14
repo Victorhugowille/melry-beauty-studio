@@ -166,7 +166,7 @@ Na parte inferior da página inicial, clique em **"Área da Profissional"** e di
 
 - **Supabase keep-alive** (`supabase-keepalive.yml`): ping diário no banco para o projeto gratuito não ser pausado por inatividade.
 - **Avisos para a profissional** (`whatsapp-reminders.yml`, GitHub Actions): a cada 10 minutos, avisa a Maria no WhatsApp 24h antes e ~1h antes de cada atendimento confirmado.
-- **E-mails para o cliente** (`supabase/functions/send-reminders`): confirmação na hora + lembretes de **1 dia antes** e **~1 hora antes**, tudo por e-mail via **Brevo** (grátis, 300 e-mails/dia). Não depende de computador ligado: um cron externo gratuito chama a função a cada 5 minutos.
+- **E-mails para o cliente** (`supabase/functions/send-reminders`): confirmação na hora + lembretes de **1 dia antes** e **~1 hora antes**, tudo por e-mail via **Gmail SMTP** (grátis, até 500/dia). Não depende de computador ligado: um cron externo gratuito chama a função a cada 5 minutos.
 
 > **Por que e-mail e não WhatsApp do cliente?** Não existe caminho gratuito, oficial e 100% automatizado para mandar WhatsApp a números de clientes sem servidor próprio. O e-mail resolve isso de graça e sem o seu PC ligado.
 
@@ -184,15 +184,16 @@ O robô usa o **CallMeBot** (grátis, uso pessoal). Quem precisa ativar é o don
    - Clique em **"Add secret"**.
 6. (Opcional) Outro secret `WHATSAPP_PHONE` define o número de destino. Padrão: **+55 45 9109-6203**.
 
-### Como ativar os e-mails para o cliente (Brevo + cron-job.org)
+### Como ativar os e-mails para o cliente (Gmail, grátis)
 
 1. No **SQL Editor** do Supabase, rode o `sql/notifications.sql` (cria a coluna `email`, ajusta os tipos de aviso e remove a tabela antiga de push; é seguro rodar de novo).
-2. No **Brevo** (brevo.com): verifique o e-mail remetente em **Senders & Domains** (use `victorhugowille@gmail.com` agora; depois troque pelo da Maria) e crie uma **API Key** em **SMTP & API**.
+2. No seu Google: ative a **Verificação em duas etapas** (myaccount.google.com/security) e gere uma **senha de app** em myaccount.google.com/apppasswords (nome: "Melry"). Copie os 16 dígitos.
 3. No Supabase, instale a função (uma vez só, no seu PC):
    ```bash
    npx supabase functions deploy send-reminders --no-verify-jwt --project-ref SEU_REF
-   supabase secrets set BREVO_API_KEY=CHAVE_DO_BREVO --project-ref SEU_REF
-   supabase secrets set BREVO_SENDER=victorhugowille@gmail.com --project-ref SEU_REF
+   supabase secrets set GMAIL_APP_PASSWORD=SENHA_DE_APP_16_DIGITOS --project-ref SEU_REF
+   # opcional (padrão já é o seu gmail):
+   supabase secrets set GMAIL_USER=victorhugowille@gmail.com --project-ref SEU_REF
    # opcional, recomendado:
    supabase secrets set CRON_SECRET=uma_senha_qualquer --project-ref SEU_REF
    ```
@@ -202,6 +203,8 @@ O robô usa o **CallMeBot** (grátis, uso pessoal). Quem precisa ativar é o don
    - **A cada:** 5 minutos
    - Se configurou `CRON_SECRET`, adicione o header `x-cron-secret: sua_senha_qualquer` (ou use `?secret=sua_senha_qualquer` na URL).
 5. Pronto. Quando um cliente agenda, ele digita o e-mail e recebe a confirmação em até ~5 minutos, depois os avisos de 1 dia e de 1 hora antes.
+
+> Para trocar o remetente para o e-mail da Maria depois: gere uma senha de app no Gmail dela e rode `supabase secrets set GMAIL_USER=email_dela GMAIL_APP_PASSWORD=nova_senha --project-ref SEU_REF`.
 
 ### Como testar
 
