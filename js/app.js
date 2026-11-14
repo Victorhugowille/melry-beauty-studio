@@ -26,8 +26,8 @@ async function initApp() {
   // Fecha a splash de carregamento de forma fluida e suave assim que o catálogo carregar
   if (loader) {
     const elapsed = Date.now() - startTime;
-    // Garante no mínimo 800ms para o vídeo reproduzir com elegância
-    const remaining = Math.max(0, 900 - elapsed);
+    // Garante no mínimo 6s de vídeo antes de abrir o site
+    const remaining = Math.max(0, 6000 - elapsed);
     setTimeout(() => {
       loader.classList.add("fade-out");
       setTimeout(() => {
