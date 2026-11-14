@@ -12,3 +12,6 @@ Thumbs.db
 temp_*
 extract.js
 build_index.js
+
+# Supabase CLI temp
+supabase/.temp/
