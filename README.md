@@ -166,7 +166,7 @@ Na parte inferior da página inicial, clique em **"Área da Profissional"** e di
 
 - **Supabase keep-alive** (`supabase-keepalive.yml`): ping diário no banco para o projeto gratuito não ser pausado por inatividade.
 - **Avisos para a profissional** (`whatsapp-reminders.yml`, GitHub Actions): a cada 10 minutos, avisa a Maria no WhatsApp 24h antes e ~1h antes de cada atendimento confirmado.
-- **E-mails para o cliente** (`supabase/functions/send-reminders`): confirmação na hora + lembretes de **1 dia antes** e **~1 hora antes**, tudo por e-mail via **Gmail SMTP** (grátis, até 500/dia). Não depende de computador ligado: um cron externo gratuito chama a função a cada 5 minutos.
+- **E-mails para o cliente** (`supabase/functions/send-reminders`): confirmação na hora + lembretes de **1 dia antes** e **~1 hora antes**, tudo por e-mail via **EmailJS** (grátis, 200 e-mails/mês). Não depende de computador ligado: um cron externo gratuito chama a função a cada 5 minutos.
 
 > **Por que e-mail e não WhatsApp do cliente?** Não existe caminho gratuito, oficial e 100% automatizado para mandar WhatsApp a números de clientes sem servidor próprio. O e-mail resolve isso de graça e sem o seu PC ligado.
 
@@ -184,31 +184,41 @@ O robô usa o **CallMeBot** (grátis, uso pessoal). Quem precisa ativar é o don
    - Clique em **"Add secret"**.
 6. (Opcional) Outro secret `WHATSAPP_PHONE` define o número de destino. Padrão: **+55 45 9109-6203**.
 
-### Como ativar os e-mails para o cliente (Gmail, grátis)
+### Como ativar os e-mails para o cliente (EmailJS, grátis)
+
+O Supabase não permite SMTP direto, então o envio é feito pela API do **EmailJS** (que conecta no seu Gmail e manda os e-mails). Conta grátis, **sem SMS**, 200 e-mails/mês.
 
 1. No **SQL Editor** do Supabase, rode o `sql/notifications.sql` (cria a coluna `email`, ajusta os tipos de aviso e remove a tabela antiga de push; é seguro rodar de novo).
-2. No seu Google: ative a **Verificação em duas etapas** (myaccount.google.com/security) e gere uma **senha de app** em myaccount.google.com/apppasswords (nome: "Melry"). Copie os 16 dígitos.
-3. No Supabase, instale a função (uma vez só, no seu PC):
+2. Crie a conta em **emailjs.com** (com e-mail ou com o Google).
+3. Em **Email Services** > **Add New Service**, escolha **Gmail** e autorize com o seu Gmail. Copie o **Service ID**.
+4. Em **Email Templates** > **Create New Template**, configure:
+   - **To:** `{{to_email}}`
+   - **Subject:** `🌸 Melry Beauty Studio · seu agendamento`
+   - **Content** (HTML):
+     ```html
+     <p style="font-size:18px;color:#c95b79"><strong>🌸 Melry Beauty Studio</strong></p>
+     <p style="font-size:18px"><strong>{{title}}</strong></p>
+     <p>{{line1}}</p>
+     <p>{{line2}}<br>{{line3}}<br>{{line4}}</p>
+     <p style="color:#8a6b6b">Qualquer imprevisto, é só chamar no WhatsApp do estúdio. Te esperamos! ✨</p>
+     ```
+   - Copie o **Template ID**.
+5. Em **Account** > **API Keys**, copie a **Public Key** e a **Private Key**.
+6. No seu PC (uma vez só):
    ```bash
-   npx supabase functions deploy send-reminders --no-verify-jwt --project-ref SEU_REF
-   supabase secrets set GMAIL_APP_PASSWORD=SENHA_DE_APP_16_DIGITOS --project-ref SEU_REF
-   # opcional (padrão já é o seu gmail):
-   supabase secrets set GMAIL_USER=victorhugowille@gmail.com --project-ref SEU_REF
-   # opcional, recomendado:
-   supabase secrets set CRON_SECRET=uma_senha_qualquer --project-ref SEU_REF
+   npx supabase secrets set EMAILJS_SERVICE_ID=service_xxx EMAILJS_TEMPLATE_ID=template_xxx EMAILJS_PUBLIC_KEY=xxxxxxxxxxxxxxxxxxxxxx EMAILJS_PRIVATE_KEY=xxxxxxxxxxxxxxxxxxxxxx --project-ref oahywgiwvrjpnqwuffem --yes
    ```
-4. Em **cron-job.org** (grátis), crie um job:
-   - **URL:** `https://SEU_REF.supabase.co/functions/v1/send-reminders`
+7. Em **cron-job.org** (grátis), crie um job:
+   - **URL:** `https://oahywgiwvrjpnqwuffem.supabase.co/functions/v1/send-reminders`
    - **Método:** GET
    - **A cada:** 5 minutos
-   - Se configurou `CRON_SECRET`, adicione o header `x-cron-secret: sua_senha_qualquer` (ou use `?secret=sua_senha_qualquer` na URL).
-5. Pronto. Quando um cliente agenda, ele digita o e-mail e recebe a confirmação em até ~5 minutos, depois os avisos de 1 dia e de 1 hora antes.
+8. Pronto. Quando um cliente agenda, ele digita o e-mail e recebe a confirmação em até ~5 minutos, depois os avisos de 1 dia e de 1 hora antes.
 
-> Para trocar o remetente para o e-mail da Maria depois: gere uma senha de app no Gmail dela e rode `supabase secrets set GMAIL_USER=email_dela GMAIL_APP_PASSWORD=nova_senha --project-ref SEU_REF`.
+> Para trocar o remetente para o e-mail da Maria depois: adicione um novo serviço Gmail com a conta dela no EmailJS e atualize o EMAILJS_SERVICE_ID.
 
 ### Como testar
 
 - **WhatsApp da profissional:** aba **Actions** > **Lembretes no WhatsApp** > **Run workflow** e marque "Enviar apenas uma mensagem de teste".
-- **E-mail:** crie um agendamento de teste no site com o seu e-mail (o formulário agora pede e-mail) e confira a caixa de entrada em alguns minutos. Para forçar, chame a URL da função no navegador: `https://SEU_REF.supabase.co/functions/v1/send-reminders`.
+- **E-mail:** crie um agendamento de teste no site com o seu e-mail (o formulário agora pede e-mail) e confira a caixa de entrada em alguns minutos. Para forçar, chame a URL da função no navegador: `https://oahywgiwvrjpnqwuffem.supabase.co/functions/v1/send-reminders`.
 
 ---

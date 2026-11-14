@@ -1,7 +1,7 @@
 /**
  * SEND-REMINDERS — Melry Beauty Studio
  *
- * Envia os e-mails do cliente via Gmail SMTP (senha de app):
+ * Envia os e-mails do cliente via EmailJS (API HTTPS, usa o Gmail do remetente):
  *   - client_email_booked : confirmação, logo após agendar (≤45 min)
  *   - client_email_day    : lembrete 24h antes
  *   - client_email_hour   : lembrete ~1h antes
@@ -10,13 +10,13 @@
  * Sem PC ligado, sem servidor.
  *
  * Secrets (supabase secrets set ...):
- *   GMAIL_USER         - default: victorhugowille@gmail.com (depois: o da Maria)
- *   GMAIL_APP_PASSWORD - senha de app do Google (myaccount.google.com/apppasswords)
- *   CRON_SECRET        - (opcional) se existir, exige o header x-cron-secret
- *   STUDIO_TIMEZONE    - (opcional, default: America/Campo_Grande)
+ *   EMAILJS_SERVICE_ID   - id do serviço (Gmail) no EmailJS
+ *   EMAILJS_TEMPLATE_ID  - id do template de e-mail
+ *   EMAILJS_PUBLIC_KEY   - chave pública da conta
+ *   EMAILJS_PRIVATE_KEY  - chave privada (envio server-side)
+ *   CRON_SECRET          - (opcional) se existir, exige o header x-cron-secret
+ *   STUDIO_TIMEZONE      - (opcional, default: America/Campo_Grande)
  */
-
-import nodemailer from "npm:nodemailer@6";
 
 const HOUR = 60 * 60 * 1000;
 const DAY_WINDOW = { maxMs: 24 * HOUR, minMs: 2 * HOUR };
@@ -73,24 +73,12 @@ const fmtLongDate = (dateStr) =>
     weekday: "long", day: "numeric", month: "long", timeZone: "UTC",
   }).format(new Date(`${dateStr}T12:00:00Z`));
 
-// ---------- e-mail (Gmail SMTP) ----------
+// ---------- e-mail (EmailJS) ----------
 
 const money = (v) =>
   v.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 
-function htmlCard(title, lines) {
-  const body = lines
-    .map((l) => `<p style="margin:0 0 6px;font-size:15px;line-height:1.5;color:#4a2f2f">${l}</p>`)
-    .join("");
-  return `<!doctype html><html lang="pt-BR"><body style="margin:0;background:#fdf1f4;font-family:Georgia,serif;padding:24px">
-  <div style="max-width:480px;margin:0 auto;background:#fff;border-radius:16px;padding:28px 26px;box-shadow:0 6px 18px rgba(214,116,138,.18)">
-    <p style="margin:0 0 14px;font-size:22px;font-weight:bold;color:#c95b79">🌸 Melry Beauty Studio</p>
-    <p style="margin:0 0 14px;font-size:18px;font-weight:bold;color:#4a2f2f">${title}</p>
-    ${body}
-    <p style="margin:18px 0 0;font-size:14px;color:#8a6b6b;border-top:1px solid #f3d5dc;padding-top:12px">Qualquer imprevisto, é só chamar no WhatsApp do estúdio. Te esperamos! ✨</p>
-  </div></body></html>`;
-}
-
+// Monta as variáveis de um template único do EmailJS (título + linhas)
 function buildEmail(kind, b) {
   const service = b.nome || "Atendimento";
   const start = Number(b.start);
@@ -98,27 +86,30 @@ function buildEmail(kind, b) {
   const when = `${fmtMinutes(start)} às ${fmtMinutes(end)}`;
   const dateLong = fmtLongDate(b.date);
   const price = Number(b.preco);
-  const priceLine = Number.isFinite(price) && price > 0 ? `💰 R$ ${money(price)}` : null;
+  const priceLine = Number.isFinite(price) && price > 0 ? `💰 R$ ${money(price)}` : "";
   const client = b.name || "cliente";
 
+  let title, intro;
   if (kind === "booked") {
-    return {
-      subject: "🌸 Agendamento confirmado — Melry Beauty Studio",
-      text: [`Oi, ${client}! Seu agendamento foi confirmado:`, `💅 ${service}`, `📅 ${dateLong}`, `🕐 ${when}`, priceLine].filter(Boolean).join("\n"),
-      html: htmlCard("Agendamento confirmado! 💛", [`Oi, <strong>${client}</strong>! Seu agendamento foi confirmado:`, `💅 ${service}`, `📅 ${dateLong}`, `🕐 ${when}`, ...(priceLine ? [priceLine] : [])]),
-    };
+    title = "Agendamento confirmado! 💛";
+    intro = `Oi, ${client}! Seu agendamento foi confirmado:`;
+  } else if (kind === "day") {
+    title = "Lembrete: seu atendimento é amanhã! 💛";
+    intro = `Oi, ${client}! Só passando pra lembrar do seu horário amanhã:`;
+  } else {
+    title = "Seu atendimento começa em breve! ✨";
+    intro = `Oi, ${client}! Seu horário é hoje:`;
   }
-  if (kind === "day") {
-    return {
-      subject: "💛 Amanhã é o seu dia — Melry Beauty Studio",
-      text: [`Oi, ${client}! Só passando pra lembrar do seu horário amanhã:`, `💅 ${service}`, `📅 ${dateLong}`, `🕐 ${when}`].join("\n"),
-      html: htmlCard("Lembrete: seu atendimento é amanhã! 💛", [`Oi, <strong>${client}</strong>! Só passando pra lembrar do seu horário amanhã:`, `💅 ${service}`, `📅 ${dateLong}`, `🕐 ${when}`]),
-    };
-  }
+
   return {
-    subject: "✨ Falta pouquinho — Melry Beauty Studio",
-    text: [`Oi, ${client}! Seu horário é hoje:`, `💅 ${service}`, `🕐 ${when}`].join("\n"),
-    html: htmlCard("Seu atendimento começa em breve! ✨", [`Oi, <strong>${client}</strong>! Seu horário é hoje:`, `💅 ${service}`, `🕐 ${when}`]),
+    params: {
+      title,
+      line1: intro,
+      line2: `💅 ${service}`,
+      line3: `📅 ${dateLong} · 🕐 ${when}`,
+      line4: priceLine,
+      to_name: client,
+    },
   };
 }
 
@@ -154,26 +145,26 @@ async function releaseReminder(env, bookingId, kind) {
 }
 
 async function sendMail(env, to, email) {
-  const transport = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: { user: env.GMAIL_USER, pass: env.GMAIL_APP_PASSWORD },
+  const res = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      service_id: env.EMAILJS_SERVICE_ID,
+      template_id: env.EMAILJS_TEMPLATE_ID,
+      user_id: env.EMAILJS_PUBLIC_KEY,
+      accessToken: env.EMAILJS_PRIVATE_KEY,
+      template_params: { to_email: to, ...email.params },
+    }),
   });
-  await transport.sendMail({
-    from: `Melry Beauty Studio <${env.GMAIL_USER}>`,
-    to,
-    subject: email.subject,
-    text: email.text,
-    html: email.html,
-  });
+  if (!res.ok) {
+    throw new Error(`EmailJS respondeu HTTP ${res.status}: ${await res.text()}`);
+  }
 }
 
 // ---------- função principal ----------
 
 export default async function handler(req) {
   const env = Deno.env.toObject();
-  if (!env.GMAIL_USER) env.GMAIL_USER = "victorhugowille@gmail.com";
   const json = (body, status = 200) =>
     new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 
@@ -182,7 +173,9 @@ export default async function handler(req) {
       const given = req.headers.get("x-cron-secret") || new URL(req.url).searchParams.get("secret");
       if (given !== env.CRON_SECRET) return json({ error: "não autorizado" }, 401);
     }
-    if (!env.GMAIL_APP_PASSWORD) return json({ error: "GMAIL_APP_PASSWORD não configurada" }, 500);
+    for (const name of ["EMAILJS_SERVICE_ID", "EMAILJS_TEMPLATE_ID", "EMAILJS_PUBLIC_KEY", "EMAILJS_PRIVATE_KEY"]) {
+      if (!env[name]) return json({ error: `${name} não configurada` }, 500);
+    }
 
     const timeZone = env.STUDIO_TIMEZONE || "America/Campo_Grande";
     const now = new Date();
