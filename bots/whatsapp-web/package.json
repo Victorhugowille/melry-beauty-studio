@@ -1,0 +1,15 @@
+{
+  "name": "whatsapp-web",
+  "version": "1.0.0",
+  "description": "Bot de lembretes para o cliente via WhatsApp Web (gratuito e automatizado).",
+  "main": "bot.mjs",
+  "type": "module",
+  "scripts": {
+    "start": "node bot.mjs",
+    "test": "node bot.mjs --test 55459999999"
+  },
+  "dependencies": {
+    "whatsapp-web.js": "^1.21.0",
+    "qrcode-terminal": "^0.12.0"
+  }
+}

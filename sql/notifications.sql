@@ -1,13 +1,13 @@
 -- ==============================================================================
 -- CONTROLE DE LEMBRETES ENVIADOS + LEMBRETES PUSH DO CLIENTE
--- Usado pelos robôs (GitHub Actions) para não repetir mensagens.
+-- Usado pelo bot (CallMeBot/GitHub Actions) para não repetir mensagens.
 -- Rode este arquivo inteiro no SQL Editor do Supabase (pode rodar de novo).
 -- ==============================================================================
 
 -- 1) Estende os tipos de aviso aceitos (agora também para o cliente)
 ALTER TABLE reminders_log DROP CONSTRAINT IF EXISTS reminders_log_kind_check;
 ALTER TABLE reminders_log ADD CONSTRAINT reminders_log_kind_check
-    CHECK (kind IN ('day', 'hour', 'client_booked', 'client_day', 'client_hour'));
+    CHECK (kind IN ('day', 'hour', 'client_booked', 'client_day', 'client_hour', 'client_wa_booked', 'client_wa_day', 'client_wa_hour'));
 
 -- 2) Tabela de inscrições push (navegador do cliente ↔ agendamento)
 CREATE TABLE IF NOT EXISTS push_subscriptions (
@@ -26,11 +26,9 @@ ALTER TABLE push_subscriptions ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Inscricao de push" ON push_subscriptions;
 CREATE POLICY "Inscricao de push" ON push_subscriptions
     FOR INSERT WITH CHECK (true);
-
 DROP POLICY IF EXISTS "Leitura das inscricoes push" ON push_subscriptions;
 CREATE POLICY "Leitura das inscricoes push" ON push_subscriptions
     FOR SELECT USING (true);
-
 DROP POLICY IF EXISTS "Remocao das inscricoes push" ON push_subscriptions;
 CREATE POLICY "Remocao das inscricoes push" ON push_subscriptions
     FOR DELETE USING (true);
