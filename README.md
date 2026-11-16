@@ -45,6 +45,7 @@ Aplicativo moderno e responsivo de agendamento online para estúdios de beleza e
 │   ├── booking.js          # Calendário e agendamento da cliente
 │   ├── schedule.js         # Grade de horários do painel
 │   ├── agenda.js           # Agenda de clientes e cancelamentos
+│   ├── economia.js         # Aba de faturamento, pizza e rankings
 │   ├── pdf.js              # Exportação da página em PDF
 │   └── app.js              # Inicialização, login, painel e tema
 └── sql/
@@ -153,12 +154,14 @@ Na parte inferior da página inicial, clique em **"Área da Profissional"** e di
 - A cliente escolhe o serviço, navega pelo **calendário mensal**, seleciona um dia com horários disponíveis, escolhe o horário e confirma com nome e WhatsApp. Dias sem vaga aparecem desabilitados.
 
 ### Funcionalidades do Painel:
+O painel abre com um **menu lateral (drawer)** com todas as abas.
+- **Faturamento:** resumo do que já entrou no período (mês, 30/90 dias, ano ou tudo), com atendimentos, ticket médio, clientes, **gráfico de pizza** por serviço, ranking dos serviços mais feitos e das clientes que mais gastaram.
 - **Serviços:** Adicione, edite ou exclua serviços, categorize entre Manicure, Sobrancelhas ou Cílios, defina valores, tempos e envie fotos.
 - **Galeria:** Escolha até 8 fotos para o carrossel exibido logo abaixo da logo na página principal, com legenda opcional.
 - **Horários:** Grade padrão já pronta — segunda a sexta das 7h às 11h30 e das 19h às 20h, sábado das 13h às 19h, domingo fechado. Clique nos slots de 30 minutos para personalizar, use **"Aplicar horário padrão"** para restaurar o dia ou **"Fechar o dia"** para bloquear tudo.
 - **Agenda:** Visualize todos os agendamentos das clientes agrupados por dia, com botão direto para chamar a cliente no **WhatsApp** com 1 clique!
 - **Biografia:** Atualize nome, especialidades, texto de apresentação e foto de perfil — dados salvos no Supabase.
-- **Exportar PDF:** Gere o catálogo vertical da página principal já com o carrossel e a biografia atualizados.
+- **Exportar PDF:** Gere a página principal em PDF, igual à tela (sem carrossel e sem o botão "Agendar").
 
 ---
 

@@ -76,13 +76,28 @@
 }
 
 /* -------------------------------------------------------------
-   PAINEL · STATUS E ABAS
+   PAINEL · TOPO E STATUS
 ------------------------------------------------------------- */
+.admin-topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.admin-topbar .sub {
+  flex: 1;
+  margin: 0;
+}
+
+.admin-topbar .db-status-pill {
+  margin-bottom: 0;
+}
+
 .db-status-pill {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  margin-bottom: 12px;
   padding: 5px 12px;
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -106,45 +121,365 @@
   background: #f59e0b;
 }
 
-.tabs {
-  display: flex;
-  gap: 4px;
-  width: max-content;
-  max-width: 100%;
-  margin: 10px 0 22px;
-  padding: 5px;
-  overflow-x: auto;
-  border-radius: 999px;
+.drawer-toggle {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform 0.2s var(--ease), background 0.2s ease;
+}
+
+.drawer-toggle:hover {
   background: var(--soft);
-  scrollbar-width: none;
 }
 
-.tabs::-webkit-scrollbar {
-  display: none;
+.drawer-toggle:active {
+  transform: scale(0.96);
 }
 
-.tabs button {
-  padding: 8px 17px;
+/* -------------------------------------------------------------
+   PAINEL · MENU LATERAL (DRAWER)
+------------------------------------------------------------- */
+.admin-drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: min(292px, 84vw);
+  padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+  border-right: 1px solid var(--line);
+  background: linear-gradient(175deg, var(--surface), var(--surface-2));
+  box-shadow: var(--shadow-lg);
+  transform: translateX(-102%);
+  transition: transform 0.32s var(--ease);
+}
+
+.admin-drawer.open {
+  transform: translateX(0);
+}
+
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: rgba(38, 18, 25, 0.42);
+  backdrop-filter: blur(2px);
+}
+
+body.drawer-open {
+  overflow: hidden;
+}
+
+.drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 2px 4px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.drawer-brand {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.drawer-close {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.drawer-close:hover {
+  color: var(--ink);
+  background: var(--soft);
+}
+
+.drawer-nav {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.drawer-nav button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--muted);
   font: inherit;
-  font-size: 0.84rem;
+  font-size: 0.92rem;
   font-weight: 600;
-  white-space: nowrap;
+  text-align: left;
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
 }
 
-.tabs button:hover {
+.drawer-nav button .ico {
+  flex: 0 0 1.4em;
+  font-size: 1rem;
+  line-height: 1;
+  text-align: center;
+}
+
+.drawer-nav button:hover {
+  background: var(--soft);
   color: var(--ink);
 }
 
-.tabs button[aria-selected="true"] {
+.drawer-nav button[aria-selected="true"] {
   background: var(--brand);
   color: var(--brand-ink);
-  box-shadow: 0 4px 12px rgba(120, 59, 74, 0.18);
+  box-shadow: 0 6px 16px rgba(120, 59, 74, 0.2);
+}
+
+.drawer-foot {
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.drawer-foot .enter {
+  width: 100%;
+  margin: 0;
+}
+
+.admin-main {
+  min-width: 0;
+}
+
+/* -------------------------------------------------------------
+   PAINEL · FATURAMENTO / ECONOMIA
+------------------------------------------------------------- */
+.econ-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 18px;
+}
+
+.econ-filter .mini[aria-pressed="true"] {
+  background: var(--brand);
+  border-color: transparent;
+  color: var(--brand-ink);
+}
+
+.econ-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
+  gap: 10px;
+}
+
+.econ-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: linear-gradient(165deg, var(--surface), var(--surface-2));
+  box-shadow: var(--shadow-sm);
+}
+
+.econ-k {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.econ-v {
+  color: var(--brand-deep);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.55rem;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.econ-card small {
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.econ-h {
+  margin-top: 30px;
+  font-size: clamp(1.35rem, 3.4vw, 1.65rem);
+}
+
+.econ-pie-card {
+  display: grid;
+  gap: 18px;
+  align-items: center;
+  justify-items: center;
+}
+
+.econ-pie {
+  width: 100%;
+  max-width: 240px;
+}
+
+.econ-pie canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.econ-legend {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.econ-legend li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.85rem;
+}
+
+.econ-legend li:last-child {
+  border-bottom: 0;
+}
+
+.econ-legend .dot {
+  flex: 0 0 10px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.econ-legend-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.econ-legend-val {
+  color: var(--muted);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.econ-legend-val em {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.econ-legend .empty {
+  border: 0;
+  color: var(--muted);
+}
+
+.econ-rank {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.econ-rank:last-child {
+  border-bottom: 0;
+}
+
+.econ-rank-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.86rem;
+}
+
+.econ-rank-name {
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.econ-rank-name em {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 4px;
+  border-radius: 50%;
+  background: var(--soft);
+  color: var(--brand-deep);
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.econ-rank-val {
+  color: var(--muted);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.econ-bar {
+  height: 6px;
+  margin-top: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--soft);
+}
+
+.econ-bar span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--brand);
+}
+
+.econ-note {
+  margin-top: 18px;
+  font-size: 0.78rem;
+}
+
+@media (min-width: 620px) {
+  .econ-pie-card {
+    grid-template-columns: 220px 1fr;
+    justify-items: stretch;
+  }
+
+  .econ-pie {
+    max-width: 220px;
+  }
 }
 
 /* -------------------------------------------------------------

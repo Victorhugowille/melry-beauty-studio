@@ -67,6 +67,7 @@ $("login").onclick = doLogin;
 $("lp").addEventListener("input", () => { $("lerr").textContent = ""; });
 $("lp").addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
 $("logout").onclick = () => {
+  closeDrawer();
   renderServices();
   view("public");
 };
@@ -75,13 +76,14 @@ $("logout").onclick = () => {
 // PAINEL DE CONTROLE (ADMIN)
 // -------------------------------------------------------------
 function adminTab(t) {
-  const m = { serv: "p-serv", gal: "p-gal", hor: "p-hor", ag: "p-ag", bio: "p-bio", pdf: "p-pdf", zap: "p-zap" };
+  const m = { econ: "p-econ", serv: "p-serv", gal: "p-gal", hor: "p-hor", ag: "p-ag", bio: "p-bio", pdf: "p-pdf", zap: "p-zap" };
   for (const k in m) {
     const el = $(m[k]);
     if (el) el.hidden = k !== t;
     const tabBtn = $("at-" + k);
     if (tabBtn) tabBtn.setAttribute("aria-selected", k === t);
   }
+  if (t === "econ") renderEconomia();
   if (t === "ag") renderAgenda();
   if (t === "gal") renderGalleryAdmin();
   if (t === "bio") initBioAdminForm();
@@ -91,13 +93,48 @@ function adminTab(t) {
     renderSlots();
   }
 }
-$("at-serv").onclick = () => adminTab("serv");
-$("at-gal").onclick = () => adminTab("gal");
-$("at-hor").onclick = () => adminTab("hor");
-$("at-ag").onclick = () => adminTab("ag");
-if ($("at-bio")) $("at-bio").onclick = () => adminTab("bio");
-if ($("at-pdf")) $("at-pdf").onclick = () => adminTab("pdf");
-if ($("at-zap")) $("at-zap").onclick = () => adminTab("zap");
+
+// -------------------------------------------------------------
+// MENU LATERAL (DRAWER)
+// -------------------------------------------------------------
+function openDrawer() {
+  const drawer = $("admin-drawer");
+  const backdrop = $("drawer-backdrop");
+  if (!drawer) return;
+  drawer.classList.add("open");
+  if (backdrop) backdrop.hidden = false;
+  document.body.classList.add("drawer-open");
+  if ($("drawer-toggle")) $("drawer-toggle").setAttribute("aria-expanded", "true");
+  const first = drawer.querySelector('[role="tab"]');
+  if (first) first.focus();
+}
+
+function closeDrawer() {
+  const drawer = $("admin-drawer");
+  const backdrop = $("drawer-backdrop");
+  if (!drawer) return;
+  drawer.classList.remove("open");
+  if (backdrop) backdrop.hidden = true;
+  document.body.classList.remove("drawer-open");
+  if ($("drawer-toggle")) $("drawer-toggle").setAttribute("aria-expanded", "false");
+}
+
+if ($("drawer-toggle")) $("drawer-toggle").onclick = openDrawer;
+if ($("drawer-close")) $("drawer-close").onclick = closeDrawer;
+if ($("drawer-backdrop")) $("drawer-backdrop").onclick = closeDrawer;
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") closeDrawer();
+});
+
+const ADMIN_TABS = ["econ", "serv", "gal", "hor", "ag", "bio", "pdf", "zap"];
+for (const t of ADMIN_TABS) {
+  const btn = $("at-" + t);
+  if (!btn) continue;
+  btn.onclick = () => {
+    adminTab(t);
+    closeDrawer();
+  };
+}
 
 function updateDbStatusIndicator() {
   const el = $("db-status");
