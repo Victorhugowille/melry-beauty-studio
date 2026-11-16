@@ -220,6 +220,18 @@
         <button class="mini" type="button" data-period="all" aria-pressed="false">Tudo</button>
       </div>
 
+      <div class="econ-dates">
+        <div class="econ-field">
+          <label for="econ-from">De</label>
+          <input id="econ-from" type="date">
+        </div>
+        <div class="econ-field">
+          <label for="econ-to">Até</label>
+          <input id="econ-to" type="date">
+        </div>
+        <p class="econ-range" id="econ-range" role="status" aria-live="polite"></p>
+      </div>
+
       <div class="econ-cards" id="econ-cards"></div>
 
       <h2 class="econ-h">Serviços mais feitos</h2>
@@ -359,11 +371,11 @@
     <!-- Aba 6: Exportar a página principal em PDF -->
     <div id="p-pdf" hidden>
       <h2>Exportar Página Principal em PDF</h2>
-      <p class="sub">Baixe a página principal como ela aparece no site, incluindo os serviços, fotos e apresentação profissional.</p>
+      <p class="sub">O PDF sai igual à tela principal do site: logo, serviços com os cartões completos, "Quem Sou Eu" e rodapé. O carrossel de fotos não entra.</p>
       
       <div class="card" style="margin-bottom:20px; text-align:center;">
         <p style="margin:0 0 14px; font-size:0.95rem; color:var(--muted)">
-          O PDF usa a tela principal do site, com o tema e os dados exibidos no catálogo.
+          Fundo, cores, cartões e botões aparecem exatamente como no site (os botões são só imagem, não clicam no PDF).
         </p>
         <button class="cta" id="btn-export-pdf" style="margin-top:0; max-width:320px;">
           📥 Baixar Página Principal em PDF

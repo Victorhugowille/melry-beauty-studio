@@ -290,6 +290,52 @@ body.drawer-open {
   color: var(--brand-ink);
 }
 
+.econ-dates {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px 14px;
+  margin: 0 0 18px;
+}
+
+.econ-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.econ-field label {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.econ-field input {
+  width: 158px;
+  max-width: 46vw;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+}
+
+.econ-range {
+  flex: 1 1 100%;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+@media (min-width: 620px) {
+  .econ-range {
+    flex: 0 0 auto;
+    margin-left: auto;
+    padding-bottom: 10px;
+  }
+}
+
 .econ-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));

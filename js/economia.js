@@ -10,6 +10,8 @@ const ECON_COLORS = [
 ];
 
 let econPeriod = "month";
+let econFrom = "";
+let econTo = "";
 
 // Preço do atendimento: usa o valor salvo; se faltar, o preço atual do serviço.
 function econPrice(b) {
@@ -20,15 +22,53 @@ function econPrice(b) {
   return Number.isFinite(sp) && sp > 0 ? sp : 0;
 }
 
-// Primeiro dia do período (null = tudo)
-function econStart(period, today) {
-  if (period === "all") return null;
+// Intervalo de datas do período escolhido (from pode ser null = sem início)
+function econRange(period, today) {
+  if (period === "custom") {
+    const to = econTo && econTo < today ? econTo : today;
+    return { from: econFrom || null, to };
+  }
+  if (period === "all") return { from: null, to: today };
+
   const d = fromIso(today);
-  if (period === "month") return iso(new Date(d.getFullYear(), d.getMonth(), 1));
-  if (period === "year") return iso(new Date(d.getFullYear(), 0, 1));
+  if (period === "month") {
+    return { from: iso(new Date(d.getFullYear(), d.getMonth(), 1)), to: today };
+  }
+  if (period === "year") {
+    return { from: iso(new Date(d.getFullYear(), 0, 1)), to: today };
+  }
   const days = Number(period) || 30;
-  return iso(new Date(d.getFullYear(), d.getMonth(), d.getDate() - (days - 1)));
+  return {
+    from: iso(new Date(d.getFullYear(), d.getMonth(), d.getDate() - (days - 1))),
+    to: today
+  };
 }
+
+const econBrDate = s => {
+  if (!s) return "";
+  const [y, m, d] = s.split("-");
+  return `${d}/${m}/${y}`;
+};
+
+function econSyncRangeLabel(range) {
+  const label = $("econ-range");
+  if (!label) return;
+  if (!range.from) {
+    label.textContent = `Tudo até ${econBrDate(range.to)}`;
+  } else if (range.from === range.to) {
+    label.textContent = econBrDate(range.from);
+  } else {
+    label.textContent = `${econBrDate(range.from)} até ${econBrDate(range.to)}`;
+  }
+}
+
+function econSyncInputs(range) {
+  if ($("econ-from")) $("econ-from").value = range.from || "";
+  if ($("econ-to")) $("econ-to").value = range.to || "";
+  econFrom = range.from || "";
+  econTo = range.to || "";
+}
+
 
 function econDrawPie(slices) {
   const canvas = $("econ-pie");
@@ -94,9 +134,14 @@ async function renderEconomia() {
   }
 
   const today = iso(new Date());
-  const start = econStart(econPeriod, today);
+  const range = econRange(econPeriod, today);
+  econSyncInputs(range);
+  econSyncRangeLabel(range);
+
   const list = rows.filter(b =>
-    b.status !== "cancelado" && b.date <= today && (!start || b.date >= start)
+    b.status !== "cancelado" &&
+    b.date <= range.to &&
+    (!range.from || b.date >= range.from)
   );
 
   const byService = new Map();
@@ -195,6 +240,29 @@ if ($("econ-filter")) {
     $("econ-filter").querySelectorAll("[data-period]").forEach(b => {
       b.setAttribute("aria-pressed", String(b === btn));
     });
+    renderEconomia();
+  });
+}
+
+for (const id of ["econ-from", "econ-to"]) {
+  const el = $(id);
+  if (!el) continue;
+  el.addEventListener("change", () => {
+    econFrom = $("econ-from").value;
+    econTo = $("econ-to").value;
+    econPeriod = "custom";
+    if (econFrom && econTo && econFrom > econTo) {
+      // Se inverter as datas, ajusta a outra ponta
+      if (id === "econ-from") econTo = econFrom;
+      else econFrom = econTo;
+      if ($("econ-from")) $("econ-from").value = econFrom;
+      if ($("econ-to")) $("econ-to").value = econTo;
+    }
+    if ($("econ-filter")) {
+      $("econ-filter").querySelectorAll("[data-period]").forEach(b => {
+        b.setAttribute("aria-pressed", "false");
+      });
+    }
     renderEconomia();
   });
 }

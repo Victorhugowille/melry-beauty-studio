@@ -155,13 +155,13 @@ Na parte inferior da página inicial, clique em **"Área da Profissional"** e di
 
 ### Funcionalidades do Painel:
 O painel abre com um **menu lateral (drawer)** com todas as abas.
-- **Faturamento:** resumo do que já entrou no período (mês, 30/90 dias, ano ou tudo), com atendimentos, ticket médio, clientes, **gráfico de pizza** por serviço, ranking dos serviços mais feitos e das clientes que mais gastaram.
+- **Faturamento:** resumo do que já entrou por período (mês, 30/90 dias, ano, tudo ou **um intervalo de dias escolhido por você**), com atendimentos, ticket médio, clientes, **gráfico de pizza** por serviço, ranking dos serviços mais feitos e das clientes que mais gastaram.
 - **Serviços:** Adicione, edite ou exclua serviços, categorize entre Manicure, Sobrancelhas ou Cílios, defina valores, tempos e envie fotos.
 - **Galeria:** Escolha até 8 fotos para o carrossel exibido logo abaixo da logo na página principal, com legenda opcional.
 - **Horários:** Grade padrão já pronta — segunda a sexta das 7h às 11h30 e das 19h às 20h, sábado das 13h às 19h, domingo fechado. Clique nos slots de 30 minutos para personalizar, use **"Aplicar horário padrão"** para restaurar o dia ou **"Fechar o dia"** para bloquear tudo.
 - **Agenda:** Visualize todos os agendamentos das clientes agrupados por dia, com botão direto para chamar a cliente no **WhatsApp** com 1 clique!
 - **Biografia:** Atualize nome, especialidades, texto de apresentação e foto de perfil — dados salvos no Supabase.
-- **Exportar PDF:** Gere a página principal em PDF, igual à tela (sem carrossel e sem o botão "Agendar").
+- **Exportar PDF:** gere a página principal em PDF **igual à tela** (fundo texturizado, cartões e botões), sem o carrossel de fotos.
 
 ---
 
