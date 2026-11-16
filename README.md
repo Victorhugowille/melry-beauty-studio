@@ -60,7 +60,7 @@ Aplicativo moderno e responsivo de agendamento online para estúdios de beleza e
 ### 1. Criar o Projeto no Supabase
 1. Acesse [supabase.com](https://supabase.com/) e faça login (pode entrar com o próprio GitHub).
 2. Clique em **"New Project"** (Novo Projeto).
-3. Defina um nome (ex: `merly-agendas`), crie uma senha forte para o banco e selecione a região mais próxima (ex: `São Paulo - sa-east-1`).
+3. Defina um nome (ex: `merly-beauty-studio`), crie uma senha forte para o banco e selecione a região mais próxima (ex: `São Paulo - sa-east-1`).
 4. Clique em **"Create new project"** e aguarde cerca de 1 a 2 minutos até o banco inicializar.
 
 ---
@@ -92,13 +92,16 @@ Aplicativo moderno e responsivo de agendamento online para estúdios de beleza e
 
 ---
 
-### 3. Executar o Script no SQL Editor do Supabase
+### 3. Executar os Scripts no SQL Editor do Supabase
 1. No menu lateral esquerdo do Supabase, clique no ícone **"SQL Editor"** (ícone de código `>_`).
 2. Clique no botão **"+ New Query"** (Nova Consulta).
 3. Abra o arquivo [`sql/schema.sql`](sql/schema.sql) deste projeto, copie todo o seu conteúdo e cole no SQL Editor do Supabase.
 4. Clique no botão verde **"RUN"** (ou pressione `Ctrl + Enter`).
 5. Depois, repita o processo com o arquivo [`sql/carousel_bio.sql`](sql/carousel_bio.sql) para criar as tabelas do **carrossel de fotos** (`studio_gallery`) e da **biografia** (`studio_bio`).
-6. Pronto! Todas as tabelas, políticas de segurança (RLS) e serviços pré-cadastrados serão criados instantaneamente.
+6. Ainda no SQL Editor, rode o arquivo [`sql/lgpd.sql`](sql/lgpd.sql) para criar a coluna `consent_at` (data/hora do aceite da Política de Privacidade) e as consultas rápidas para pedidos de titulares (art. 18 da LGPD).
+7. Pronto! Todas as tabelas, políticas de segurança (RLS), serviços pré-cadastrados e a coluna de consentimento LGPD serão criados.
+
+> Se `create extension pg_cron` der erro de permissão, o envio de lembretes por e-mail pode ser agendado pelo **cron-job.org** (URL `https://SEU_PROJETO.supabase.co/functions/v1/send-reminders`, método GET, a cada 5 minutos).
 
 ---
 
@@ -120,7 +123,7 @@ git commit -m "feat: app de agendamento Melry Beauty Studio com Supabase e GitHu
 git branch -M main
 
 # 5. Conectar com o seu repositório no GitHub (crie antes o repositório vazio em github.com/new)
-git remote add origin https://github.com/Victorhugowille/merly-agendas.git
+git remote add origin https://github.com/Victorhugowille/melry-beauty-studio.git
 
 # 6. Enviar os arquivos para o GitHub
 git push -u origin main
@@ -130,18 +133,29 @@ git push -u origin main
 
 ---
 
-### 5. Como Ativar o GitHub Pages para Abrir no Chrome
+### 5. Configurar Domínio Personalizado (merlystudio.com.br)
 
-1. Acesse o seu repositório no GitHub: `https://github.com/Victorhugowille/merly-agendas`.
-2. Clique na aba superior **"Settings"** (Configurações).
-3. No menu lateral esquerdo, clique em **"Pages"**.
-4. Na seção **"Build and deployment"**:
-   - Em **Source**, selecione: `Deploy from a branch`.
-   - Em **Branch**, selecione `main` e a pasta `/(root)`.
-   - Clique em **"Save"**.
-5. Aguarde cerca de 1 a 2 minutos. O GitHub exibirá no topo da página:  
-   👉 **"Your site is live at https://victorhugowille.github.io/merly-agendas/"**
-6. Basta clicar no link e abrir no Google Chrome! 🚀
+O domínio personalizado precisa ser criado manualmente no **registro.br** (NS `a.auto.dns.br`, `b.auto.dns.br`) e no painel do **GitHub Pages**:
+
+1. **CNAME no repo:** O arquivo `CNAME` já está criado com `merlystudio.com.br`. Suba para o branch `main` e configure no GitHub:
+   - **Repo → Settings → Pages → Custom domain**: digite `merlystudio.com.br` e aponte para o CNAME.
+2. **DNS no registro.br:** Você precisa configurar os registros (A/AAAA/CNAME) no painel do registro.br — este ambiente não tem acesso. Use o DNS auto (`a.auto.dns.br`, `b.auto.dns.br`).
+3. **Enforce HTTPS:** Após propagar, em **Settings → Pages → Build and deployment → Enforce HTTPS**, marque **On**.
+4. **Canonical:** Adicione `<link rel="canonical" href="https://merlystudio.com.br/">` no `<head>` do `index.html` (opcional).
+
+---
+
+### 6. Verificar e Publicar
+
+```bash
+git add .
+git commit -m "chore: configure domínio merlystudio.com.br e enforce HTTPS"
+git push origin main
+```
+
+Depois, vá no GitHub → **Settings → Pages** → **Custom domain** → **Save**. O site vai aparecer em `https://merlystudio.com.br/`.
+
+> ⚠️ A configuração de DNS (registro.br) e do custom domain no GitHub Pages exige ação manual do usuário — este ambiente não tem acesso ao registro.br nem `gh`. Siga as instruções acima ou faça isso no painel do registro.br.
 
 ---
 

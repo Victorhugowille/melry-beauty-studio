@@ -123,7 +123,20 @@ function renderBooking() {
       : '<p class="empty">Nenhum horário livre para este dia.</p>';
   }
 
-  $("confirm").disabled = !(sel.date && sel.time !== null);
+  $("confirm").disabled = !(sel.date && sel.time !== null && consentOk());
+}
+
+// O consentimento (LGPD) é obrigatório para confirmar o agendamento.
+function consentOk() {
+  const box = $("consent");
+  return box ? box.checked : true;
+}
+
+if ($("consent")) {
+  $("consent").addEventListener("change", () => {
+    if ($("err")) $("err").textContent = "";
+    $("confirm").disabled = !(sel.date && sel.time !== null && consentOk());
+  });
 }
 
 if ($("cal-grid")) {
@@ -177,6 +190,11 @@ $("confirm").addEventListener("click", async () => {
     renderBooking();
     return;
   }
+  if (!consentOk()) {
+    err.textContent = "Para agendar, é preciso aceitar a Política de Privacidade (LGPD).";
+    if ($("consent")) $("consent").focus();
+    return;
+  }
 
   const btnConfirm = $("confirm");
   btnConfirm.disabled = true;
@@ -192,7 +210,8 @@ $("confirm").addEventListener("click", async () => {
     dur: s.dur,
     name,
     phone,
-    email
+    email,
+    consent_at: new Date().toISOString()
   };
 
   try {
@@ -221,6 +240,8 @@ function goHome() {
   resetCalendarCursor();
   $("name").value = "";
   $("phone").value = "";
+  $("email").value = "";
+  if ($("consent")) $("consent").checked = false;
   if (location.hash === "#agendar") history.back();
   else view("public");
 }

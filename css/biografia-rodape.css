@@ -144,3 +144,21 @@ footer .contact a:hover {
   color: var(--brand-ink);
   transform: translateY(-1px);
 }
+
+.footer-legal {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 0.74rem;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.footer-legal a {
+  color: var(--brand);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.footer-legal a:hover {
+  text-decoration: underline;
+}

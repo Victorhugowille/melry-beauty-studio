@@ -114,3 +114,48 @@ a:focus-visible {
   box-shadow: none;
   cursor: not-allowed;
 }
+
+/* -------------------------------------------------------------
+   CONSENTIMENTO LGPD (AGENDAMENTO)
+------------------------------------------------------------- */
+.consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 14px 0 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  text-align: left;
+  cursor: pointer;
+}
+
+.consent input {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  accent-color: var(--brand);
+  cursor: pointer;
+}
+
+.consent span {
+  flex: 1;
+  min-width: 0;
+  color: var(--muted);
+}
+
+.consent a {
+  color: var(--brand);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.consent:has(input:focus-visible) {
+  outline: 2px solid var(--rose);
+  outline-offset: 2px;
+}

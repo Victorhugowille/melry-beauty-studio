@@ -461,23 +461,29 @@
     async createBooking(booking) {
       if (isOnline) {
         try {
-          const { data, error } = await supabase
-            .from("bookings")
-            .insert({
-              id: booking.id,
-              svc: booking.svc,
-              nome: booking.nome,
-              preco: booking.preco,
-              date: booking.date,
-              start: booking.start,
-              dur: booking.dur,
-              name: booking.name,
-              phone: booking.phone,
-              email: booking.email || null,
-              status: "confirmado"
-            })
-            .select()
-            .single();
+          const payload = {
+            id: booking.id,
+            svc: booking.svc,
+            nome: booking.nome,
+            preco: booking.preco,
+            date: booking.date,
+            start: booking.start,
+            dur: booking.dur,
+            name: booking.name,
+            phone: booking.phone,
+            email: booking.email || null,
+            consent_at: booking.consent_at || new Date().toISOString(),
+            status: "confirmado"
+          };
+
+          let { error } = await supabase.from("bookings").insert(payload).select().single();
+
+          // Se a coluna de consentimento ainda não existir no banco, salva sem ela.
+          if (error && /consent_at/i.test(error.message || "")) {
+            const { consent_at, ...legacy } = payload;
+            ({ error } = await supabase.from("bookings").insert(legacy).select().single());
+            if (!error) console.warn("Coluna consent_at ausente: rode o sql/lgpd.sql no Supabase.");
+          }
 
           if (error) throw error;
         } catch (e) {
