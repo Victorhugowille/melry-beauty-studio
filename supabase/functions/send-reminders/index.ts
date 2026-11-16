@@ -14,6 +14,7 @@
  *   EMAILJS_TEMPLATE_ID  - id do template de e-mail
  *   EMAILJS_PUBLIC_KEY   - chave pública da conta
  *   EMAILJS_PRIVATE_KEY  - chave privada (envio server-side)
+ *   STUDIO_EMAIL         - (opcional) cópia de tudo para o estúdio; default: mlemepadilha@gmail.com
  *   CRON_SECRET          - (opcional) se existir, exige o header x-cron-secret
  *   STUDIO_TIMEZONE      - (opcional, default: America/Campo_Grande)
  */
@@ -176,6 +177,7 @@ export default async function handler(req) {
     for (const name of ["EMAILJS_SERVICE_ID", "EMAILJS_TEMPLATE_ID", "EMAILJS_PUBLIC_KEY", "EMAILJS_PRIVATE_KEY"]) {
       if (!env[name]) return json({ error: `${name} não configurada` }, 500);
     }
+    const studioEmail = env.STUDIO_EMAIL || "mlemepadilha@gmail.com";
 
     const timeZone = env.STUDIO_TIMEZONE || "America/Campo_Grande";
     const now = new Date();
@@ -202,16 +204,20 @@ export default async function handler(req) {
       if (remaining > 0 && remaining <= HOUR_WINDOW_MS) due.push("hour");
 
       for (const kind of due) {
-        const logKind = `client_email_${kind}`;
-        try {
-          const reserved = await reserveReminder(env, b.id, logKind);
-          if (!reserved) { skipped.push(`${logKind}:${b.id} (já enviado)`); continue; }
-          await sendMail(env, b.email, buildEmail(kind, b));
-          sent.push(`${logKind}:${b.id}`);
-        } catch (err) {
-          console.error(`Falha em ${logKind} para ${b.id}:`, err);
-          await releaseReminder(env, b.id, logKind).catch(() => undefined);
-        }
+        const email = buildEmail(kind, b);
+        const deliver = async (to, logKind) => {
+          try {
+            const reserved = await reserveReminder(env, b.id, logKind);
+            if (!reserved) { skipped.push(`${logKind}:${b.id} (já enviado)`); return; }
+            await sendMail(env, to, email);
+            sent.push(`${logKind}:${b.id}`);
+          } catch (err) {
+            console.error(`Falha em ${logKind} para ${b.id}:`, err);
+            await releaseReminder(env, b.id, logKind).catch(() => undefined);
+          }
+        };
+        await deliver(b.email, `client_email_${kind}`);
+        await deliver(studioEmail, `studio_email_${kind}`);
       }
     }
 

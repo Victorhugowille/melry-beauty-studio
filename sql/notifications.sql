@@ -27,7 +27,8 @@ CREATE TABLE IF NOT EXISTS reminders_log (
 ALTER TABLE reminders_log DROP CONSTRAINT IF EXISTS reminders_log_kind_check;
 ALTER TABLE reminders_log ADD CONSTRAINT reminders_log_kind_check
     CHECK (kind IN ('day', 'hour',
-                    'client_email_booked', 'client_email_day', 'client_email_hour'));
+                    'client_email_booked', 'client_email_day', 'client_email_hour',
+                    'studio_email_booked', 'studio_email_day', 'studio_email_hour'));
 
 CREATE INDEX IF NOT EXISTS idx_reminders_log_sent_at ON reminders_log(sent_at);
 
@@ -47,3 +48,24 @@ CREATE POLICY "Remocao de reservas de lembrete" ON reminders_log
 
 -- 4) Push notifications: desativado (substituído pelos e-mails).
 DROP TABLE IF EXISTS push_subscriptions;
+
+-- 5) CRON: chama a função de e-mails a cada 5 minutos (dentro do próprio Supabase)
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+CREATE EXTENSION IF NOT EXISTS pg_net;
+
+DO $$
+BEGIN
+  PERFORM cron.unschedule('melry-send-reminders');
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+
+SELECT cron.schedule(
+  'melry-send-reminders',
+  '*/5 * * * *',
+  $$ SELECT net.http_post(
+       url := 'https://oahywgiwvrjpnqwuffem.supabase.co/functions/v1/send-reminders',
+       headers := '{"Content-Type":"application/json"}'::jsonb,
+       body := '{}'::jsonb
+     ) $$
+);
+

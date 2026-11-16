@@ -166,7 +166,7 @@ Na parte inferior da página inicial, clique em **"Área da Profissional"** e di
 
 - **Supabase keep-alive** (`supabase-keepalive.yml`): ping diário no banco para o projeto gratuito não ser pausado por inatividade.
 - **Avisos para a profissional** (`whatsapp-reminders.yml`, GitHub Actions): a cada 10 minutos, avisa a Maria no WhatsApp 24h antes e ~1h antes de cada atendimento confirmado.
-- **E-mails para o cliente** (`supabase/functions/send-reminders`): confirmação na hora + lembretes de **1 dia antes** e **~1 hora antes**, tudo por e-mail via **EmailJS** (grátis, 200 e-mails/mês). Não depende de computador ligado: um cron externo gratuito chama a função a cada 5 minutos.
+- **E-mails para o cliente** (`supabase/functions/send-reminders`): confirmação na hora + lembretes de **1 dia antes** e **~1 hora antes**, por e-mail via **EmailJS** (grátis, 200 e-mails/mês), com **cópia para o estúdio** (STUDIO_EMAIL). Não depende de computador ligado: o próprio Supabase chama a função a cada 5 minutos (pg_cron).
 
 > **Por que e-mail e não WhatsApp do cliente?** Não existe caminho gratuito, oficial e 100% automatizado para mandar WhatsApp a números de clientes sem servidor próprio. O e-mail resolve isso de graça e sem o seu PC ligado.
 
@@ -208,10 +208,9 @@ O Supabase não permite SMTP direto, então o envio é feito pela API do **Email
    ```bash
    npx supabase secrets set EMAILJS_SERVICE_ID=service_xxx EMAILJS_TEMPLATE_ID=template_xxx EMAILJS_PUBLIC_KEY=xxxxxxxxxxxxxxxxxxxxxx EMAILJS_PRIVATE_KEY=xxxxxxxxxxxxxxxxxxxxxx --project-ref oahywgiwvrjpnqwuffem --yes
    ```
-7. Em **cron-job.org** (grátis), crie um job:
+7. O **cron já é criado pelo próprio SQL** do item 1 (pg_cron chama a função a cada 5 minutos). Se o `create extension pg_cron` der erro de permissão, use o **cron-job.org** como plano B:
    - **URL:** `https://oahywgiwvrjpnqwuffem.supabase.co/functions/v1/send-reminders`
-   - **Método:** GET
-   - **A cada:** 5 minutos
+   - **Método:** GET · **A cada:** 5 minutos
 8. Pronto. Quando um cliente agenda, ele digita o e-mail e recebe a confirmação em até ~5 minutos, depois os avisos de 1 dia e de 1 hora antes.
 
 > Para trocar o remetente para o e-mail da Maria depois: adicione um novo serviço Gmail com a conta dela no EmailJS e atualize o EMAILJS_SERVICE_ID.
