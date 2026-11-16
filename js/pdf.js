@@ -1,6 +1,6 @@
 /**
  * EXPORTAÇÃO DA PÁGINA EM PDF
- * Gera o catálogo vertical com a página principal, carrossel e biografia.
+ * Gera o catálogo vertical igual à tela principal (sem carrossel e sem botão agendar).
  */
 
 // -------------------------------------------------------------
@@ -29,20 +29,10 @@ if ($("btn-export-pdf")) {
     exportPage.style.backgroundImage = bodyStyle.backgroundImage;
     exportPage.style.backgroundSize = "cover";
 
-    for (const selector of ["#v-booking", "#v-login", "#v-admin", "#theme", ".carousel-arrow", ".carousel-dots"]) {
+    for (const selector of ["#v-booking", "#v-login", "#v-admin", "#theme", "#gallery-section", "[data-pick]"]) {
       exportPage.querySelectorAll(selector).forEach(el => el.remove());
     }
     if (publicCopy) publicCopy.hidden = false;
-
-    // Mantém no PDF apenas a foto atual do carrossel, sem controles.
-    const exportTrack = exportPage.querySelector("#carousel-track");
-    if (exportTrack) {
-      Array.from(exportTrack.children).forEach((slide, i) => {
-        if (i !== carouselIndex) slide.remove();
-      });
-      exportTrack.style.transition = "none";
-      exportTrack.style.transform = "none";
-    }
 
     stage.appendChild(exportPage);
     document.body.appendChild(stage);
