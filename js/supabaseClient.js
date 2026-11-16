@@ -35,6 +35,19 @@
   let supabase = null;
   let isOnline = false;
 
+  // Timeout por consulta: se o Supabase não responder (rede lenta ou
+  // bloqueada), a consulta rejeita e o método cai para o cache local,
+  // em vez de deixar a página presa esperando para sempre.
+  const QUERY_TIMEOUT_MS = 8000;
+  function q(promise) {
+    return Promise.race([
+      promise,
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Tempo esgotado consultando o Supabase.")), QUERY_TIMEOUT_MS)
+      )
+    ]);
+  }
+
   if (!isPlaceholder && window.supabase && typeof window.supabase.createClient === "function") {
     try {
       supabase = window.supabase.createClient(cfg.url, cfg.anonKey);
@@ -86,12 +99,12 @@
     async getServices() {
       if (isOnline) {
         try {
-          const { data, error } = await supabase
+          const { data, error } = await q(supabase
             .from("services")
             .select("*")
             .eq("ativo", true)
             .order("ordem", { ascending: true })
-            .order("created_at", { ascending: true });
+            .order("created_at", { ascending: true }));
 
           if (!error && data && data.length) {
             localSave(LOCAL_SKEY, data);
@@ -113,7 +126,7 @@
     async saveService(service) {
       if (isOnline) {
         try {
-          const { data, error } = await supabase
+          const { data, error } = await q(supabase
             .from("services")
             .upsert({
               id: service.id,
@@ -124,7 +137,7 @@
               foto: service.foto || null,
               ativo: true
             })
-            .select();
+            .select());
 
           if (error) throw error;
         } catch (e) {
@@ -144,10 +157,10 @@
     async deleteService(id) {
       if (isOnline) {
         try {
-          const { error } = await supabase
+          const { error } = await q(supabase
             .from("services")
             .update({ ativo: false })
-            .eq("id", id);
+            .eq("id", id));
           if (error) throw error;
         } catch (e) {
           console.error("Erro ao remover serviço no Supabase:", e);
@@ -165,12 +178,12 @@
     async getGallery() {
       if (isOnline) {
         try {
-          const { data, error } = await supabase
+          const { data, error } = await q(supabase
             .from("studio_gallery")
             .select("id, foto, legenda, ordem")
             .eq("ativo", true)
             .order("ordem", { ascending: true })
-            .order("created_at", { ascending: true });
+            .order("created_at", { ascending: true }));
 
           if (!error && data) {
             // Envia para o Supabase fotos que existiam apenas neste dispositivo.
@@ -179,7 +192,7 @@
 
             if (localOnly.length) {
               try {
-                const { error: upError } = await supabase
+                const { error: upError } = await q(supabase
                   .from("studio_gallery")
                   .upsert(localOnly.map(item => ({
                     id: item.id,
@@ -187,7 +200,7 @@
                     legenda: item.legenda || null,
                     ordem: item.ordem || 0,
                     ativo: true
-                  })), { onConflict: "id" });
+                  })), { onConflict: "id" }));
 
                 if (upError) {
                   console.warn("Não foi possível sincronizar as fotos locais com o Supabase:", upError.message);
@@ -221,7 +234,7 @@
 
       if (isOnline) {
         try {
-          const { error } = await supabase
+          const { error } = await q(supabase
             .from("studio_gallery")
             .upsert({
               id: photo.id,
@@ -229,7 +242,7 @@
               legenda: photo.legenda || null,
               ordem: photo.ordem || 0,
               ativo: true
-            }, { onConflict: "id" });
+            }, { onConflict: "id" }));
 
           if (error) throw error;
           synced = true;
@@ -252,10 +265,10 @@
 
       if (isOnline) {
         try {
-          const { error } = await supabase
+          const { error } = await q(supabase
             .from("studio_gallery")
             .delete()
-            .eq("id", id);
+            .eq("id", id));
           if (error) throw error;
           synced = true;
         } catch (e) {
@@ -275,11 +288,11 @@
     async getBio() {
       if (isOnline) {
         try {
-          const { data, error } = await supabase
+          const { data, error } = await q(supabase
             .from("studio_bio")
             .select("nome, titulo, texto, foto, updated_at")
             .eq("id", "principal")
-            .maybeSingle();
+            .maybeSingle());
 
           if (!error && data) {
             const local = localLoad(LOCAL_BIOKEY, null);
@@ -300,9 +313,9 @@
               localSave(LOCAL_BIOKEY, merged);
 
               try {
-                const { error: upError } = await supabase
+                const { error: upError } = await q(supabase
                   .from("studio_bio")
-                  .upsert({ ...merged, id: "principal" }, { onConflict: "id" });
+                  .upsert({ ...merged, id: "principal" }, { onConflict: "id" }));
                 if (upError) console.warn("Não foi possível sincronizar a biografia local:", upError.message);
               } catch (upException) {
                 console.warn("Falha ao sincronizar a biografia local:", upException);
@@ -337,9 +350,9 @@
 
       if (isOnline) {
         try {
-          const { error } = await supabase
+          const { error } = await q(supabase
             .from("studio_bio")
-            .upsert(payload, { onConflict: "id" });
+            .upsert(payload, { onConflict: "id" }));
           if (error) throw error;
           synced = true;
         } catch (e) {
@@ -357,9 +370,9 @@
     async getAvailability() {
       if (isOnline) {
         try {
-          const { data, error } = await supabase
+          const { data, error } = await q(supabase
             .from("availability")
-            .select("date, minute, status");
+            .select("date, minute, status"));
 
           if (!error && data) {
             const map = {};
@@ -382,9 +395,9 @@
 
       if (isOnline) {
         try {
-          const { error } = await supabase
+          const { error } = await q(supabase
             .from("availability")
-            .upsert({ date, minute, status: st }, { onConflict: "date,minute" });
+            .upsert({ date, minute, status: st }, { onConflict: "date,minute" }));
           if (error) throw error;
         } catch (e) {
           console.error("Erro ao atualizar horário no Supabase:", e);
@@ -409,9 +422,9 @@
 
       if (isOnline) {
         try {
-          const { error } = await supabase
+          const { error } = await q(supabase
             .from("availability")
-            .upsert(records, { onConflict: "date,minute" });
+            .upsert(records, { onConflict: "date,minute" }));
           if (error) throw error;
         } catch (e) {
           console.error("Erro ao salvar a grade do dia no Supabase:", e);
@@ -439,12 +452,12 @@
     async getBookings() {
       if (isOnline) {
         try {
-          const { data, error } = await supabase
+          const { data, error } = await q(supabase
             .from("bookings")
             .select("*")
             .eq("status", "confirmado")
             .order("date", { ascending: true })
-            .order("start", { ascending: true });
+            .order("start", { ascending: true }));
 
           if (!error && data) {
             localSave(LOCAL_BKEY, data);
@@ -475,12 +488,12 @@
             status: "confirmado"
           };
 
-          let { error } = await supabase.from("bookings").insert(payload).select().single();
+          let { error } = await q(supabase.from("bookings").insert(payload).select().single());
 
           // Se a coluna de consentimento ainda não existir no banco, salva sem ela.
           if (error && /consent_at/i.test(error.message || "")) {
             const { consent_at, ...legacy } = payload;
-            ({ error } = await supabase.from("bookings").insert(legacy).select().single());
+            ({ error } = await q(supabase.from("bookings").insert(legacy).select().single()));
             if (!error) console.warn("Coluna consent_at ausente: rode o sql/lgpd.sql no Supabase.");
           }
 
@@ -499,10 +512,10 @@
     async cancelBooking(id) {
       if (isOnline) {
         try {
-          const { error } = await supabase
+          const { error } = await q(supabase
             .from("bookings")
             .update({ status: "cancelado" })
-            .eq("id", id);
+            .eq("id", id));
           if (error) throw error;
         } catch (e) {
           console.error("Erro ao cancelar agendamento no Supabase:", e);

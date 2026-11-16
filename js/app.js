@@ -8,9 +8,16 @@
 // -------------------------------------------------------------
 async function initApp() {
   try {
-    services = await window.db.getServices();
-    avail = await window.db.getAvailability();
-    bookings = await window.db.getBookings();
+    // Dispara as três consultas em paralelo — em série, uma consulta
+    // travada atrasava a página pelo triplo do timeout.
+    const [s, a, b] = await Promise.all([
+      window.db.getServices(),
+      window.db.getAvailability(),
+      window.db.getBookings()
+    ]);
+    services = s;
+    avail = a;
+    bookings = b;
   } catch (err) {
     console.error("Erro na inicialização dos dados:", err);
   }
