@@ -1,6 +1,6 @@
 /**
  * EXPORTAÇÃO DA PÁGINA EM PDF
- * Gera a página principal igual à tela do site (sem o carrossel).
+ * Gera o catálogo da página principal (sem o carrossel e sem os botões Agendar).
  */
 
 const PDF_EXPORT_WIDTH = 800;
@@ -25,7 +25,8 @@ function pdfExportStyles() {
     }
     .ph span { box-shadow: none !important; }
     .btn { box-shadow: none !important; }
-    .svc-row .btn { pointer-events: none; }
+    /* O PDF é só catálogo: botão "Agendar" não entra na exportação. */
+    .svc-row .btn, .svc-row.flip .btn { display: none !important; }
   `;
   return style;
 }
