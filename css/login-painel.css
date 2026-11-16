@@ -3,47 +3,118 @@
 ============================================================= */
 
 /* -------------------------------------------------------------
-   LOGIN DA PROFISSIONAL
-------------------------------------------------------------- */
-.login-card {
+   LOGIN DA PROFISSIONAL (tela animada com a logo do estúdio)
+   ------------------------------------------------------------- */
+#v-login {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 20px 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
   width: 100%;
-  max-width: 400px;
-  margin: 30px auto 0;
-  padding: 34px 28px 24px;
+  padding: 12px 0;
+}
+
+/* brilho rosé atrás do cartão */
+.login-aura {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  width: min(520px, 94vw);
+  height: min(520px, 94vw);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(232, 190, 199, 0.6) 0%, rgba(232, 190, 199, 0) 65%);
+  pointer-events: none;
+}
+
+.login-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 378px;
+  padding: 30px 28px 22px;
   text-align: center;
   border: 1px solid var(--line);
   border-radius: 30px;
-  background: linear-gradient(160deg, var(--surface), var(--soft));
+  background: linear-gradient(165deg, var(--surface), var(--soft));
   box-shadow: var(--shadow-md);
+  animation: loginCardIn 0.7s var(--ease) both;
 }
 
-.login-lock {
+.login-logo-wrap {
+  position: relative;
   display: grid;
   place-items: center;
-  width: 58px;
-  height: 58px;
-  margin: 0 auto 15px;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  background: var(--surface);
-  color: var(--brand);
-  box-shadow: var(--shadow-sm);
+  width: 112px;
+  height: 112px;
+  margin: 0 auto 16px;
 }
 
-.login-lock svg {
-  width: 25px;
-  height: 25px;
+/* anéis giratórios ao redor da logo */
+.login-ring,
+.login-ring-2 {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  animation: loginSpin 7s linear infinite;
 }
+
+.login-ring {
+  inset: 0;
+  background: conic-gradient(from 0deg, transparent 0 62%, rgba(155, 86, 102, 0.35) 74%, rgba(155, 86, 102, 0.95) 86%, transparent 100%);
+}
+
+.login-ring-2 {
+  inset: 8px;
+  opacity: 0.55;
+  background: conic-gradient(from 180deg, transparent 0 62%, rgba(232, 190, 199, 0.5) 74%, rgba(200, 130, 146, 0.9) 86%, transparent 100%);
+  animation-duration: 13s;
+  animation-direction: reverse;
+}
+
+.login-logo {
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 12px 26px rgba(120, 59, 74, 0.3), 0 0 0 5px var(--surface);
+  animation: loginFloat 4.5s ease-in-out infinite;
+}
+
+/* brilhinhos ao redor da logo */
+.login-spark {
+  position: absolute;
+  z-index: 1;
+  background: var(--rose);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  animation: loginTwinkle 3.4s ease-in-out infinite;
+}
+
+.spark-1 { top: 2px; right: 6px; width: 15px; height: 15px; animation-delay: 0s; }
+.spark-2 { bottom: 8px; left: 0; width: 10px; height: 10px; animation-delay: 1.1s; }
+.spark-3 { top: 18px; left: 6px; width: 8px; height: 8px; animation-delay: 2.2s; }
 
 .login-title {
   margin: 0 0 6px;
-  font-size: 1.8rem;
+  font-size: 1.55rem;
+  letter-spacing: 0.01em;
 }
 
 .login-sub {
-  margin: 0 0 22px;
+  margin: 0 0 20px;
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   line-height: 1.6;
 }
 
@@ -73,6 +144,61 @@
 
 .login-back .link {
   margin-top: 0;
+}
+
+@keyframes loginCardIn {
+  from { opacity: 0; transform: translateY(22px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes loginFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+@keyframes loginSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes loginTwinkle {
+  0%, 100% { opacity: 0.25; transform: scale(0.55) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.1) rotate(30deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-card,
+  .login-logo,
+  .login-ring,
+  .login-ring-2,
+  .login-spark {
+    animation: none !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .login-card {
+    padding: 24px 18px 18px;
+    border-radius: 24px;
+  }
+
+  .login-logo-wrap {
+    width: 92px;
+    height: 92px;
+    margin-bottom: 12px;
+  }
+
+  .login-logo {
+    width: 64px;
+    height: 64px;
+  }
+
+  .login-title {
+    font-size: 1.35rem;
+  }
+
+  .login-sub {
+    font-size: 0.82rem;
+  }
 }
 
 /* -------------------------------------------------------------
@@ -161,7 +287,9 @@
   padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px));
   overflow-y: auto;
   border-right: 1px solid var(--line);
-  background: linear-gradient(175deg, var(--surface), var(--surface-2));
+  background:
+    radial-gradient(120% 55% at 0% 0%, rgba(232, 190, 199, 0.55), transparent 55%),
+    linear-gradient(175deg, var(--surface), var(--soft) 55%, #eccdd4);
   box-shadow: var(--shadow-lg);
   transform: translateX(-102%);
   transition: transform 0.32s var(--ease);
@@ -169,6 +297,12 @@
 
 .admin-drawer.open {
   transform: translateX(0);
+}
+
+::root[data-theme="dark"] .admin-drawer {
+  background:
+    radial-gradient(120% 55% at 0% 0%, rgba(143, 78, 94, 0.35), transparent 55%),
+    linear-gradient(175deg, var(--surface), var(--surface-2));
 }
 
 .drawer-backdrop {
@@ -193,13 +327,44 @@ body.drawer-open {
 }
 
 .drawer-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.drawer-logo {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  border-radius: 13px;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(120, 59, 74, 0.25);
+}
+
+.drawer-brand-txt {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
   font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 600;
   letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.drawer-brand-txt small {
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 .drawer-close {
+  display: grid;
+  place-items: center;
   width: 34px;
   height: 34px;
   padding: 0;
@@ -207,9 +372,8 @@ body.drawer-open {
   border-radius: 50%;
   background: var(--surface);
   color: var(--muted);
-  font-size: 0.9rem;
-  line-height: 1;
   cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease, transform 0.2s var(--ease);
 }
 
 .drawer-close:hover {
@@ -239,19 +403,24 @@ body.drawer-open {
   font-weight: 600;
   text-align: left;
   cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s var(--ease);
 }
 
 .drawer-nav button .ico {
+  display: grid;
+  place-items: center;
   flex: 0 0 1.4em;
-  font-size: 1rem;
-  line-height: 1;
-  text-align: center;
+}
+
+.drawer-nav button .ico svg {
+  width: 19px;
+  height: 19px;
 }
 
 .drawer-nav button:hover {
   background: var(--soft);
   color: var(--ink);
+  transform: translateX(3px);
 }
 
 .drawer-nav button[aria-selected="true"] {
@@ -290,50 +459,18 @@ body.drawer-open {
   color: var(--brand-ink);
 }
 
-.econ-dates {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 10px 14px;
-  margin: 0 0 18px;
-}
-
-.econ-field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.econ-field label {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.econ-field input {
-  width: 158px;
-  max-width: 46vw;
-  padding: 9px 12px;
-  border-radius: var(--radius-sm);
-  font-size: 0.88rem;
+/* calendário de período da economia (1º clique = início, 2º = fim) */
+.econ-calendar {
+  margin: 12px 0 4px;
 }
 
 .econ-range {
-  flex: 1 1 100%;
-  margin: 0;
+  margin: 12px 0 0;
+  min-height: 1.3em;
   color: var(--muted);
-  font-size: 0.8rem;
-}
-
-@media (min-width: 620px) {
-  .econ-range {
-    flex: 0 0 auto;
-    margin-left: auto;
-    padding-bottom: 10px;
-  }
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-align: center;
 }
 
 .econ-cards {

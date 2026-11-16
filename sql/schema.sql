@@ -96,28 +96,30 @@ DROP POLICY IF EXISTS "Cancelamento de agendamentos" ON bookings;
 CREATE POLICY "Cancelamento de agendamentos" ON bookings
     FOR DELETE USING (true);
 
--- 7. DADOS INICIAIS (SEED) - SERVIÇOS DE MANICURE, DESIGNER DE SOBRANCELHAS E CÍLIOS
+-- 7. DADOS INICIAIS (SEED) - TABELA DE VALORES DO ESTÚDIO
 INSERT INTO services (id, nome, categoria, preco, dur, foto, ativo, ordem) VALUES
-    -- CÍLIOS
-    ('lash_classico', 'Extensão Fio a Fio Clássico', 'cilios', 120.00, 90, null, true, 1),
-    ('lash_russo', 'Volume Russo Glamour', 'cilios', 160.00, 120, null, true, 2),
-    ('lash_lifting', 'Lash Lifting & Nutrição', 'cilios', 90.00, 60, null, true, 3),
-
     -- SOBRANCELHAS
-    ('brow_design', 'Design de Sobrancelhas', 'sobrancelhas', 35.00, 30, null, true, 4),
-    ('brow_henna', 'Design com Aplicação de Henna', 'sobrancelhas', 50.00, 45, null, true, 5),
-    ('brow_lamination', 'Brow Lamination + Hidratação', 'sobrancelhas', 110.00, 60, null, true, 6),
+    ('brow_design', 'Designer de Sobrancelhas', 'sobrancelhas', 35.00, 30, null, true, 1),
+    ('brow_henna', 'Designer com Henna', 'sobrancelhas', 40.00, 60, null, true, 2),
+    ('brow_tintura', 'Designer com Tintura', 'sobrancelhas', 40.00, 60, null, true, 3),
+
+    -- CÍLIOS
+    ('lash_classico', 'Extensão de Cílios', 'cilios', 150.00, 150, null, true, 4),
+    ('lash_russo', 'Extensão de Cílios Volume', 'cilios', 200.00, 150, null, true, 5),
+    ('lash_lifting', 'Lash Lifting', 'cilios', 90.00, 60, null, true, 6),
+
+    -- OUTROS
+    ('buco', 'Buço', 'geral', 5.00, 10, null, true, 7),
 
     -- MANICURE E PEDICURE
-    ('mani_tradicional', 'Manicure Tradicional Completa', 'manicure', 40.00, 45, null, true, 7),
-    ('mani_gel', 'Esmaltação em Gel (Alta Durabilidade)', 'manicure', 70.00, 60, null, true, 8),
-    ('mani_alongamento', 'Alongamento em Fibra de Vidro', 'manicure', 140.00, 120, null, true, 9),
-    ('pedi_spa', 'Spa dos Pés & Pedicure', 'manicure', 55.00, 50, null, true, 10)
+    ('mani_tradicional', 'Manicure Tradicional', 'manicure', 30.00, 60, null, true, 8),
+    ('pedi_tradicional', 'Pedicure Tradicional', 'manicure', 40.00, 60, null, true, 9)
 ON CONFLICT (id) DO UPDATE SET
     nome = EXCLUDED.nome,
     categoria = EXCLUDED.categoria,
     preco = EXCLUDED.preco,
-    dur = EXCLUDED.dur;
+    dur = EXCLUDED.dur,
+    ordem = EXCLUDED.ordem;
 
 -- Habilita extensão de tempo real (opcional para notificações instantâneas)
 ALTER PUBLICATION supabase_realtime ADD TABLE bookings;

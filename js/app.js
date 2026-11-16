@@ -23,11 +23,13 @@ async function initApp() {
   renderServices();
   updateDbStatusIndicator();
 
-  // Fecha a splash de carregamento de forma fluida e suave assim que o catálogo carregar
+  // Fecha a splash de carregamento assim que o catálogo estiver pronto
   if (loader) {
     const elapsed = Date.now() - startTime;
-    // Garante no mínimo 6s de vídeo antes de abrir o site
-    const remaining = Math.max(0, 6000 - elapsed);
+    // Dá tempo para a animação da logo aparecer (olho pisca 2x na entrada)
+    const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const minMs = reduced ? 300 : 3500;
+    const remaining = Math.max(0, minMs - elapsed);
     setTimeout(() => {
       loader.classList.add("fade-out");
       setTimeout(() => {

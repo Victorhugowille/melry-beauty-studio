@@ -188,16 +188,6 @@
     scroll-behavior: auto;
   }
 
-  .app-loader-overlay,
-  .loader-video,
-  .loader-status-text {
-    animation: none;
-  }
-
-  .loader-progress-fill {
-    animation-duration: 2.6s;
-  }
-
   .carousel-track {
     transition: none;
   }

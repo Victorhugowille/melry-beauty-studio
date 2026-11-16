@@ -2,6 +2,7 @@
  * ABA FATURAMENTO / ECONOMIA DO PAINEL
  * Faturamento do período, ticket médio, gráfico de pizza por serviço,
  * ranking de serviços e de clientes que mais gastaram.
+ * Período: botões rápidos ou calendário (1º clique = início, 2º clique = fim).
  */
 
 const ECON_COLORS = [
@@ -9,9 +10,10 @@ const ECON_COLORS = [
   "#7f5a6b", "#e8bec7", "#b98a95", "#8b6871"
 ];
 
-let econPeriod = "month";
+let econPeriod = "30";
 let econFrom = "";
 let econTo = "";
+let econCursor = { y: null, m: null };
 
 // Preço do atendimento: usa o valor salvo; se faltar, o preço atual do serviço.
 function econPrice(b) {
@@ -29,15 +31,22 @@ function econRange(period, today) {
     return { from: econFrom || null, to };
   }
   if (period === "all") return { from: null, to: today };
-
-  const d = fromIso(today);
+  if (period === "today") return { from: today, to: today };
+  if (period === "yesterday") {
+    const d = fromIso(today);
+    const y = iso(new Date(d.getFullYear(), d.getMonth(), d.getDate() - 1));
+    return { from: y, to: y };
+  }
   if (period === "month") {
+    const d = fromIso(today);
     return { from: iso(new Date(d.getFullYear(), d.getMonth(), 1)), to: today };
   }
   if (period === "year") {
+    const d = fromIso(today);
     return { from: iso(new Date(d.getFullYear(), 0, 1)), to: today };
   }
   const days = Number(period) || 30;
+  const d = fromIso(today);
   return {
     from: iso(new Date(d.getFullYear(), d.getMonth(), d.getDate() - (days - 1))),
     to: today
@@ -46,7 +55,7 @@ function econRange(period, today) {
 
 const econBrDate = s => {
   if (!s) return "";
-  const [y, m, d] = s.split("-");
+  const [y, m, d] = String(s).split("-");
   return `${d}/${m}/${y}`;
 };
 
@@ -55,21 +64,118 @@ function econSyncRangeLabel(range) {
   if (!label) return;
   if (!range.from) {
     label.textContent = `Tudo até ${econBrDate(range.to)}`;
-  } else if (range.from === range.to) {
-    label.textContent = econBrDate(range.from);
-  } else {
-    label.textContent = `${econBrDate(range.from)} até ${econBrDate(range.to)}`;
+    return;
   }
+  if (range.from === range.to) {
+    label.textContent = econBrDate(range.from);
+    return;
+  }
+  label.textContent = `De ${econBrDate(range.from)} até ${econBrDate(range.to)}`;
 }
 
 function econSyncInputs(range) {
-  if ($("econ-from")) $("econ-from").value = range.from || "";
-  if ($("econ-to")) $("econ-to").value = range.to || "";
   econFrom = range.from || "";
   econTo = range.to || "";
 }
 
+// ---------------------------------------------------------------
+// CALENDÁRIO DE SELEÇÃO DE PERÍODO (igual ao do agendamento)
+// 1º clique = início · 2º clique = fim
+// ---------------------------------------------------------------
+function econRenderCalendar() {
+  const grid = $("econ-cal-grid"), title = $("econ-cal-title");
+  if (!grid || !title) return;
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (econCursor.y === null || econCursor.m === null) {
+    econCursor = { y: today.getFullYear(), m: today.getMonth() };
+  }
+
+  const first = new Date(econCursor.y, econCursor.m, 1);
+  const monthLabel = first.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  title.textContent = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
+
+  const cells = [];
+  for (let i = 0; i < first.getDay(); i++) {
+    cells.push('<span class="cal-empty" aria-hidden="true"></span>');
+  }
+
+  const from = econFrom, to = econTo;
+  const daysInMonth = new Date(econCursor.y, econCursor.m + 1, 0).getDate();
+  for (let day = 1; day <= daysInMonth; day++) {
+    const d = new Date(econCursor.y, econCursor.m, day);
+    const v = iso(d);
+    const isFuture = d > today;
+    const isToday = v === iso(today);
+    const isStart = !!from && v === from;
+    const isEnd = !!to && v === to;
+    const inRange = !!from && !!to && v >= from && v <= to;
+    const label = d.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
+
+    const cls = ["cal-day"];
+    if (isToday) cls.push("is-today");
+    if (inRange) cls.push("in-range");
+    if (isStart) cls.push("range-start");
+    if (isEnd) cls.push("range-end");
+
+    cells.push(`<button type="button" class="${cls.join(" ")}"
+      data-cal="${v}" ${isFuture ? "disabled" : ""} aria-pressed="${isStart || isEnd}"
+      aria-label="${esc(label)}${isFuture ? " — dia futuro" : ""}${isStart ? " — início do período" : ""}${isEnd ? " — fim do período" : ""}">
+      <span>${day}</span>
+    </button>`);
+  }
+  grid.innerHTML = cells.join("");
+
+  const minMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  if ($("econ-cal-prev")) $("econ-cal-prev").disabled = first <= minMonth;
+  if ($("econ-cal-next")) $("econ-cal-next").disabled = first >= minMonth;
+}
+
+function econPickDay(v) {
+  const today = iso(new Date());
+  if (v > today) return; // dias futuros não entram
+
+  if (!econFrom || (econFrom && econTo)) {
+    // 1º clique (ou recomeço): define o início
+    econFrom = v;
+    econTo = "";
+  } else if (v >= econFrom) {
+    // 2º clique: define o fim (clicou no mesmo dia = dia único)
+    econTo = v;
+  } else {
+    // clicou antes do início: o clique vira o início
+    econFrom = v;
+  }
+
+  econPeriod = "custom";
+  if (econFrom && econTo) {
+    // intervalo completo: destaca os dois no calendário e atualiza os relatórios
+    if ($("econ-filter")) {
+      $("econ-filter").querySelectorAll("[data-period]").forEach(b => b.setAttribute("aria-pressed", "false"));
+    }
+    renderEconomia();
+  } else {
+    // ainda falta o 2º clique: só redesenha o calendário
+    const label = $("econ-range");
+    if (label) label.textContent = `Início em ${econBrDate(econFrom)} — toque no dia final`;
+    econRenderCalendar();
+  }
+}
+
+function econMarkQuickRange(from, to) {
+  econFrom = from;
+  econTo = to;
+  // navega o calendário para o mês de início
+  if (from) {
+    const d = fromIso(from);
+    econCursor = { y: d.getFullYear(), m: d.getMonth() };
+  }
+}
+
+// ---------------------------------------------------------------
+// GRÁFICO DE PIZZA
+// ---------------------------------------------------------------
 function econDrawPie(slices) {
   const canvas = $("econ-pie");
   if (!canvas) return;
@@ -116,6 +222,9 @@ function econDrawPie(slices) {
   });
 }
 
+// ---------------------------------------------------------------
+// RENDERIZAÇÃO PRINCIPAL
+// ---------------------------------------------------------------
 async function renderEconomia() {
   const cards = $("econ-cards");
   const legend = $("econ-legend");
@@ -137,6 +246,7 @@ async function renderEconomia() {
   const range = econRange(econPeriod, today);
   econSyncInputs(range);
   econSyncRangeLabel(range);
+  econRenderCalendar();
 
   const list = rows.filter(b =>
     b.status !== "cancelado" &&
@@ -182,7 +292,6 @@ async function renderEconomia() {
     cardHtml("Clientes", String(byClient.size), byClient.size === 1 ? "1 nome na lista" : "nomes diferentes")
   ].join("");
 
-  // ---- gráfico de pizza (por quantidade de atendimentos) ----
   const slices = [...byService.values()]
     .sort((a, b) => b.count - a.count || b.total - a.total)
     .map((s, i) => ({ ...s, color: ECON_COLORS[i % ECON_COLORS.length] }));
@@ -202,7 +311,6 @@ async function renderEconomia() {
       : '<li class="empty">Sem atendimentos neste período.</li>';
   }
 
-  // ---- ranking de serviços ----
   if (svcBox) {
     svcBox.innerHTML = slices.length
       ? slices.map((s, i) => `
@@ -216,7 +324,6 @@ async function renderEconomia() {
       : '<p class="empty">Nenhum atendimento neste período.</p>';
   }
 
-  // ---- clientes que mais gastaram ----
   const clients = [...byClient.values()].sort((a, b) => b.total - a.total || b.count - a.count);
   if (cliBox) {
     cliBox.innerHTML = clients.length
@@ -232,11 +339,19 @@ async function renderEconomia() {
   }
 }
 
+// ---------------------------------------------------------------
+// BOTÕES RÁPIDOS (hoje, ontem, 1 semana, 1 mês, 3 meses, 6 meses, 1 ano)
+// ---------------------------------------------------------------
 if ($("econ-filter")) {
   $("econ-filter").addEventListener("click", e => {
     const btn = e.target.closest("[data-period]");
     if (!btn) return;
     econPeriod = btn.dataset.period;
+
+    const today = iso(new Date());
+    const range = econRange(econPeriod, today);
+    econMarkQuickRange(range.from, range.to);
+
     $("econ-filter").querySelectorAll("[data-period]").forEach(b => {
       b.setAttribute("aria-pressed", String(b === btn));
     });
@@ -244,25 +359,27 @@ if ($("econ-filter")) {
   });
 }
 
-for (const id of ["econ-from", "econ-to"]) {
-  const el = $(id);
-  if (!el) continue;
-  el.addEventListener("change", () => {
-    econFrom = $("econ-from").value;
-    econTo = $("econ-to").value;
-    econPeriod = "custom";
-    if (econFrom && econTo && econFrom > econTo) {
-      // Se inverter as datas, ajusta a outra ponta
-      if (id === "econ-from") econTo = econFrom;
-      else econFrom = econTo;
-      if ($("econ-from")) $("econ-from").value = econFrom;
-      if ($("econ-to")) $("econ-to").value = econTo;
-    }
-    if ($("econ-filter")) {
-      $("econ-filter").querySelectorAll("[data-period]").forEach(b => {
-        b.setAttribute("aria-pressed", "false");
-      });
-    }
-    renderEconomia();
+// ---------------------------------------------------------------
+// CLIQUE NO CALENDÁRIO: 1º = início, 2º = fim
+// ---------------------------------------------------------------
+if ($("econ-cal-grid")) {
+  $("econ-cal-grid").addEventListener("click", e => {
+    const b = e.target.closest("[data-cal]");
+    if (!b || b.disabled) return;
+    econPickDay(b.dataset.cal);
   });
 }
+
+if ($("econ-cal-prev")) $("econ-cal-prev").addEventListener("click", () => {
+  if (econCursor.y === null) econCursor = { y: new Date().getFullYear(), m: new Date().getMonth() };
+  const d = new Date(econCursor.y, econCursor.m - 1, 1);
+  econCursor = { y: d.getFullYear(), m: d.getMonth() };
+  econRenderCalendar();
+});
+
+if ($("econ-cal-next")) $("econ-cal-next").addEventListener("click", () => {
+  if (econCursor.y === null) econCursor = { y: new Date().getFullYear(), m: new Date().getMonth() };
+  const d = new Date(econCursor.y, econCursor.m + 1, 1);
+  econCursor = { y: d.getFullYear(), m: d.getMonth() };
+  econRenderCalendar();
+});

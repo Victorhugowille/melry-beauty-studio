@@ -63,18 +63,17 @@
     }
   }
 
-  // Serviços Padrão (Manicure, Sobrancelha, Cílios)
+  // Serviços Padrão (tabela de valores do estúdio)
   const defaultServices = [
-    { id: "lash_classico", nome: "Extensão Fio a Fio Clássico", categoria: "cilios", preco: 120, dur: 90, foto: null },
-    { id: "lash_russo", nome: "Volume Russo Glamour", categoria: "cilios", preco: 160, dur: 120, foto: null },
-    { id: "lash_lifting", nome: "Lash Lifting & Nutrição", categoria: "cilios", preco: 90, dur: 60, foto: null },
-    { id: "brow_design", nome: "Design de Sobrancelhas", categoria: "sobrancelhas", preco: 35, dur: 30, foto: null },
-    { id: "brow_henna", nome: "Design com Henna", categoria: "sobrancelhas", preco: 50, dur: 45, foto: null },
-    { id: "brow_lamination", nome: "Brow Lamination", categoria: "sobrancelhas", preco: 110, dur: 60, foto: null },
-    { id: "mani_tradicional", nome: "Manicure Tradicional Completa", categoria: "manicure", preco: 40, dur: 45, foto: null },
-    { id: "mani_gel", nome: "Esmaltação em Gel", categoria: "manicure", preco: 70, dur: 60, foto: null },
-    { id: "mani_alongamento", nome: "Alongamento em Fibra de Vidro", categoria: "manicure", preco: 140, dur: 120, foto: null },
-    { id: "pedi_spa", nome: "Spa dos Pés & Pedicure", categoria: "manicure", preco: 55, dur: 50, foto: null }
+    { id: "brow_design", nome: "Designer de Sobrancelhas", categoria: "sobrancelhas", preco: 35, dur: 30, foto: null },
+    { id: "brow_henna", nome: "Designer com Henna", categoria: "sobrancelhas", preco: 40, dur: 60, foto: null },
+    { id: "brow_tintura", nome: "Designer com Tintura", categoria: "sobrancelhas", preco: 40, dur: 60, foto: null },
+    { id: "lash_classico", nome: "Extensão de Cílios", categoria: "cilios", preco: 150, dur: 150, foto: null },
+    { id: "lash_russo", nome: "Extensão de Cílios Volume", categoria: "cilios", preco: 200, dur: 150, foto: null },
+    { id: "lash_lifting", nome: "Lash Lifting", categoria: "cilios", preco: 90, dur: 60, foto: null },
+    { id: "buco", nome: "Buço", categoria: "geral", preco: 5, dur: 10, foto: null },
+    { id: "mani_tradicional", nome: "Manicure Tradicional", categoria: "manicure", preco: 30, dur: 60, foto: null },
+    { id: "pedi_tradicional", nome: "Pedicure Tradicional", categoria: "manicure", preco: 40, dur: 60, foto: null }
   ];
 
   window.db = {
