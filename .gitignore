@@ -7,6 +7,9 @@ Thumbs.db
 .env
 .env.local
 
+# Video de loading pesado (substituído pela animação em HTML)
+assets/loading.mp4
+
 # Backups e arquivos temporários
 *.bak
 temp_*

@@ -7,9 +7,6 @@
 // INICIALIZAÇÃO DE DADOS
 // -------------------------------------------------------------
 async function initApp() {
-  const loader = $("app-loader");
-  const startTime = Date.now();
-
   try {
     services = await window.db.getServices();
     avail = await window.db.getAvailability();
@@ -22,21 +19,6 @@ async function initApp() {
   loadGallery();
   renderServices();
   updateDbStatusIndicator();
-
-  // Fecha a splash de carregamento assim que o catálogo estiver pronto
-  if (loader) {
-    const elapsed = Date.now() - startTime;
-    // Dá tempo para a animação da logo aparecer (olho pisca 2x na entrada)
-    const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const minMs = reduced ? 300 : 3500;
-    const remaining = Math.max(0, minMs - elapsed);
-    setTimeout(() => {
-      loader.classList.add("fade-out");
-      setTimeout(() => {
-        loader.style.display = "none";
-      }, 700);
-    }, remaining);
-  }
 }
 
 // -------------------------------------------------------------
