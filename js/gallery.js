@@ -70,7 +70,7 @@ function renderCarousel() {
 
   track.innerHTML = gallery.map((p, i) => `
     <figure class="carousel-slide" aria-hidden="${i !== carouselIndex}">
-      <img src="${p.foto}" alt="${esc(p.legenda || "Foto do Melry Beauty Studio")}" ${i === 0 ? 'loading="eager"' : 'loading="lazy"'}>
+      <img src="${p.foto}" alt="${esc(p.legenda || "Foto do Melry Beauty Studio")}" ${i < 3 ? 'loading="eager"' : 'loading="lazy"'}>
       ${p.legenda ? `<figcaption>${esc(p.legenda)}</figcaption>` : ""}
     </figure>`).join("");
 
