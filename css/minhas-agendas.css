@@ -1,0 +1,274 @@
+/* =============================================================
+   MINHAS AGENDAS · CANTO SUPERIOR ESQUERDO
+   Botão com a foto/logo da profissional + painel onde a cliente
+   encontra o próprio agendamento e troca de horário.
+   ============================================================= */
+
+.client-corner {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 16px 6px 6px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--glass);
+  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-sm);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+
+.client-corner:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.client-corner:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 3px;
+}
+
+.client-corner-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--soft);
+  display: block;
+}
+
+.client-corner-label {
+  line-height: 1.15;
+  font-size: 0.86rem;
+  letter-spacing: 0.02em;
+  text-align: left;
+  color: var(--brand-deep);
+}
+
+:root[data-theme="dark"] .client-corner-label {
+  color: var(--brand);
+}
+
+/* -------------------------------------------------------------
+   PAINEL
+------------------------------------------------------------- */
+.client-panel-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: rgba(66, 39, 47, 0.34);
+  backdrop-filter: blur(2px);
+}
+
+.client-panel {
+  position: fixed;
+  z-index: 80;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(92vw, 460px);
+  max-height: min(86vh, 640px);
+  overflow: auto;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--line);
+}
+
+.client-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 18px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.client-panel-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--soft);
+  flex: 0 0 auto;
+}
+
+.client-panel-titles {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.client-panel-title {
+  margin: 0;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--brand-deep);
+}
+
+:root[data-theme="dark"] .client-panel-title {
+  color: var(--brand);
+}
+
+.client-panel-sub {
+  margin: 2px 0 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.client-panel-close {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.client-panel-close:hover {
+  background: var(--soft);
+  color: var(--ink);
+}
+
+.client-panel-body {
+  padding: 16px 18px 20px;
+}
+
+.client-panel-body label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: var(--ink);
+}
+
+.client-panel-body input[type="email"],
+.client-panel-body input[type="date"] {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.95rem;
+}
+
+.client-panel-body input:focus-visible,
+.client-panel-body button:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+#cp-search {
+  width: 100%;
+  margin-top: 10px;
+}
+
+#cp-err {
+  min-height: 1.2em;
+}
+
+/* ---- lista de agendamentos ---- */
+.cp-item {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+}
+
+.cp-item-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cp-item-name {
+  display: block;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.cp-item-when {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
+.cp-item-price {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.86rem;
+  color: var(--brand-deep);
+  font-weight: 700;
+}
+
+:root[data-theme="dark"] .cp-item-price {
+  color: var(--brand);
+}
+
+.cp-edit {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+}
+
+.cp-edit .chips {
+  margin-top: 8px;
+}
+
+.cp-msg {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: var(--ok);
+}
+
+.cp-msg.bad {
+  color: var(--danger);
+}
+
+.cp-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.client-panel-foot {
+  margin: 16px 0 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* ---- celular: botão mais discreto ---- */
+@media (max-width: 480px) {
+  .client-corner {
+    top: 10px;
+    left: 10px;
+    padding: 5px 12px 5px 5px;
+  }
+
+  .client-corner-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .client-corner-label {
+    font-size: 0.76rem;
+  }
+}

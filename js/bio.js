@@ -55,6 +55,13 @@ function renderBio() {
       phPub.textContent = initials || "MC";
     }
   }
+
+  // Botão "Minhas Agendas" usa a mesma foto de perfil da profissional.
+  const cornerAvatar = $("client-corner-avatar");
+  const panelAvatar = $("client-panel-avatar");
+  const avatarSrc = bioData.foto || "assets/logo-256.png";
+  if (cornerAvatar) cornerAvatar.src = avatarSrc;
+  if (panelAvatar) panelAvatar.src = avatarSrc;
 }
 
 function initBioAdminForm() {

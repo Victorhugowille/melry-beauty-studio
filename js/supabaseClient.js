@@ -528,6 +528,65 @@
       return true;
     },
 
+    // -------------------------------------------------------------
+    // MINHAS AGENDAS (cliente busca e troca o próprio horário)
+    // -------------------------------------------------------------
+    async getMyBookings(email) {
+      const now = new Date();
+      const today = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0");
+      if (isOnline) {
+        try {
+          const { data, error } = await q(supabase
+            .from("bookings")
+            .select("id,svc,nome,preco,date,start,dur,name,phone,email,status")
+            .ilike("email", email)
+            .eq("status", "confirmado")
+            .gte("date", today)
+            .order("date", { ascending: true })
+            .order("start", { ascending: true })
+            .limit(20));
+          if (!error && data) return data;
+          if (error) console.error("Erro ao buscar Meus Agendamentos:", error);
+        } catch (e) {
+          console.error("Exceção ao buscar Meus Agendamentos:", e);
+        }
+      }
+      return [];
+    },
+
+    async rescheduleBooking(id, email, date, start) {
+      if (isOnline) {
+        try {
+          const { data, error } = await q(supabase
+            .from("bookings")
+            .update({ date, start })
+            .eq("id", id)
+            .ilike("email", email)
+            .select());
+          if (error) throw error;
+          if (!data || !data.length) return { ok: false, reason: "not-found" };
+          return { ok: true, booking: data[0] };
+        } catch (e) {
+          console.error("Erro ao trocar horário:", e);
+          return { ok: false, reason: "error" };
+        }
+      }
+      return { ok: false, reason: "offline" };
+    },
+
+    // Enfileira os e-mails da troca de horário; a Edge Function
+    // (cron a cada 5 min) envia e marca como enviados.
+    async queueRescheduleEmails(rows) {
+      if (!isOnline || !rows || !rows.length) return false;
+      try {
+        await q(supabase.from("email_outbox").insert(rows));
+        return true;
+      } catch (e) {
+        console.warn("Não foi possível agendar os e-mails de alteração:", e);
+        return false;
+      }
+    },
+
   };
 })();
 

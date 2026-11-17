@@ -4,6 +4,31 @@
  */
 
 // -------------------------------------------------------------
+// TELA DE CARREGAMENTO
+// Some assim que os dados sobem (ou no máximo em LOADER_MAX_MS),
+// com tempo mínimo de exibição pra animação respirar.
+// -------------------------------------------------------------
+const LOADER_MIN_MS = 1600;
+const LOADER_MAX_MS = 5000;
+const loaderStart = performance.now();
+let loaderGone = false;
+
+function hideLoader() {
+  if (loaderGone) return;
+  loaderGone = true;
+  const el = $("app-loader");
+  if (!el) return;
+  const wait = Math.max(0, LOADER_MIN_MS - (performance.now() - loaderStart));
+  setTimeout(() => {
+    el.classList.add("done");
+    setTimeout(() => el.remove(), 700);
+  }, wait);
+}
+// Rede: se qualquer coisa travar, a tela some mesmo assim.
+setTimeout(hideLoader, LOADER_MAX_MS);
+window.addEventListener("load", hideLoader);
+
+// -------------------------------------------------------------
 // INICIALIZAÇÃO DE DADOS
 // -------------------------------------------------------------
 async function initApp() {
@@ -26,6 +51,7 @@ async function initApp() {
   loadGallery();
   renderServices();
   updateDbStatusIndicator();
+  hideLoader();
 }
 
 // -------------------------------------------------------------

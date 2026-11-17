@@ -6,9 +6,11 @@
 // -------------------------------------------------------------
 // FLUXO DE AGENDAMENTO (CLIENTE)
 // -------------------------------------------------------------
-function validStarts(date, dur) {
+// excludeId: id do agendamento a ignorar na checagem de conflito
+// (a cliente não deve esbarrar no próprio horário ao trocar)
+function validStarts(date, dur, excludeId) {
   const now = new Date(), isToday = iso(now) === date, nowMin = now.getHours() * 60 + now.getMinutes();
-  const bk = bookings.filter(b => b.date === date && b.status !== "cancelado");
+  const bk = bookings.filter(b => b.date === date && b.status !== "cancelado" && b.id !== excludeId);
   const res = [];
   for (let s = 0; s + dur <= 1440; s += 30) {
     if (isToday && s <= nowMin) continue;

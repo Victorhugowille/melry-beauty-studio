@@ -1,21 +1,32 @@
 /**
  * SEND-REMINDERS — Melry Beauty Studio
  *
- * Envia os e-mails do cliente via EmailJS (API HTTPS, usa o Gmail do remetente):
- *   - client_email_booked : confirmação, logo após agendar (≤45 min)
- *   - client_email_day    : lembrete 24h antes
- *   - client_email_hour   : lembrete ~1h antes
+ * O que faz, a cada chamada (cron de 5 em 5 min, ver sql/notifications.sql):
+ *   1) E-mails para a CLIENTE (via EmailJS):
+ *      - client_email_booked : confirmação, logo após agendar (≤45 min)
+ *      - client_email_day    : lembrete 24h antes
+ *      - client_email_hour   : lembrete ~1h antes
+ *      e uma cópia de cada um para o estúdio (STUDIO_EMAIL)
+ *   2) Drena a fila email_outbox (tabela criada por sql/email-outbox.sql):
+ *      avisos de troca de horário feitos pela cliente em "Minhas Agendas".
  *
- * Chamada a cada 5 minutos por um cron externo gratuito (cron-job.org).
- * Sem PC ligado, sem servidor.
+ * IMPORTANTE: a função precisa registrar o handler com Deno.serve() —
+ * um simples "export default" nunca atende a requisição e ela trava para
+ * sempre (era a razão de nenhum e-mail ter chegado).
  *
- * Secrets (supabase secrets set ...):
+ * Deploy:
+ *   supabase functions deploy send-reminders --project-ref oahywgiwvrjpnqwuffem
+ *
+ * Secrets (supabase secrets set NOME=valor --project-ref ...):
  *   EMAILJS_SERVICE_ID   - id do serviço (Gmail) no EmailJS
  *   EMAILJS_TEMPLATE_ID  - id do template de e-mail
  *   EMAILJS_PUBLIC_KEY   - chave pública da conta
  *   EMAILJS_PRIVATE_KEY  - chave privada (envio server-side)
  *   STUDIO_EMAIL         - (opcional) cópia de tudo para o estúdio; default: mlemepadilha@gmail.com
- *   CRON_SECRET          - (opcional) se existir, exige o header x-cron-secret
+ *   CRON_SECRET          - (opcional) se existir, exige o header x-cron-secret.
+ *                          ATENÇÃO: se você ligar, o cron do sql/notifications.sql
+ *                          precisa mandar exatamente o mesmo valor no header,
+ *                          senão os avisos param de novo.
  *   STUDIO_TIMEZONE      - (opcional, default: America/Campo_Grande)
  */
 
@@ -162,9 +173,38 @@ async function sendMail(env, to, email) {
   }
 }
 
+// Drena a fila email_outbox: avisos de troca de horário (Minhas Agendas).
+// Se a tabela ainda não existir, ignora sem quebrar os lembretes normais.
+async function drainOutbox(env) {
+  const res = await rest(env, "email_outbox?select=id,to_email,params,created_at&sent_at=is.null&order=created_at.asc&limit=50");
+  if (!res.ok) {
+    console.warn("email_outbox ausente ou indisponível (HTTP", res.status + "). Rode sql/email-outbox.sql no Supabase.");
+    return { total: 0, sent: 0, error: `HTTP ${res.status}` };
+  }
+  const rows = await res.json();
+  const sent = [];
+  for (const row of rows) {
+    try {
+      await sendMail(env, row.to_email, { params: row.params || {} });
+      await rest(env, `email_outbox?id=eq.${row.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ sent_at: new Date().toISOString() }),
+      });
+      sent.push(row.id);
+    } catch (err) {
+      console.error(`Falha ao enviar e-mail da fila (id ${row.id}):`, err);
+      await rest(env, `email_outbox?id=eq.${row.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ error: String(err?.message || err) }),
+      }).catch(() => undefined);
+    }
+  }
+  return { total: rows.length, sent: sent.length };
+}
+
 // ---------- função principal ----------
 
-export default async function handler(req) {
+const handler = async (req: Request) => {
   const env = Deno.env.toObject();
   const json = (body, status = 200) =>
     new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -221,9 +261,13 @@ export default async function handler(req) {
       }
     }
 
-    return json({ ok: true, analisados: bookings.length, enviados: sent, repetidos: skipped });
+    const outbox = await drainOutbox(env);
+
+    return json({ ok: true, analisados: bookings.length, enviados: sent, repetidos: skipped, fila: outbox });
   } catch (err) {
     console.error("Erro no send-reminders:", err);
     return json({ error: String(err?.message || err) }, 500);
   }
-}
+};
+
+Deno.serve(handler);

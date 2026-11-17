@@ -50,6 +50,9 @@ CREATE POLICY "Remocao de reservas de lembrete" ON reminders_log
 DROP TABLE IF EXISTS push_subscriptions;
 
 -- 5) CRON: chama a função de e-mails a cada 5 minutos (dentro do próprio Supabase)
+--    ATENÇÃO: se você criar o secret CRON_SECRET na Edge Function, edite também
+--    o headers abaixo ({"x-cron-secret":"MESMO_VALOR"}) — senão o cron será
+--    rejeitado com 401 e os e-mails param de novo.
 CREATE EXTENSION IF NOT EXISTS pg_cron;
 CREATE EXTENSION IF NOT EXISTS pg_net;
 
