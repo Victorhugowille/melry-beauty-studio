@@ -529,6 +529,45 @@
     },
 
     // -------------------------------------------------------------
+    // FEEDBACKS DAS CLIENTES
+    // -------------------------------------------------------------
+    async getFeedbacks() {
+      if (isOnline) {
+        try {
+          const { data, error } = await q(supabase
+            .from("feedbacks")
+            .select("id,nome,email,texto,foto_perfil,fotos,servico,booking_id,created_at")
+            .eq("ativo", true)
+            .order("ordem", { ascending: true })
+            .order("created_at", { ascending: true }));
+          if (!error && data) return data;
+          if (error) console.error("Erro ao carregar feedbacks:", error);
+        } catch (e) {
+          console.error("Exceção ao carregar feedbacks:", e);
+        }
+      }
+      return [];
+    },
+
+    async saveFeedback(fb) {
+      if (!isOnline) return { ok: false, reason: "offline" };
+      try {
+        const { error } = await q(supabase.from("feedbacks").insert(fb));
+        if (error) throw error;
+        return { ok: true };
+      } catch (e) {
+        console.error("Erro ao salvar feedback:", e);
+        return { ok: false };
+      }
+    },
+
+    async deleteFeedback(id) {
+      if (!isOnline) return;
+      const { error } = await q(supabase.from("feedbacks").delete().eq("id", id));
+      if (error) console.error("Erro ao remover feedback:", error);
+    },
+
+    // -------------------------------------------------------------
     // MINHAS AGENDAS (cliente busca e troca o próprio horário)
     // -------------------------------------------------------------
     async getMyBookings(email) {

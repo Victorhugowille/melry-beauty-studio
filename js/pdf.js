@@ -30,18 +30,23 @@ function pdfExportStyles() {
 
     /* Letra maior no PDF: o catálogo é lido no celular, onde a folha
        de 210mm deixa o texto pequeno demais. Só a tipografia muda. */
-    .sname { font-size: 3.1rem !important; }
-    .sprice { font-size: 2.3rem !important; }
-    .sdur { font-size: 1.15rem !important; }
-    .sdot { font-size: 1.3rem !important; }
-    .sbadge { font-size: 0.95rem !important; }
-    .ph span { font-size: 3.6rem !important; }
-    .bio-title { font-size: 3rem !important; }
-    .bio-role { font-size: 1rem !important; }
-    .bio-text { font-size: 1.35rem !important; }
-    footer .contact { font-size: 1.3rem !important; }
-    .footer-legal { font-size: 1.1rem !important; }
-    .enter { font-size: 1.2rem !important; }
+    .sname { font-size: 3.45rem !important; }
+    .sprice {
+      font-family: "Playfair Display", Georgia, "Cormorant Garamond", serif !important;
+      font-size: 2.6rem !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.01em;
+    }
+    .sdur { font-size: 1.28rem !important; }
+    .sdot { font-size: 1.42rem !important; }
+    .sbadge { font-size: 1.05rem !important; }
+    .ph span { font-size: 3.9rem !important; }
+    .bio-title { font-size: 3.35rem !important; }
+    .bio-role { font-size: 1.1rem !important; }
+    .bio-text { font-size: 1.48rem !important; }
+    footer .contact { font-size: 1.42rem !important; }
+    .footer-legal { font-size: 1.18rem !important; }
+    .enter { font-size: 1.32rem !important; }
   `;
   return style;
 }
@@ -72,7 +77,7 @@ async function buildPdfCanvas() {
   exportPage.style.backgroundColor = "transparent";
   exportPage.style.backgroundImage = "none";
 
-  for (const selector of ["#v-booking", "#v-login", "#v-admin", "#theme", "#gallery-section", ".hero-intro", "#client-corner"]) {
+  for (const selector of ["#v-booking", "#v-login", "#v-admin", "#theme", "#gallery-section", "#feedbacks-section", ".hero-intro", "#client-corner"]) {
     exportPage.querySelectorAll(selector).forEach(el => el.remove());
   }
   if (publicCopy) publicCopy.hidden = false;
@@ -87,7 +92,7 @@ async function buildPdfCanvas() {
   logoImg.src = "assets/logo-256.png";
   logoImg.alt = "Melry Beauty Studio";
   logoImg.style.cssText =
-    "display:block;width:min(94%,440px);height:auto;border-radius:26px;background:#fbe1e2;";
+    "display:block;width:min(96%,560px);height:auto;border-radius:30px;background:#fbe1e2;";
   logoBox.appendChild(logoImg);
   exportPage.prepend(logoBox);
 

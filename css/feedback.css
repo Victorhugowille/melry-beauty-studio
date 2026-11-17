@@ -1,0 +1,262 @@
+/* ============================================================
+   FEEDBACK DAS CLIENTES
+   - Carrossel público "O que dizem as clientes" (após os serviços)
+   - Formulário de avaliação dentro do painel "Minhas Agendas"
+   - Lista admin (aba Feedbacks) — reaproveita .gal-*
+   ============================================================ */
+
+/* ---- seção pública ---- */
+.fb-section {
+  margin: 34px 0 8px;
+}
+
+.fb-heading {
+  margin: 0;
+  color: var(--ink);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(1.6rem, 4.4vw, 2.2rem);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-align: center;
+}
+
+.fb-sub {
+  margin: 8px auto 0;
+  max-width: 46ch;
+  color: var(--muted);
+  font-size: 0.92rem;
+  text-align: center;
+}
+
+#fb-carousel {
+  margin-top: 20px;
+  background: transparent;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+/* ---- cartão de cada feedback ---- */
+.fb-slide {
+  display: flex;
+  align-items: stretch;
+  padding: 2px 2px 40px;
+}
+
+/* A regra base .carousel-slide img (cabecalho-carrossel.css) força
+   aspect-ratio/largura de foto de capa — aqui cada imagem tem o
+   próprio papel (foto principal, avatar, miniatura). */
+.fb-slide img {
+  width: auto;
+  height: auto;
+  aspect-ratio: auto;
+  object-fit: initial;
+  background: none;
+}
+
+.fb-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(0, 1fr);
+  gap: 18px;
+  width: 100%;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+}
+
+.fb-photo-wrap {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.fb-slide img.fb-photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 16px;
+  background: var(--soft);
+}
+
+.fb-thumbs {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.fb-thumb {
+  flex: 0 0 54px;
+  width: 54px;
+  height: 54px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--soft);
+  opacity: 0.72;
+  cursor: pointer;
+  transition: opacity 0.25s ease, border-color 0.25s ease;
+}
+
+.fb-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fb-thumb:hover {
+  opacity: 1;
+}
+
+.fb-thumb.active {
+  border-color: var(--brand);
+  opacity: 1;
+}
+
+.fb-body {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+}
+
+.fb-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fb-slide img.fb-avatar {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 54px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--soft);
+  background: var(--soft);
+}
+
+.fb-name {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.02rem;
+  font-weight: 700;
+}
+
+.fb-service {
+  margin: 2px 0 0;
+  color: var(--brand);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.fb-text {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.97rem;
+  line-height: 1.55;
+}
+
+.fb-date {
+  margin: auto 0 0;
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+@media (max-width: 720px) {
+  .fb-card {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 13px;
+    border-radius: 18px;
+  }
+
+  .fb-slide img.fb-photo {
+    aspect-ratio: 16 / 10;
+  }
+
+  .fb-section {
+    margin-top: 26px;
+  }
+}
+
+/* ---- formulário de avaliação (dentro de Minhas Agendas) ---- */
+.cp-fb-form {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--line);
+}
+
+.cp-fb-form label {
+  display: block;
+  margin: 12px 0 6px;
+}
+
+.cp-fb-form input[type="text"],
+.cp-fb-form input[type="email"],
+.cp-fb-form textarea {
+  width: 100%;
+}
+
+.cp-fb-form textarea {
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.92rem;
+  resize: vertical;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.cp-fb-form textarea:focus-visible {
+  outline: 0;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 4px var(--soft);
+}
+
+.cp-fb-form input[type="file"] {
+  width: 100%;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.cp-fb-title {
+  margin: 0 0 4px;
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+#fbf-servico {
+  color: var(--brand);
+  font-weight: 700;
+}
+
+.fb-thanks {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--soft);
+  color: var(--brand-deep);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* botões "Avaliar" / "Trocar horário" lado a lado */
+.cp-item-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.cp-item-actions .mini {
+  margin: 0;
+}

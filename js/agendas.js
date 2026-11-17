@@ -101,7 +101,10 @@
             <span class="cp-item-when">${esc(when)}</span>
             <span class="cp-item-price">${brl(b.preco)}</span>
           </div>
-          <button class="mini" type="button" data-resched="${esc(b.id)}">Trocar horário</button>
+          <div class="cp-item-actions">
+            <button class="mini" type="button" data-review="${esc(b.id)}">Avaliar</button>
+            <button class="mini" type="button" data-resched="${esc(b.id)}">Trocar horário</button>
+          </div>
         </div>
         <div class="cp-edit" data-edit="${esc(b.id)}" hidden>
           <label for="cp-date-${esc(b.id)}">Nova data</label>
@@ -247,6 +250,13 @@
     listBox.addEventListener("click", e => {
       const resched = e.target.closest("[data-resched]");
       if (resched) { openEditor(resched.dataset.resched); return; }
+
+      const review = e.target.closest("[data-review]");
+      if (review) {
+        const b = cpBookings.find(x => x.id === review.dataset.review);
+        if (b) window.dispatchEvent(new CustomEvent("melry:review", { detail: b }));
+        return;
+      }
 
       const chip = e.target.closest("[data-st]");
       if (chip && editingId) {

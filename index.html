@@ -12,27 +12,28 @@
   <!-- Fontes do Google -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   
   <!-- Estilos organizados por área -->
-  <link rel="stylesheet" href="css/base.css?v=7">
-  <link rel="stylesheet" href="css/fundo.css?v=7">
-  <link rel="stylesheet" href="css/cabecalho-carrossel.css?v=7">
-  <link rel="stylesheet" href="css/servicos.css?v=7">
-  <link rel="stylesheet" href="css/biografia-rodape.css?v=7">
-  <link rel="stylesheet" href="css/formularios-botoes.css?v=7">
-  <link rel="stylesheet" href="css/cartoes-listas.css?v=7">
-  <link rel="stylesheet" href="css/login-painel.css?v=7">
-  <link rel="stylesheet" href="css/horarios.css?v=7">
-  <link rel="stylesheet" href="css/agendamento-calendario.css?v=7">
-  <link rel="stylesheet" href="css/carregamento.css?v=7">
-  <link rel="stylesheet" href="css/minhas-agendas.css?v=7">
-  <link rel="stylesheet" href="css/responsivo.css?v=7">
+  <link rel="stylesheet" href="css/base.css?v=9">
+  <link rel="stylesheet" href="css/fundo.css?v=9">
+  <link rel="stylesheet" href="css/cabecalho-carrossel.css?v=9">
+  <link rel="stylesheet" href="css/servicos.css?v=9">
+  <link rel="stylesheet" href="css/biografia-rodape.css?v=9">
+  <link rel="stylesheet" href="css/formularios-botoes.css?v=9">
+  <link rel="stylesheet" href="css/cartoes-listas.css?v=9">
+  <link rel="stylesheet" href="css/login-painel.css?v=9">
+  <link rel="stylesheet" href="css/horarios.css?v=9">
+  <link rel="stylesheet" href="css/agendamento-calendario.css?v=9">
+  <link rel="stylesheet" href="css/carregamento.css?v=9">
+  <link rel="stylesheet" href="css/minhas-agendas.css?v=9">
+  <link rel="stylesheet" href="css/feedback.css?v=9">
+  <link rel="stylesheet" href="css/responsivo.css?v=9">
 </head>
 <body>
 <!-- Tela de carregamento (some assim que a página estiver pronta; nunca trava o conteúdo) -->
 <div id="app-loader" role="presentation" aria-hidden="true">
-  <iframe id="app-loader-frame" src="assets/tela-de-carregamento.html?v=7" title="Melry Beauty Studio"></iframe>
+  <iframe id="app-loader-frame" src="assets/tela-de-carregamento.html?v=9" title="Melry Beauty Studio"></iframe>
 </div>
 
 <!-- Minha agenda da cliente (canto superior esquerdo) -->
@@ -58,6 +59,21 @@
     <button class="cta" id="cp-search" type="button" style="margin-top:6px">Buscar meus agendamentos</button>
     <p class="err" id="cp-err" role="alert"></p>
     <div id="cp-list" aria-live="polite"></div>
+    <form class="cp-fb-form" id="cp-fb-form" hidden>
+      <input type="hidden" id="fbf-booking">
+      <p class="cp-fb-title">Avaliar <span id="fbf-servico">seu atendimento</span></p>
+      <label for="fbf-nome">Seu nome</label>
+      <input id="fbf-nome" maxlength="80" required placeholder="Como você quer aparecer">
+      <label for="fbf-texto">Sua avaliação</label>
+      <textarea id="fbf-texto" rows="3" maxlength="400" required placeholder="Conte como foi sua experiência..."></textarea>
+      <label for="fbf-fotos">Suas fotos (1 a 3)</label>
+      <input id="fbf-fotos" type="file" accept="image/*" multiple required>
+      <label for="fbf-perfil">Sua foto de perfil (opcional)</label>
+      <input id="fbf-perfil" type="file" accept="image/*">
+      <p class="err" id="fbf-err" role="alert"></p>
+      <button class="cta" id="fbf-send" type="submit" style="margin-top:6px">Enviar avaliação</button>
+      <button class="link" id="fbf-cancel" type="button">Cancelar</button>
+    </form>
     <p class="client-panel-foot">Você e o estúdio recebem um e-mail avisando da alteração.</p>
   </div>
 </aside>
@@ -70,7 +86,7 @@
 
   <!-- Animacao da logo no topo (fundo transparente, ver o padrao do site) -->
   <section class="hero-intro" aria-hidden="true">
-    <iframe src="assets/tela-de-carregamento.html?v=7#transparent" title=""></iframe>
+    <iframe src="assets/tela-de-carregamento.html?v=9#transparent" title=""></iframe>
   </section>
 
   <!-- 1. TELA PRINCIPAL (PÚBLICA) -->
@@ -91,6 +107,22 @@
 
     <!-- Lista Dinâmica de Serviços (Exibindo todos os serviços) -->
     <div id="services"></div>
+
+    <!-- Feedback das clientes -->
+    <section class="fb-section" id="feedbacks-section" hidden aria-label="Feedback das clientes">
+      <h2 class="fb-heading">O que dizem as clientes</h2>
+      <p class="fb-sub">Avaliações reais de quem passou pelas mãos da Maria Clara.</p>
+      <div class="carousel" id="fb-carousel" aria-roledescription="carrossel" aria-label="Feedbacks das clientes">
+        <div class="carousel-track" id="fb-track"></div>
+        <button class="carousel-arrow prev" id="fb-prev" type="button" aria-label="Feedback anterior">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+        <button class="carousel-arrow next" id="fb-next" type="button" aria-label="Próximo feedback">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+        <div class="carousel-dots" id="fb-dots" aria-label="Selecionar feedback"></div>
+      </div>
+    </section>
 
     <!-- Seção Quem Sou Eu (Apresentação da Profissional) -->
     <div class="card bio-card" id="bio-section">
@@ -225,6 +257,7 @@
         <button role="tab" id="at-econ" aria-selected="false"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16"/><path d="M7.5 16.5v-5"/><path d="M12 16.5V7.5"/><path d="M16.5 16.5v-8"/></svg></span> Faturamento</button>
         <button role="tab" id="at-serv" aria-selected="true"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="7" r="2.3"/><circle cx="6" cy="17" r="2.3"/><path d="M8.1 8.6L20 18.5"/><path d="M8.1 15.4L20 5.5"/></svg></span> Serviços</button>
         <button role="tab" id="at-gal" aria-selected="false"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="9.5" cy="10.5" r="1.6"/><path d="M6 17.5l4.5-4.5 3 3 3.5-3.5 2.5 2.5"/></svg></span> Galeria</button>
+        <button role="tab" id="at-fb" aria-selected="false"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 3 14.47 9.11 21.21 9.66 16.02 14.13 17.94 20.5 12 16.9 6.06 20.5 7.98 14.13 2.79 9.66 9.53 9.11"/></svg></span> Feedbacks</button>
         <button role="tab" id="at-hor" aria-selected="false"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></span> Horários</button>
         <button role="tab" id="at-ag" aria-selected="false"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5.5" width="16" height="15" rx="2.5"/><path d="M8 3.5v4M16 3.5v4M4 10.5h16"/><circle cx="9" cy="15" r="0.7" fill="currentColor" stroke="none"/><circle cx="13" cy="15" r="0.7" fill="currentColor" stroke="none"/><circle cx="17" cy="15" r="0.7" fill="currentColor" stroke="none"/></svg></span> Agenda</button>
         <button role="tab" id="at-bio" aria-selected="false"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20c1.2-3.6 3.8-5.5 6.5-5.5s5.3 1.9 6.5 5.5"/></svg></span> Biografia</button>
@@ -351,6 +384,14 @@
       <div class="gal-grid" id="gal-list"></div>
     </div>
 
+    <!-- Aba: Feedbacks das clientes -->
+    <div id="p-fb" hidden>
+      <h2>Feedbacks das clientes</h2>
+      <p class="sub">Avaliações com fotos enviadas pelo site. Aparecem no carrossel "O que dizem as clientes". Remova as que não quiser exibir.</p>
+
+      <div class="gal-grid" id="fb-admin-list"></div>
+    </div>
+
     <!-- Aba 3: Horários / Disponibilidade -->
     <div id="p-hor" hidden>
       <h2>Grade de Horários</h2>
@@ -474,19 +515,20 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <!-- Scripts da Aplicação (ordem de dependência) -->
-<script src="js/config.js?v=7"></script>
+<script src="js/config.js?v=9"></script>
 <script src="js/supabaseClient.js"></script>
-<script src="js/core.js?v=7"></script>
-<script src="js/bio.js?v=7"></script>
-<script src="js/gallery.js?v=7"></script>
-<script src="js/services.js?v=7"></script>
-<script src="js/booking.js?v=7"></script>
-<script src="js/schedule.js?v=7"></script>
-<script src="js/agenda.js?v=7"></script>
-<script src="js/economia.js?v=7"></script>
-<script src="js/pdf.js?v=7"></script>
-<script src="js/whatsapp-teste.js?v=7"></script>
-<script src="js/agendas.js?v=7"></script>
-<script src="js/app.js?v=7"></script>
+<script src="js/core.js?v=9"></script>
+<script src="js/bio.js?v=9"></script>
+<script src="js/gallery.js?v=9"></script>
+<script src="js/services.js?v=9"></script>
+<script src="js/booking.js?v=9"></script>
+<script src="js/schedule.js?v=9"></script>
+<script src="js/agenda.js?v=9"></script>
+<script src="js/economia.js?v=9"></script>
+<script src="js/pdf.js?v=9"></script>
+<script src="js/whatsapp-teste.js?v=9"></script>
+<script src="js/agendas.js?v=9"></script>
+<script src="js/feedback.js?v=9"></script>
+<script src="js/app.js?v=9"></script>
 </body>
 </html>

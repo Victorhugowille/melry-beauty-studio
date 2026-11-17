@@ -93,7 +93,7 @@ $("logout").onclick = () => {
 // PAINEL DE CONTROLE (ADMIN)
 // -------------------------------------------------------------
 function adminTab(t) {
-  const m = { econ: "p-econ", serv: "p-serv", gal: "p-gal", hor: "p-hor", ag: "p-ag", bio: "p-bio", pdf: "p-pdf", zap: "p-zap" };
+  const m = { econ: "p-econ", serv: "p-serv", gal: "p-gal", fb: "p-fb", hor: "p-hor", ag: "p-ag", bio: "p-bio", pdf: "p-pdf", zap: "p-zap" };
   for (const k in m) {
     const el = $(m[k]);
     if (el) el.hidden = k !== t;
@@ -103,6 +103,7 @@ function adminTab(t) {
   if (t === "econ") renderEconomia();
   if (t === "ag") renderAgenda();
   if (t === "gal") renderGalleryAdmin();
+  if (t === "fb" && window.feedbackUI && window.feedbackUI.refresh) window.feedbackUI.refresh();
   if (t === "bio") initBioAdminForm();
   if (t === "hor") {
     if (!$("hdate").value) $("hdate").value = iso(new Date());
@@ -143,7 +144,7 @@ document.addEventListener("keydown", e => {
   if (e.key === "Escape") closeDrawer();
 });
 
-const ADMIN_TABS = ["econ", "serv", "gal", "hor", "ag", "bio", "pdf", "zap"];
+const ADMIN_TABS = ["econ", "serv", "gal", "fb", "hor", "ag", "bio", "pdf", "zap"];
 for (const t of ADMIN_TABS) {
   const btn = $("at-" + t);
   if (!btn) continue;
