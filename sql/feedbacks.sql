@@ -26,6 +26,11 @@ drop policy if exists feedbacks_insert on public.feedbacks;
 drop policy if exists feedbacks_update on public.feedbacks;
 drop policy if exists feedbacks_delete on public.feedbacks;
 
+-- Garante 1 avaliação por cliente (por e-mail): índice único parcial
+-- (feedbacks removidos pela admin não contam)
+create unique index if not exists feedbacks_one_per_email
+  on public.feedbacks (lower(email)) where ativo;
+
 -- Mesmo padrão do resto do projeto (app estático com anon key).
 create policy feedbacks_select on public.feedbacks for select using (true);
 create policy feedbacks_insert on public.feedbacks for insert with check (true);

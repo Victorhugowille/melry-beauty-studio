@@ -102,7 +102,7 @@
             <span class="cp-item-price">${brl(b.preco)}</span>
           </div>
           <div class="cp-item-actions">
-            <button class="mini" type="button" data-review="${esc(b.id)}">Avaliar</button>
+            <button class="mini" type="button" data-review="${esc(b.id)}" data-email="${esc(b.email || "")}">Avaliar</button>
             <button class="mini" type="button" data-resched="${esc(b.id)}">Trocar horário</button>
           </div>
         </div>
@@ -119,6 +119,8 @@
         </div>
       </article>`;
     }).join("");
+
+    if (window.feedbackUI && window.feedbackUI.markReviewed) window.feedbackUI.markReviewed();
   }
 
   // -------------------------------------------------------------

@@ -191,6 +191,26 @@
     }
     renderCarousel();
     renderAdminList();
+    markReviewed();
+  }
+
+  // Uma avaliação por cliente (por e-mail)
+  function isReviewed(email) {
+    if (!email) return false;
+    const e = String(email).trim().toLowerCase();
+    if (!e) return false;
+    return feedbackList.some(f => (f.email || "").trim().toLowerCase() === e);
+  }
+
+  // Desabilita o botão "Avaliar" para quem já avaliou
+  function markReviewed() {
+    document.querySelectorAll("[data-review]").forEach(btn => {
+      const email = (btn.getAttribute("data-email") || "").trim().toLowerCase();
+      if (email && isReviewed(email)) {
+        btn.disabled = true;
+        btn.textContent = "Avaliado ✓";
+      }
+    });
   }
 
   // -------------------------------------------------------------
@@ -203,22 +223,61 @@
   const textoInput = $("fbf-texto");
   const fotosInput = $("fbf-fotos");
   const perfilInput = $("fbf-perfil");
-  const servicoLabel = $("fbf-servico");
+  const servicoSelect = $("fbf-servico");
   const hiddenBooking = $("fbf-booking");
   const cancelBtn = $("fbf-cancel");
 
-  function openForm(booking) {
+  // Serviços ativos do catálogo (para o select do formulário)
+  let servicesCache = null;
+  async function loadServices() {
+    if (servicesCache) return servicesCache;
+    try {
+      const list = await window.db.getServices();
+      servicesCache = Array.isArray(list) ? list : [];
+    } catch (e) {
+      console.warn("Não foi possível carregar os serviços:", e);
+      servicesCache = [];
+    }
+    return servicesCache;
+  }
+
+  async function fillServicoSelect(preselect) {
+    if (!servicoSelect) return;
+    const list = await loadServices();
+    const nomes = list.map(s => s.nome).filter(Boolean);
+    let html = '<option value="">Escolha o serviço...</option>';
+    for (const n of nomes) html += `<option value="${escHtml(n)}">${escHtml(n)}</option>`;
+    html += '<option value="__geral">Experiência geral</option>';
+    servicoSelect.innerHTML = html;
+    if (preselect) {
+      servicoSelect.value = nomes.includes(preselect) ? preselect : "__geral";
+    }
+  }
+
+  async function openForm(booking) {
     if (!form) return;
+    const email = ((booking && booking.email) || ($("cp-email") && $("cp-email").value) || "").trim().toLowerCase();
+
+    // Limite: uma avaliação por cliente (por e-mail)
+    if (isReviewed(email)) {
+      const msg = document.createElement("p");
+      msg.className = "fb-thanks";
+      msg.textContent = "Você já enviou sua avaliação — obrigada! 💜";
+      const listBox = $("cp-list");
+      if (listBox) listBox.prepend(msg);
+      return;
+    }
+
     form.hidden = false;
     if (errBox) errBox.textContent = "";
     if (hiddenBooking) hiddenBooking.value = booking.id || "";
-    if (servicoLabel) servicoLabel.textContent = booking.nome || "seu atendimento";
+    await fillServicoSelect(booking.nome);
     if (nomeInput) nomeInput.value = booking.name || "";
     if (textoInput) textoInput.value = "";
     if (fotosInput) fotosInput.value = "";
     if (perfilInput) perfilInput.value = "";
     form.scrollIntoView({ block: "nearest", behavior: "smooth" });
-    if (nomeInput) nomeInput.focus();
+    if (servicoSelect) servicoSelect.focus();
   }
 
   function closeForm() {
@@ -229,6 +288,8 @@
     const booking = e.detail || {};
     openForm(booking);
   });
+
+  window.feedbackUI = Object.assign(window.feedbackUI || {}, { refresh: loadFeedbacks, markReviewed });
 
   if (cancelBtn) cancelBtn.addEventListener("click", closeForm);
 
@@ -249,6 +310,17 @@
 
       const email = ($("cp-email") && $("cp-email").value ? $("cp-email").value : "").trim().toLowerCase();
       const bookingId = hiddenBooking ? hiddenBooking.value : "";
+
+      // Limite: uma avaliação por cliente (por e-mail)
+      if (isReviewed(email)) {
+        closeForm();
+        const msg = document.createElement("p");
+        msg.className = "fb-thanks";
+        msg.textContent = "Você já enviou sua avaliação — obrigada! 💜";
+        $("cp-list").prepend(msg);
+        return;
+      }
+
       const nome = (nomeInput.value || "").trim();
       const texto = (textoInput.value || "").trim();
       const arquivos = fotosInput ? Array.from(fotosInput.files || []) : [];
@@ -271,7 +343,8 @@
         const perfil = perfilInput && perfilInput.files && perfilInput.files[0];
         if (perfil) fotoPerfil = await resizeImage(perfil, 400, 0.85);
 
-        const servicoTexto = servicoLabel && servicoLabel.textContent ? servicoLabel.textContent : null;
+        const servicoEscolhido = servicoSelect ? servicoSelect.value : "";
+        const servicoTexto = servicoEscolhido === "__geral" ? "Experiência geral" : (servicoEscolhido || null);
         const res = await window.db.saveFeedback({
           id: "f_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
           nome,
@@ -346,7 +419,4 @@
 
   // Inicia quando a página estiver pronta
   loadFeedbacks();
-
-  // Exposto para o painel admin (atualiza a lista ao abrir a aba)
-  window.feedbackUI = { refresh: loadFeedbacks };
 })();
