@@ -30,18 +30,18 @@ function pdfExportStyles() {
 
     /* Letra maior no PDF: o catálogo é lido no celular, onde a folha
        de 210mm deixa o texto pequeno demais. Só a tipografia muda. */
-    .sname { font-size: 2.5rem !important; }
-    .sprice { font-size: 1.9rem !important; }
-    .sdur { font-size: 0.95rem !important; }
-    .sdot { font-size: 1.1rem !important; }
-    .sbadge { font-size: 0.82rem !important; }
-    .ph span { font-size: 3.2rem !important; }
-    .bio-title { font-size: 2.6rem !important; }
-    .bio-role { font-size: 0.85rem !important; }
-    .bio-text { font-size: 1.2rem !important; }
-    footer .contact { font-size: 1.15rem !important; }
-    .footer-legal { font-size: 0.95rem !important; }
-    .enter { font-size: 1.05rem !important; }
+    .sname { font-size: 3.1rem !important; }
+    .sprice { font-size: 2.3rem !important; }
+    .sdur { font-size: 1.15rem !important; }
+    .sdot { font-size: 1.3rem !important; }
+    .sbadge { font-size: 0.95rem !important; }
+    .ph span { font-size: 3.6rem !important; }
+    .bio-title { font-size: 3rem !important; }
+    .bio-role { font-size: 1rem !important; }
+    .bio-text { font-size: 1.35rem !important; }
+    footer .contact { font-size: 1.3rem !important; }
+    .footer-legal { font-size: 1.1rem !important; }
+    .enter { font-size: 1.2rem !important; }
   `;
   return style;
 }
@@ -72,11 +72,24 @@ async function buildPdfCanvas() {
   exportPage.style.backgroundColor = "transparent";
   exportPage.style.backgroundImage = "none";
 
-  for (const selector of ["#v-booking", "#v-login", "#v-admin", "#theme", "#gallery-section"]) {
+  for (const selector of ["#v-booking", "#v-login", "#v-admin", "#theme", "#gallery-section", ".hero-intro", "#client-corner"]) {
     exportPage.querySelectorAll(selector).forEach(el => el.remove());
   }
   if (publicCopy) publicCopy.hidden = false;
   exportPage.prepend(pdfExportStyles());
+
+  // A animação da logo é um iframe e não sai na exportação (ficaria em branco):
+  // no PDF entra a logo normal, em PNG.
+  const logoBox = document.createElement("div");
+  logoBox.style.cssText =
+    "display:flex;justify-content:center;align-items:center;padding:16px 0 30px;";
+  const logoImg = document.createElement("img");
+  logoImg.src = "assets/logo-256.png";
+  logoImg.alt = "Melry Beauty Studio";
+  logoImg.style.cssText =
+    "display:block;width:min(94%,440px);height:auto;border-radius:26px;background:#fbe1e2;";
+  logoBox.appendChild(logoImg);
+  exportPage.prepend(logoBox);
 
   shot.appendChild(exportPage);
 
