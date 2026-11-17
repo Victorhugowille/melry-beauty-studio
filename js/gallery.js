@@ -13,12 +13,25 @@ let pendingGalleryPhoto = null;
 let carouselIndex = 0;
 let carouselTimer = null;
 
+// Os 3 primeiros slides ficam fixos (definidos pelo estúdio);
+// os demais aparecem em ordem aleatória a cada visita.
+function mixGallery(list) {
+  if (!Array.isArray(list) || list.length <= 3) return list;
+  const head = list.slice(0, 3);
+  const tail = list.slice(3);
+  for (let i = tail.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [tail[i], tail[j]] = [tail[j], tail[i]];
+  }
+  return head.concat(tail);
+}
+
 async function loadGallery() {
   // Mostra primeiro as fotos salvas neste dispositivo (abertura instantânea).
   try {
     const local = JSON.parse(localStorage.getItem(GALLERY_KEY));
     if (Array.isArray(local)) {
-      gallery = local;
+      gallery = mixGallery(local);
       if (carouselIndex >= gallery.length) carouselIndex = 0;
       renderCarousel();
       renderGalleryAdmin();
@@ -27,7 +40,7 @@ async function loadGallery() {
 
   try {
     const data = await window.db.getGallery();
-    gallery = Array.isArray(data) ? data : [];
+    gallery = mixGallery(Array.isArray(data) ? data : []);
   } catch (e) {
     console.warn("Não foi possível carregar a galeria:", e);
     gallery = [];
