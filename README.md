@@ -189,17 +189,20 @@ O painel abre com um **menu lateral (drawer)** com todas as abas.
 
 ### Como ativar os lembretes no WhatsApp (profissional)
 
-O robô usa o **CallMeBot** (grátis, uso pessoal). Quem precisa ativar é o dono do número que receberá as mensagens:
+O robô usa o **CallMeBot** (grátis, uso pessoal). Quem precisa ativar é o dono do número que **envia** as mensagens — neste caso, o celular da Maria:
 
-1. Salve o número **+34 644 26 33 77** nos contatos do seu celular.
+1. No celular da Maria (**(45) 9 9855-7194**), salve o número **+34 644 26 33 77** nos contatos.
 2. Envie pelo WhatsApp a mensagem: `I allow callmebot to send me messages`.
 3. Aguarde a resposta com a sua `apikey`.
 4. No GitHub, abra o repositório > **Settings** > **Secrets and variables** > **Actions**.
 5. Clique em **"New repository secret"**:
    - **Name:** `CALLMEBOT_APIKEY`
-   - **Secret:** cole a chave recebida do CallMeBot
+   - **Secret:** cole a chave recebida pela Maria no WhatsApp
    - Clique em **"Add secret"**.
-6. (Opcional) Outro secret `WHATSAPP_PHONE` define o número de destino. Padrão: **+55 45 9109-6203**.
+6. (Opcional) Outro secret `WHATSAPP_PHONE` define o número de destino. Padrão: **+55 45 9985-57194**.
+
+> A apikey do CallMeBot é **por número**: a chave do celular do Victor não vale para o número da Maria — ela precisa ativar a dela.
+> Enquanto a chave dela não for salva em `CALLMEBOT_APIKEY`, o robô continua **sem enviar nada**.
 
 ### Como ativar os e-mails para o cliente (EmailJS, grátis)
 

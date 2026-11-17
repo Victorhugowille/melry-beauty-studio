@@ -12,7 +12,7 @@
 (function () {
   var KEY_APIKEY = "melry_callmebot_apikey";
   var KEY_PHONE = "melry_callmebot_phone";
-  var DEFAULT_PHONE = "554591096203";
+  var DEFAULT_PHONE = "5545998557194";
 
   var phoneInput = $("zap-phone");
   var keyInput = $("zap-apikey");
@@ -100,7 +100,7 @@
     err.textContent = "";
 
     if (phone.length < 12) {
-      err.textContent = "Digite o número com DDI+DDD (ex.: 554591096203).";
+      err.textContent = "Digite o número com DDI+DDD (ex.: 5545998557194).";
       return;
     }
     if (!apikey) {
