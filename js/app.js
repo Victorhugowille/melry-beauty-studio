@@ -104,6 +104,7 @@ function adminTab(t) {
   if (t === "ag") renderAgenda();
   if (t === "gal") renderGalleryAdmin();
   if (t === "fb" && window.feedbackUI && window.feedbackUI.refresh) window.feedbackUI.refresh();
+  if (t === "zap" && window.logsUI && window.logsUI.refresh) window.logsUI.refresh();
   if (t === "bio") initBioAdminForm();
   if (t === "hor") {
     if (!$("hdate").value) $("hdate").value = iso(new Date());

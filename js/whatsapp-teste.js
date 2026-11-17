@@ -45,6 +45,26 @@
     status.style.color = ok === false ? "var(--danger)" : "var(--ok)";
   }
 
+  // Registra a tentativa no whatsapp_log (aba Testes). Se a tabela ainda
+  // não existir, ignora sem incomodar a usuária.
+  async function logAttempt(kind, phone, statusKind, detail) {
+    try {
+      var cfg = window.SUPABASE_CONFIG || {};
+      var url = String(cfg.url || "").replace(/\/rest\/v1\/?$/, "").replace(/\/+$/, "");
+      if (!url || !cfg.anonKey) return;
+      await fetch(url + "/rest/v1/whatsapp_log", {
+        method: "POST",
+        headers: {
+          apikey: cfg.anonKey,
+          Authorization: "Bearer " + cfg.anonKey,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal"
+        },
+        body: JSON.stringify([{ kind: kind, phone: phone, status: statusKind, detail: detail }])
+      });
+    } catch (e) { /* o log é só um espelho; não pode travar o teste */ }
+  }
+
   function capitalize(s) {
     return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
   }
@@ -144,6 +164,14 @@
     setStatus("Enviando…", true);
 
     var reached = await sendBlind(url, payload);
+    logAttempt(
+      "teste",
+      phone,
+      reached ? "teste-cego" : "erro",
+      reached
+        ? "Disparado às cegas pelo painel — confira no WhatsApp"
+        : "Falha de rede no navegador"
+    );
     setStatus(
       reached
         ? (kind === "day"

@@ -1,7 +1,7 @@
 /**
  * SEND-REMINDERS — Melry Beauty Studio
  *
- * O que faz, a cada chamada (cron de 5 em 5 min, ver sql/notifications.sql):
+ * O que faz, a cada chamada (cron de 1 em 1 minuto, ver sql/notifications.sql):
  *   1) E-mails para a CLIENTE (via EmailJS):
  *      - client_email_booked : confirmação, logo após agendar (≤45 min)
  *      - client_email_day    : lembrete 24h antes
@@ -152,6 +152,15 @@ async function reserveReminder(env, bookingId, kind) {
   throw new Error(`Falha ao registrar lembrete (HTTP ${res.status}): ${await res.text()}`);
 }
 
+// Registro no log visível no painel (aba Testes). Nunca quebra o envio.
+async function logEmail(env, row) {
+  try {
+    await rest(env, "email_log", { method: "POST", body: JSON.stringify([row]) });
+  } catch (err) {
+    console.warn("Não foi possível gravar no email_log:", err);
+  }
+}
+
 async function releaseReminder(env, bookingId, kind) {
   await rest(env, `reminders_log?booking_id=eq.${encodeURIComponent(bookingId)}&kind=eq.${encodeURIComponent(kind)}`, { method: "DELETE" });
 }
@@ -191,8 +200,20 @@ async function drainOutbox(env) {
         body: JSON.stringify({ sent_at: new Date().toISOString() }),
       });
       sent.push(row.id);
+      await logEmail(env, {
+        kind: "outbox",
+        to_email: row.to_email,
+        status: "ok",
+        detail: "EmailJS 200 (fila de alteração de horário)",
+      });
     } catch (err) {
       console.error(`Falha ao enviar e-mail da fila (id ${row.id}):`, err);
+      await logEmail(env, {
+        kind: "outbox",
+        to_email: row.to_email,
+        status: "erro",
+        detail: String(err?.message || err),
+      });
       await rest(env, `email_outbox?id=eq.${row.id}`, {
         method: "PATCH",
         body: JSON.stringify({ error: String(err?.message || err) }),
@@ -223,10 +244,24 @@ const handler = async (req: Request) => {
     const now = new Date();
     const today = tzParts(now, timeZone).date;
     const limit = addDays(today, 3);
+    // Confirmação: agendamentos criados nos últimos 45 min (qualquer data futura)
+    const createdSince = new Date(now.getTime() - BOOKED_WINDOW_MS).toISOString();
 
-    const res = await rest(env, `bookings?select=id,nome,preco,date,start,dur,name,email,status,created_at&status=eq.confirmado&date=gte.${today}&date=lte.${limit}&email=not.is.null&order=date.asc,start.asc&limit=200`);
-    if (!res.ok) return json({ error: `Falha ao ler agendamentos (HTTP ${res.status})`, detail: await res.text() }, 502);
-    const bookings = await res.json();
+    const base = "bookings?select=id,nome,preco,date,start,dur,name,email,status,created_at";
+    const common = "status=eq.confirmado&email=not.is.null&email=neq.";
+    const [upcomingRes, bookedRes] = await Promise.all([
+      rest(env, `${base}&${common}&date=gte.${today}&date=lte.${limit}&order=date.asc,start.asc&limit=200`),
+      // Sem limite de data: quem agenda para daqui a 2 meses também recebe
+      // a confirmação na hora. O cliente "day/hour" só roda na janela dos próximos 3 dias.
+      rest(env, `${base}&${common}&created_at=gte.${encodeURIComponent(createdSince)}&order=created_at.asc&limit=100`),
+    ]);
+    if (!upcomingRes.ok) return json({ error: `Falha ao ler agendamentos (HTTP ${upcomingRes.status})`, detail: await upcomingRes.text() }, 502);
+    if (!bookedRes.ok) return json({ error: `Falha ao ler agendamentos recentes (HTTP ${bookedRes.status})`, detail: await bookedRes.text() }, 502);
+
+    const merged = new Map();
+    for (const b of await upcomingRes.json()) merged.set(b.id, b);
+    for (const b of await bookedRes.json()) if (!merged.has(b.id)) merged.set(b.id, b);
+    const bookings = [...merged.values()];
 
     const sent = [];
     const skipped = [];
@@ -251,8 +286,10 @@ const handler = async (req: Request) => {
             if (!reserved) { skipped.push(`${logKind}:${b.id} (já enviado)`); return; }
             await sendMail(env, to, email);
             sent.push(`${logKind}:${b.id}`);
+            await logEmail(env, { kind: logKind, to_email: to, booking_id: b.id, status: "ok", detail: "EmailJS 200" });
           } catch (err) {
             console.error(`Falha em ${logKind} para ${b.id}:`, err);
+            await logEmail(env, { kind: logKind, to_email: to, booking_id: b.id, status: "erro", detail: String(err?.message || err) });
             await releaseReminder(env, b.id, logKind).catch(() => undefined);
           }
         };

@@ -91,6 +91,27 @@ export function createSupabase({ url, anonKey }) {
     async ping() {
       const res = await request("services?select=id&limit=1");
       return { ok: res.ok, status: res.status };
+    },
+
+    /**
+     * Grava uma linha no whatsapp_log (aba Testes do painel).
+     * Nunca lança exceção — o log não pode quebrar o envio.
+     */
+    async logEvent(table, row) {
+      try {
+        const res = await request(table, {
+          method: "POST",
+          body: [row],
+          prefer: "return=minimal"
+        });
+        if (!res.ok) {
+          console.warn(`⚠️  Não foi possível gravar no ${table} (HTTP ${res.status}). Rode o arquivo sql/logs.sql no Supabase.`);
+        }
+        return res.ok;
+      } catch (e) {
+        console.warn(`⚠️  Não foi possível gravar no ${table}:`, e?.message || e);
+        return false;
+      }
     }
   };
 }

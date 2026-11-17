@@ -1,0 +1,79 @@
+/* =============================================================
+   LOGS (aba Testes) — e-mails e WhatsApp
+   ============================================================= */
+
+.log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.log-empty {
+  color: var(--muted);
+  font-size: 0.88rem;
+  padding: 12px 2px;
+}
+
+.log-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 10px;
+  align-items: start;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+  .log-row {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.09);
+  }
+}
+
+.log-badge {
+  display: inline-block;
+  align-self: start;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+.log-badge.ok       { background: rgba(47, 107, 74, 0.15);  color: var(--ok); }
+.log-badge.erro     { background: rgba(179, 53, 63, 0.12); color: var(--danger); }
+.log-badge.cego     { background: rgba(155, 86, 102, 0.14); color: var(--brand); }
+.log-badge.pendente { background: rgba(139, 104, 113, 0.16); color: var(--muted); }
+
+.log-body {
+  min-width: 0;
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+
+.log-title {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.log-detail {
+  color: var(--muted);
+  font-size: 0.78rem;
+  margin-top: 2px;
+  overflow-wrap: anywhere;
+  max-height: 3.2em;
+  overflow: hidden;
+}
+
+.log-time {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+  margin-top: 3px;
+}

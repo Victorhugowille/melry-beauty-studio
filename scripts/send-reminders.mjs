@@ -41,8 +41,26 @@ async function main() {
       log("⚠️  WhatsApp não configurado (GREENAPI_INSTANCE / GREENAPI_TOKEN ausentes). Nada enviado.");
       return;
     }
-    const result = await whatsapp.send(text);
-    log(`✅ Mensagem de teste enviada para ${whatsapp.describe()}: ${result}`);
+    const db = createSupabase(config);
+    try {
+      const result = await whatsapp.send(text);
+      log(`✅ Mensagem de teste enviada para ${whatsapp.describe()}: ${result}`);
+      await db.logEvent("whatsapp_log", {
+        kind: "teste",
+        phone: whatsapp.to,
+        status: "ok",
+        detail: String(result || "enviado").slice(0, 300)
+      });
+    } catch (error) {
+      log(`❌ Falha ao enviar a mensagem de teste: ${error.message}`);
+      await db.logEvent("whatsapp_log", {
+        kind: "teste",
+        phone: whatsapp.to,
+        status: "erro",
+        detail: String(error?.message || error).slice(0, 300)
+      });
+      process.exitCode = 1;
+    }
     return;
   }
 
@@ -91,12 +109,24 @@ async function main() {
     }
 
     try {
-      await whatsapp.send(buildMessage(item, config.timezone));
+      const result = await whatsapp.send(buildMessage(item, config.timezone));
       sent++;
       log(`✅ Lembrete enviado (${label})`);
+      await db.logEvent("whatsapp_log", {
+        kind,
+        phone: whatsapp.to,
+        status: "ok",
+        detail: String(result || "enviado").slice(0, 300)
+      });
     } catch (error) {
       failed++;
       log(`❌ Falha ao enviar (${label}): ${error.message}`);
+      await db.logEvent("whatsapp_log", {
+        kind,
+        phone: whatsapp.to,
+        status: "erro",
+        detail: String(error?.message || error).slice(0, 300)
+      });
       await db.releaseReminder(booking.id, kind);
     }
   }

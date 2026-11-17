@@ -51,7 +51,7 @@ DROP TABLE IF EXISTS push_subscriptions;
 
 -- 5) CRON: chama a função de e-mails a cada 1 minuto (dentro do próprio Supabase)
 --    Mais rápido = o e-mail de confirmação e o aviso de troca de horário
---    chegam quase na hora. Para 30 segundos, troque '1 minute' por '30 seconds'.
+--    chegam quase na hora. Para 30 em 30 segundos, troque o cron por '30 seconds'.
 --    ATENÇÃO: se você criar o secret CRON_SECRET na Edge Function, edite também
 --    o headers abaixo ({"x-cron-secret":"MESMO_VALOR"}) — senão o cron será
 --    rejeitado com 401 e os e-mails param de novo.
@@ -66,7 +66,7 @@ END $$;
 
 SELECT cron.schedule(
   'melry-send-reminders',
-  '1 minute',
+  '* * * * *',   -- a cada 1 minuto (o pg_cron não aceita '1 minute')
   $$ SELECT net.http_post(
        url := 'https://oahywgiwvrjpnqwuffem.supabase.co/functions/v1/send-reminders',
        headers := '{"Content-Type":"application/json"}'::jsonb,

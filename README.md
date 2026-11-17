@@ -170,6 +170,7 @@ Na parte inferior da página inicial, clique em **"Área da Profissional"** e di
 ### Funcionalidades do Painel:
 O painel abre com um **menu lateral (drawer)** com todas as abas.
 - **Faturamento:** resumo do que já entrou por período (mês, 30/90 dias, ano, tudo ou **um intervalo de dias escolhido por você**), com atendimentos, ticket médio, clientes, **gráfico de pizza** por serviço, ranking dos serviços mais feitos e das clientes que mais gastaram.
+- **Testes:** teste de WhatsApp e de e-mail + **logs reais** de tudo que foi enviado (e o que falhou, com o motivo).
 - **Serviços:** Adicione, edite ou exclua serviços, categorize entre Manicure, Sobrancelhas ou Cílios, defina valores, tempos e envie fotos.
 - **Galeria:** Escolha até 8 fotos para o carrossel exibido logo abaixo da logo na página principal, com legenda opcional.
 - **Horários:** Grade padrão já pronta — segunda a sexta das 7h às 11h30 e das 19h às 20h, sábado das 13h às 19h, domingo fechado. Clique nos slots de 30 minutos para personalizar, use **"Aplicar horário padrão"** para restaurar o dia ou **"Fechar o dia"** para bloquear tudo.
@@ -183,7 +184,7 @@ O painel abre com um **menu lateral (drawer)** com todas as abas.
 
 - **Supabase keep-alive** (`supabase-keepalive.yml`): ping diário no banco para o projeto gratuito não ser pausado por inatividade.
 - **Avisos para a profissional** (`whatsapp-reminders.yml`, GitHub Actions): a cada 10 minutos, avisa a Maria no WhatsApp 24h antes e ~1h antes de cada atendimento confirmado.
-- **E-mails para o cliente** (`supabase/functions/send-reminders`): confirmação na hora + lembretes de **1 dia antes** e **~1 hora antes**, por e-mail via **EmailJS** (grátis, 200 e-mails/mês), com **cópia para o estúdio** (STUDIO_EMAIL). Não depende de computador ligado: o próprio Supabase chama a função a cada 5 minutos (pg_cron).
+- **E-mails para o cliente** (`supabase/functions/send-reminders`): confirmação na hora + lembretes de **1 dia antes** e **~1 hora antes**, por e-mail via **EmailJS** (grátis, 200 e-mails/mês), com **cópia para o estúdio** (STUDIO_EMAIL). Não depende de computador ligado: o próprio Supabase chama a função a cada 1 minuto (pg_cron).
 
 > **Por que e-mail e não WhatsApp do cliente?** Não existe caminho gratuito, oficial e 100% automatizado para mandar WhatsApp a números de clientes sem servidor próprio. O e-mail resolve isso de graça e sem o seu PC ligado.
 
@@ -201,7 +202,7 @@ O robô usa a **GREEN-API** (grátis, plano *Developer*: envios ilimitados, 1 in
    - Clique em **"Add secret"** em cada um.
 6. (Opcional) Outro secret `WHATSAPP_PHONE` define o número de destino. Padrão: **+55 45 9985-57194**.
 
-Também dá para testar na aba **Zap** do painel admin (cole id + token; ficam salvos só naquele navegador) — ou em **Actions > Lembretes no WhatsApp > Run workflow > test_message**.
+Também dá para testar na aba **Testes** do painel admin (cole id + token; ficam salvos só naquele navegador) — ou em **Actions > Lembretes no WhatsApp > Run workflow > test_message**.
 
 > O token da instância é **por WhatsApp**: o número da Maria usa a instância escaneada com o WhatsApp dela.
 > Enquanto os secrets não forem salvos, o robô continua **sem enviar nada**.
@@ -231,16 +232,29 @@ O Supabase não permite SMTP direto, então o envio é feito pela API do **Email
    ```bash
    npx supabase secrets set EMAILJS_SERVICE_ID=service_xxx EMAILJS_TEMPLATE_ID=template_xxx EMAILJS_PUBLIC_KEY=xxxxxxxxxxxxxxxxxxxxxx EMAILJS_PRIVATE_KEY=xxxxxxxxxxxxxxxxxxxxxx --project-ref oahywgiwvrjpnqwuffem --yes
    ```
-7. O **cron já é criado pelo próprio SQL** do item 1 (pg_cron chama a função a cada 5 minutos). Se o `create extension pg_cron` der erro de permissão, use o **cron-job.org** como plano B:
+7. O **cron já é criado pelo próprio SQL** do item 1 (pg_cron chama a função a cada 1 minuto — formato `* * * * *`). Se o `create extension pg_cron` der erro de permissão, use o **cron-job.org** como plano B:
    - **URL:** `https://oahywgiwvrjpnqwuffem.supabase.co/functions/v1/send-reminders`
-   - **Método:** GET · **A cada:** 5 minutos
-8. Pronto. Quando um cliente agenda, ele digita o e-mail e recebe a confirmação em até ~5 minutos, depois os avisos de 1 dia e de 1 hora antes.
+   - **Método:** GET · **A cada:** 1 minuto
+8. Pronto. Quando um cliente agenda, ele digita o e-mail e recebe a confirmação em até ~1 minuto, depois os avisos de 1 dia e de 1 hora antes.
+
+> Detalhe importante: a confirmação é enviada para **qualquer data futura** (o cliente pode agendar com meses de antecedência e recebe o comprovante na hora). Os lembretes de 24h/1h só disparam quando o atendimento entra na janela.
+
+### Como ver o que está acontecendo (logs e aba Testes)
+
+1. No **SQL Editor** do Supabase, rode o arquivo [`sql/logs.sql`](sql/logs.sql) (cria as tabelas `email_log` e `whatsapp_log` e libera leitura da fila; é seguro rodar de novo).
+2. Abra o site → **Área da Profissional** → senha → aba **Testes**. Lá você vê:
+   - **Log de e-mails:** cada tentativa real de envio, com `OK` ou `ERRO` e o motivo exato (ex.: a resposta do EmailJS).
+   - **Log do WhatsApp:** tudo que o robô do GitHub Actions mandou (ou tentou).
+   - **Fila de e-mails:** avisos de troca de horário que ainda não foram enviados.
+   - Botões para **mandar e-mail de teste** e **rodar a checagem de lembretes agora**.
+
+> Se um e-mail dá "OK" no log mas não chega na caixa de entrada, olhe (neste ordem): 1) pasta **Spam/Lixo eletrônico**; 2) no EmailJS, o campo **To** do template tem que ser `{{to_email}}` (se estiver com um e-mail fixo, tudo vai para lá); 3) o limite de 200 e-mails/mês da conta grátis; 4) se o e-mail da cliente foi digitado errado no agendamento.
 
 > Para trocar o remetente para o e-mail da Maria depois: adicione um novo serviço Gmail com a conta dela no EmailJS e atualize o EMAILJS_SERVICE_ID.
 
 ### Como testar
 
-- **WhatsApp da profissional:** aba **Actions** > **Lembretes no WhatsApp** > **Run workflow** e marque "Enviar apenas uma mensagem de teste".
-- **E-mail:** crie um agendamento de teste no site com o seu e-mail (o formulário agora pede e-mail) e confira a caixa de entrada em alguns minutos. Para forçar, chame a URL da função no navegador: `https://oahywgiwvrjpnqwuffem.supabase.co/functions/v1/send-reminders`.
+- **WhatsApp da profissional:** aba **Actions** > **Lembretes no WhatsApp** > **Run workflow** e marque "Enviar apenas uma mensagem de teste". No painel, aba **Testes** → botões de teste + log na mesma tela.
+- **E-mail:** aba **Testes** → "Enviar e-mail de teste" (digita o seu e-mail e veja chegando em até 1 minuto, com o resultado no log de e-mails). Também funciona criar um agendamento de teste com o seu e-mail.
 
 ---
