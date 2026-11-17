@@ -38,7 +38,7 @@ async function main() {
       return;
     }
     if (!whatsapp.isConfigured()) {
-      log("⚠️  WhatsApp não configurado (CALLMEBOT_APIKEY ausente). Nada enviado.");
+      log("⚠️  WhatsApp não configurado (GREENAPI_INSTANCE / GREENAPI_TOKEN ausentes). Nada enviado.");
       return;
     }
     const result = await whatsapp.send(text);
@@ -48,7 +48,7 @@ async function main() {
 
   if (!whatsapp.isConfigured() && !dryRun) {
     log("⚠️  WhatsApp não configurado.");
-    log("   Ative o CallMeBot e salve a API key no secret CALLMEBOT_APIKEY.");
+    log("   Ative a GREEN-API e salve GREENAPI_INSTANCE / GREENAPI_TOKEN nos secrets do GitHub.");
     log("   Sem isso o bot não envia nada (o keep-alive do Supabase segue funcionando).");
     return;
   }

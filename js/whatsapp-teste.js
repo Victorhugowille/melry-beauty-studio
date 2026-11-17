@@ -1,35 +1,41 @@
 /* =============================================================
-   WHATSAPP · TESTE DE LEMBRETES (CallMeBot)
+   WHATSAPP · TESTE DE LEMBRETES (GREEN-API)
    Botões na área da profissional para testar os avisos:
    "Teste de 1 hr" e "Teste de 1 dia".
 
-   A apikey do CallMeBot é salva somente neste navegador
+   O token da GREEN-API é salvo somente neste navegador
    (localStorage) — nunca vai para o código do site.
    Quem envia os avisos de verdade é o robô do GitHub Actions,
-   que usa a apikey guardada em Secrets do repositório.
-============================================================= */
+   que usa os secrets do repositório.
+   ============================================================= */
 
 (function () {
-  var KEY_APIKEY = "melry_callmebot_apikey";
-  var KEY_PHONE = "melry_callmebot_phone";
+  var KEY_INSTANCE = "melry_greenapi_instance";
+  var KEY_TOKEN = "melry_greenapi_token";
+  var KEY_PHONE = "melry_greenapi_phone";
   var DEFAULT_PHONE = "5545998557194";
 
+  var instanceInput = $("zap-instance");
+  var tokenInput = $("zap-token");
   var phoneInput = $("zap-phone");
-  var keyInput = $("zap-apikey");
   var err = $("zap-err");
   var status = $("zap-status");
-  if (!phoneInput || !keyInput) return; // aba não existe
+  if (!instanceInput || !tokenInput) return; // aba não existe
 
   // Carrega o que já foi salvo neste navegador
+  instanceInput.value = localStorage.getItem(KEY_INSTANCE) || "";
+  tokenInput.value = localStorage.getItem(KEY_TOKEN) || "";
   phoneInput.value = localStorage.getItem(KEY_PHONE) || DEFAULT_PHONE;
-  keyInput.value = localStorage.getItem(KEY_APIKEY) || "";
 
   function save() {
     var phone = phoneInput.value.replace(/\D/g, "");
-    phoneInput.value = phone;
+    var instance = instanceInput.value.replace(/\D/g, "");
+    var token = tokenInput.value.trim();
+    if (instance) localStorage.setItem(KEY_INSTANCE, instance);
+    if (token) localStorage.setItem(KEY_TOKEN, token);
     if (phone) localStorage.setItem(KEY_PHONE, phone);
-    var apikey = keyInput.value.trim();
-    if (apikey) localStorage.setItem(KEY_APIKEY, apikey);
+    phoneInput.value = phone;
+    instanceInput.value = instance;
     setStatus("Salvo neste navegador ✓", true);
   }
 
@@ -79,14 +85,23 @@
     ].join("\n");
   }
 
-  // O CallMeBot não envia cabeçalho CORS, então a resposta vem "às cegas"
-  // (status 0, opaque): não dá para ler sucesso/erro pelo site — mas o GET
-  // chega ao servidor e a mensagem é enfileirada. Corrida com timeout de 8s
+  // A GREEN-API não envia cabeçalho CORS, então a resposta vem "às cegas"
+  // (status 0, opaque): não dá para ler sucesso/erro pelo site — mas o POST
+  // chega ao servidor e a mensagem é enfileirada. Content-Type text/plain
+  // evita o preflight (que a API bloqueia). Corrida com timeout de 8s
   // para o botão nunca ficar preso em "Enviando…".
-  async function sendBlind(url) {
+  async function sendBlind(url, payload) {
     var timeout = new Promise(function (resolve) { setTimeout(resolve, 8000); });
     try {
-      await Promise.race([fetch(url, { mode: "no-cors" }), timeout]);
+      await Promise.race([
+        fetch(url, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain" },
+          body: typeof payload === "string" ? payload : JSON.stringify(payload)
+        }),
+        timeout
+      ]);
     } catch (e) {
       // Erro de rede (ex.: sem internet): único caso em que avisamos.
       return false;
@@ -96,32 +111,39 @@
 
   async function sendTest(kind, btn) {
     var phone = phoneInput.value.replace(/\D/g, "");
-    var apikey = keyInput.value.trim();
+    var instance = instanceInput.value.replace(/\D/g, "");
+    var token = tokenInput.value.trim();
     err.textContent = "";
 
+    if (instance.length < 5) {
+      err.textContent = "Cole o idInstance (ex.: 7100000001).";
+      return;
+    }
+    if (!token) {
+      err.textContent = "Cole o apiTokenInstance da sua instância.";
+      return;
+    }
     if (phone.length < 12) {
       err.textContent = "Digite o número com DDI+DDD (ex.: 5545998557194).";
       return;
     }
-    if (!apikey) {
-      err.textContent = "Cole a apikey que chegou no seu WhatsApp quando o CallMeBot foi ativado (ex.: 1234567).";
-      return;
-    }
 
     // Salva para as próximas vezes
+    localStorage.setItem(KEY_INSTANCE, instance);
+    localStorage.setItem(KEY_TOKEN, token);
     localStorage.setItem(KEY_PHONE, phone);
-    localStorage.setItem(KEY_APIKEY, apikey);
 
-    var url =
-      "https://api.callmebot.com/whatsapp.php?phone=" + encodeURIComponent(phone) +
-      "&text=" + encodeURIComponent(buildExampleMessage(kind)) +
-      "&apikey=" + encodeURIComponent(apikey);
+    var url = "https://api.green-api.com/waInstance" + instance + "/sendMessage/" + token;
+    var payload = {
+      chatId: phone + "@c.us",
+      message: buildExampleMessage(kind)
+    };
 
     var original = btn ? btn.textContent : "";
     if (btn) { btn.disabled = true; btn.textContent = "Enviando…"; }
     setStatus("Enviando…", true);
 
-    var reached = await sendBlind(url);
+    var reached = await sendBlind(url, payload);
     setStatus(
       reached
         ? (kind === "day"

@@ -189,20 +189,23 @@ O painel abre com um **menu lateral (drawer)** com todas as abas.
 
 ### Como ativar os lembretes no WhatsApp (profissional)
 
-O robô usa o **CallMeBot** (grátis, uso pessoal). Quem precisa ativar é o dono do número que **envia** as mensagens — neste caso, o celular da Maria:
+O robô usa a **GREEN-API** (grátis, plano *Developer*: envios ilimitados, 1 instância, até 3 chats). Quem ativa é o dono do WhatsApp que enviará — neste caso, o celular da Maria:
 
-1. No celular da Maria (**(45) 9 9855-7194**), salve o número **+34 644 26 33 77** nos contatos.
-2. Envie pelo WhatsApp a mensagem: `I allow callmebot to send me messages`.
-3. Aguarde a resposta com a sua `apikey`.
-4. No GitHub, abra o repositório > **Settings** > **Secrets and variables** > **Actions**.
-5. Clique em **"New repository secret"**:
-   - **Name:** `CALLMEBOT_APIKEY`
-   - **Secret:** cole a chave recebida pela Maria no WhatsApp
-   - Clique em **"Add secret"**.
+1. Acesse **console.green-api.com** e crie uma conta (grátis) com o WhatsApp do estúdio.
+2. Crie uma instância no plano **Developer**.
+3. No celular da Maria (**(45) 9 9855-7194**), abra o WhatsApp → **Aparelhos conectados** → **Conectar aparelho** e escaneie o QR Code da instância.
+4. No console da instância, copie o **idInstance** e o **apiTokenInstance**.
+5. No GitHub, abra o repositório > **Settings** > **Secrets and variables** > **Actions** e crie dois secrets:
+   - **Name:** `GREENAPI_INSTANCE` — **Secret:** o idInstance copiado
+   - **Name:** `GREENAPI_TOKEN` — **Secret:** o apiTokenInstance copiado
+   - Clique em **"Add secret"** em cada um.
 6. (Opcional) Outro secret `WHATSAPP_PHONE` define o número de destino. Padrão: **+55 45 9985-57194**.
 
-> A apikey do CallMeBot é **por número**: a chave do celular do Victor não vale para o número da Maria — ela precisa ativar a dela.
-> Enquanto a chave dela não for salva em `CALLMEBOT_APIKEY`, o robô continua **sem enviar nada**.
+Também dá para testar na aba **Zap** do painel admin (cole id + token; ficam salvos só naquele navegador) — ou em **Actions > Lembretes no WhatsApp > Run workflow > test_message**.
+
+> O token da instância é **por WhatsApp**: o número da Maria usa a instância escaneada com o WhatsApp dela.
+> Enquanto os secrets não forem salvos, o robô continua **sem enviar nada**.
+> (O CallMeBot segue suportado via `WHATSAPP_PROVIDER=callmebot` + `CALLMEBOT_APIKEY`, mas o site dele está com lotação encerrada — por isso a GREEN-API.)
 
 ### Como ativar os e-mails para o cliente (EmailJS, grátis)
 
