@@ -613,8 +613,9 @@
       return { ok: false, reason: "offline" };
     },
 
-    // Enfileira os e-mails da troca de horário; a Edge Function
-    // (cron a cada 5 min) envia e marca como enviados.
+    // Enfileira e-mails relacionados ao agendamento: troca de horário e
+    // cancelamento (com justificativa). A Edge Function (cron de 1 minuto)
+    // envia em até 1 minuto e marca como enviado.
     async queueRescheduleEmails(rows) {
       if (!isOnline || !rows || !rows.length) return false;
       try {

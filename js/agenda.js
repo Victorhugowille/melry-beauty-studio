@@ -1,6 +1,7 @@
 /**
  * AGENDA DE CLIENTES DO PAINEL
- * Lista de agendamentos futuros, contato por WhatsApp e cancelamento.
+ * Lista de agendamentos futuros, contato por WhatsApp e cancelamento
+ * (com e-mail para a cliente e justificativa, via fila email_outbox).
  */
 
 // -------------------------------------------------------------
@@ -33,7 +34,7 @@ async function renderAgenda() {
       <div class="row">
         <div>
           <div class="t">${hm(b.start)} – ${hm(b.start + b.dur)} · ${esc(b.nome || b.svc)}</div>
-          <div class="m">${esc(b.name)} · ${esc(b.phone)}</div>
+          <div class="m">${esc(b.name)} · ${esc(b.phone)}${b.email ? "" : ' · <em>sem e-mail</em>'}</div>
         </div>
         <div class="acts">
           <a class="mini" href="${wa}" target="_blank" rel="noopener">WhatsApp</a>
@@ -44,16 +45,96 @@ async function renderAgenda() {
   list.innerHTML = html + "</div>";
 }
 
-$("list").addEventListener("click", async e => {
+// -------------------------------------------------------------
+// MODAL DE CANCELAMENTO (com justificativa)
+// -------------------------------------------------------------
+let pendingCancelId = null;
+
+function findBooking(id) {
+  return (bookings || []).find(x => String(x.id) === String(id)) || null;
+}
+
+function openCancelModal(id) {
+  const b = findBooking(id);
+  pendingCancelId = b ? b.id : null;
+  const modal = $("cancel-modal");
+  if (!modal) return;
+  $("cancel-modal-summary").textContent = b
+    ? `${b.nome || b.svc} · ${fmtLong(b.date)} às ${hm(b.start)} · ${b.name}${b.email ? "" : " (sem e-mail cadastrado)"}`
+    : "Agendamento não encontrado. Atualize a lista e tente de novo.";
+  $("cancel-reason").value = "";
+  $("cancel-err").textContent = "";
+  const confirmBtn = $("cancel-confirm");
+  if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = "Cancelar e avisar a cliente"; }
+  modal.hidden = false;
+  $("cancel-reason").focus();
+}
+
+function closeCancelModal() {
+  const modal = $("cancel-modal");
+  if (modal) modal.hidden = true;
+  pendingCancelId = null;
+}
+
+$("list").addEventListener("click", e => {
   const b = e.target.closest("[data-del]");
   if (!b) return;
-  if (!confirm("Deseja realmente cancelar este agendamento?")) return;
+  openCancelModal(b.dataset.del);
+});
 
-  try {
-    await window.db.cancelBooking(b.dataset.del);
-    bookings = await window.db.getBookings();
-    renderAgenda();
-  } catch (err) {
-    alert("Erro ao cancelar: " + (err.message || "Tente novamente"));
+if ($("cancel-keep")) $("cancel-keep").addEventListener("click", closeCancelModal);
+if ($("cancel-backdrop")) $("cancel-backdrop").addEventListener("click", closeCancelModal);
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && $("cancel-modal") && !$("cancel-modal").hidden) closeCancelModal();
+});
+
+if ($("cancel-confirm")) $("cancel-confirm").addEventListener("click", async () => {
+  const err = $("cancel-err");
+  err.textContent = "";
+  const booking = findBooking(pendingCancelId);
+  if (!booking) {
+    err.textContent = "Agendamento não encontrado. Atualize a lista e tente de novo.";
+    return;
   }
+
+  const btn = $("cancel-confirm");
+  btn.disabled = true;
+  btn.textContent = "Cancelando…";
+
+  // 1) Cancela no banco
+  try {
+    await window.db.cancelBooking(booking.id);
+  } catch (e) {
+    err.textContent = "Erro ao cancelar: " + (e.message || "tente novamente");
+    btn.disabled = false;
+    btn.textContent = "Cancelar e avisar a cliente";
+    return;
+  }
+
+  // 2) Enfileira o e-mail para a cliente (a Edge Function envia em até 1 minuto)
+  const reason = $("cancel-reason").value.trim();
+  let note;
+  if (booking.email) {
+    const queued = await window.db.queueRescheduleEmails([{
+      to_email: booking.email,
+      params: {
+        title: "Seu agendamento foi cancelado",
+        line1: `Oi, ${booking.name || "cliente"}! Precisamos cancelar seu agendamento:`,
+        line2: `💅 ${booking.nome || booking.svc || "Atendimento"}`,
+        line3: `📅 ${fmtLong(booking.date)} · 🕐 ${hm(booking.start)} às ${hm(booking.start + (Number(booking.dur) || 0))}`,
+        line4: reason ? `💬 Motivo: ${reason}` : "",
+        to_name: booking.name || "cliente"
+      }
+    }]);
+    note = queued
+      ? "A cliente será avisada por e-mail em até 1 minuto."
+      : "Não consegui enfileirar o e-mail — confira a aba Testes.";
+  } else {
+    note = "A cliente não deixou e-mail cadastrado — avise pelo WhatsApp.";
+  }
+
+  closeCancelModal();
+  bookings = await window.db.getBookings();
+  renderAgenda();
+  alert("Agendamento cancelado.\n" + note);
 });
