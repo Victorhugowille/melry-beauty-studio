@@ -27,6 +27,21 @@ function pdfExportStyles() {
     .btn { box-shadow: none !important; }
     /* O PDF é só catálogo: botão "Agendar" não entra na exportação. */
     .svc-row .btn, .svc-row.flip .btn { display: none !important; }
+
+    /* Letra maior no PDF: o catálogo é lido no celular, onde a folha
+       de 210mm deixa o texto pequeno demais. Só a tipografia muda. */
+    .sname { font-size: 2.5rem !important; }
+    .sprice { font-size: 1.9rem !important; }
+    .sdur { font-size: 0.95rem !important; }
+    .sdot { font-size: 1.1rem !important; }
+    .sbadge { font-size: 0.82rem !important; }
+    .ph span { font-size: 3.2rem !important; }
+    .bio-title { font-size: 2.6rem !important; }
+    .bio-role { font-size: 0.85rem !important; }
+    .bio-text { font-size: 1.2rem !important; }
+    footer .contact { font-size: 1.15rem !important; }
+    .footer-legal { font-size: 0.95rem !important; }
+    .enter { font-size: 1.05rem !important; }
   `;
   return style;
 }
